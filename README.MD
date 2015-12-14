@@ -40,13 +40,14 @@ Solar 项目基础支架
 
 ## Mybatis 配置说明 ##
 集成 **mybatis-spring-boot** 项目，除原生
-> 
+```
 mybatis.config= # mybatis config file
 mybatis.mapperLocations= # mappers file
 mybatis.typeAliasesPackage= # domain object's package 
 mybatis.typeHandlersPackage= # handler's package
 mybatis.check-config-location= # check the mybatis configuration exists
 mybatis.executorType= # mode of execution. Default is SIMPLE
+```
 
 **额外添加mybatis.pagination-enable=true配置**
 
