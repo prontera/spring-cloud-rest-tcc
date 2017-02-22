@@ -1,0 +1,14 @@
+server:
+  port: 7001
+turbine:
+  app-config: payment,order
+  aggregator:
+    clusterConfig: prontera
+  cluster-name-expression: metadata['cluster']
+eureka:
+  client:
+   service-url:
+    default-zone: http://www:payon.com:8761/eureka/
+spring:
+  application:
+    name: hystrix-dashboard

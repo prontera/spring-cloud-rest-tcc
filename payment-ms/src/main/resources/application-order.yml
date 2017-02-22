@@ -1,0 +1,12 @@
+server:
+  port: 8081
+eureka:
+  client:
+    service-url:
+      default-zone: 'http://www.payon.com:8761/eureka/,http://www.payon.com:8762/eureka/'
+  instance:
+    metadata-map:
+      cluster: prontera
+spring:
+  application:
+    name: order
