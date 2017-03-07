@@ -1,0 +1,8 @@
+server:
+  port: 8030
+spring:
+  rabbitmq:
+    host: localhost
+    username: chris
+    password: 123123
+    virtual-host: prontera
