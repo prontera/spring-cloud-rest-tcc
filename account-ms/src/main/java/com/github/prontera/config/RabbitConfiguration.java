@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Configuration;
 /**
  * @author Zhao Junjian
  */
-@Configuration
+//@Configuration
 public class RabbitConfiguration {
 
     public static final String DEFAULT_FANOUT_EXCHANGE = "prontera.fanout";

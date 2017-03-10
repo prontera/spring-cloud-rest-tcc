@@ -1,4 +1,4 @@
-package com.github.prontera.controller;
+package com.github.prontera.web.controller;
 
 import com.github.prontera.config.RabbitConfiguration;
 import com.github.prontera.config.WorkUnit;
