@@ -18,6 +18,6 @@ spring:
     password: 123123
     virtual-host: prontera
 mybatis:
-  type-handlers-package: 'com.github.**.domain.handler'
+  type-handlers-package: 'com.github.**.type.handler'
   mapper-locations: 'classpath*:mapper/**/*Mapper.xml'
   type-aliases-package: 'com.github.**.domain'

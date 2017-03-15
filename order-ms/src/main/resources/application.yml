@@ -11,15 +11,21 @@ eureka:
 spring:
   application:
     name: payment
+  datasource:
+    username: chris
+    password: 123123
+    url: 'jdbc:mysql://prontera/order?useLegacyDatetimeCode=false&serverTimezone=Asia/Hong_Kong&useSSL=false'
   rabbitmq:
-    host: localhost
+    host: prontera
     username: chris
     password: 123123
     virtual-host: prontera
     listener:
       retry:
         enabled: true
-#    template:
-#      retry:
-#        enabled: false
-
+    template:
+      retry:
+        enabled: true
+mybatis:
+  mapper-locations: 'classpath*:mapper/**/*Mapper.xml'
+  type-aliases-package: 'com.github.**.domain'

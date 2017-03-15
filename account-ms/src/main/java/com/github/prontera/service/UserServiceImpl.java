@@ -1,15 +1,16 @@
 package com.github.prontera.service;
 
 import com.github.prontera.common.Shift;
+import com.github.prontera.common.persistence.CrudMapper;
 import com.github.prontera.common.service.CrudServiceImpl;
 import com.github.prontera.common.util.OrikaMapper;
+import com.github.prontera.controller.StatusCode;
 import com.github.prontera.domain.User;
 import com.github.prontera.model.request.LoginRequest;
 import com.github.prontera.model.request.RegisterRequest;
 import com.github.prontera.model.response.LoginResponse;
 import com.github.prontera.model.response.RegisterResponse;
 import com.github.prontera.persistence.UserMapper;
-import com.github.prontera.web.StatusCode;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.html.HtmlEscapers;
@@ -28,7 +29,12 @@ public class UserServiceImpl extends CrudServiceImpl<User> implements UserServic
     private static final Logger LOGGER = LoggerFactory.getLogger(UserServiceImpl.class);
 
     @Autowired
-    private UserMapper userMapper;
+    private UserMapper mapper;
+
+    @Autowired
+    public UserServiceImpl(CrudMapper<User> mapper) {
+        super(mapper);
+    }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -72,7 +78,7 @@ public class UserServiceImpl extends CrudServiceImpl<User> implements UserServic
         User result = null;
         if (!mobile.isEmpty()) {
             final String escapeMobile = HtmlEscapers.htmlEscaper().escape(mobile);
-            result = userMapper.selectByMobile(escapeMobile);
+            result = mapper.selectByMobile(escapeMobile);
         }
         return result;
     }

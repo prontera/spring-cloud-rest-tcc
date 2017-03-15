@@ -73,7 +73,7 @@ public class SwaggerConfigurationAdaptor {
                                 typeResolver.resolve(Collection.class, WildcardType.class),
                                 typeResolver.resolve(List.class, WildcardType.class))
                 )
-                .enableUrlTemplating(true)
+                //.enableUrlTemplating(true)
                 .forCodeGeneration(false);
     }
 

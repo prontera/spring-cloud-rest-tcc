@@ -23,7 +23,7 @@
             <property name="enableSubPackages" value="true"/>
             <!--<property name="trimStrings" value="true"/>-->
             <!--<property name="immutable" value="true"/>-->
-            <property name="rootClass" value="com.github.prontera.common.model.IdentityEntity"/>
+            <property name="rootClass" value="com.github.prontera.common.model.IdentityDomain"/>
         </javaModelGenerator>
 
         <sqlMapGenerator targetPackage="com.github.prontera.domain"
@@ -43,11 +43,43 @@
             <!--<columnOverride column="type"-->
             <!--jdbcType="TINYINT"-->
             <!--javaType="org.solar.domain.enumerator.AuthorityType"-->
-            <!--typeHandler="org.solar.domain.typehandler.AuthorityTypeHandler"/>-->
+            <!--typeHandler="org.solar.domain.handler.AuthorityTypeHandler"/>-->
             <!--<columnOverride column="createTime" isGeneratedAlways="true"/>-->
             <columnOverride column="create_time" javaType="java.time.LocalDateTime"/>
             <columnOverride column="update_time" javaType="java.time.LocalDateTime"/>
             <columnOverride column="delete_time" javaType="java.time.LocalDateTime"/>
+        </table>
+
+        <table alias="tevent_process" tableName="t_event_process" domainObjectName="EventProcess"
+               enableCountByExample="false" enableUpdateByExample="false"
+               enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false">
+            <columnOverride column="event_status"
+                            jdbcType="TINYINT"
+                            javaType="EventProcessStatus"
+                            typeHandler="EventProcessStatusHandler"/>
+            <columnOverride column="event_type"
+                            jdbcType="TINYINT"
+                            javaType="EventProcessType"
+                            typeHandler="EventProcessTypeHandler"/>
+            <columnOverride column="create_time" javaType="java.time.OffsetDateTime"/>
+            <columnOverride column="update_time" javaType="java.time.OffsetDateTime"/>
+            <columnOverride column="delete_time" javaType="java.time.OffsetDateTime"/>
+        </table>
+
+        <table alias="tevent_publish" tableName="t_event_publish" domainObjectName="EventPublish"
+               enableCountByExample="false" enableUpdateByExample="false"
+               enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false">
+            <columnOverride column="event_status"
+                            jdbcType="TINYINT"
+                            javaType="EventPublishStatus"
+                            typeHandler="EventPublishStatusHandler"/>
+            <columnOverride column="event_type"
+                            jdbcType="TINYINT"
+                            javaType="EventPublishType"
+                            typeHandler="EventPublishTypeHandler"/>
+            <columnOverride column="create_time" javaType="java.time.OffsetDateTime"/>
+            <columnOverride column="update_time" javaType="java.time.OffsetDateTime"/>
+            <columnOverride column="delete_time" javaType="java.time.OffsetDateTime"/>
         </table>
 
     </context>

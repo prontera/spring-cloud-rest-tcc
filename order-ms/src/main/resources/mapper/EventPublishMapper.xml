@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.github.prontera.persistence.EventPublishMapper">
+    <resultMap id="BaseResultMap" type="com.github.prontera.domain.EventPublish">
+        <id column="tevent_publish_id" jdbcType="BIGINT" property="id"/>
+        <result column="tevent_publish_create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="tevent_publish_update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="tevent_publish_delete_time" jdbcType="TIMESTAMP" property="deleteTime"/>
+        <result column="tevent_publish_event_status" jdbcType="TINYINT" property="eventStatus"
+                typeHandler="com.github.prontera.model.type.handler.EventPublishStatusHandler"/>
+        <result column="tevent_publish_event_type" jdbcType="TINYINT" property="eventType"
+                typeHandler="com.github.prontera.model.type.handler.EventPublishTypeHandler"/>
+        <result column="tevent_publish_biz_type" jdbcType="VARCHAR" property="bizType"/>
+        <result column="tevent_publish_payload" jdbcType="VARCHAR" property="payload"/>
+        <result column="tevent_publish_publish_guid" jdbcType="CHAR" property="publishGuid"/>
+        <result column="tevent_publish_process_guid" jdbcType="CHAR" property="processGuid"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        tevent_publish.id as tevent_publish_id, tevent_publish.create_time as tevent_publish_create_time,
+        tevent_publish.update_time as tevent_publish_update_time, tevent_publish.delete_time as tevent_publish_delete_time,
+        tevent_publish.event_status as tevent_publish_event_status, tevent_publish.event_type as tevent_publish_event_type,
+        tevent_publish.biz_type as tevent_publish_biz_type, tevent_publish.payload as tevent_publish_payload,
+        tevent_publish.publish_guid as tevent_publish_publish_guid, tevent_publish.process_guid as tevent_publish_process_guid
+    </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from t_event_publish tevent_publish
+        where tevent_publish.id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+        DELETE FROM t_event_publish
+        WHERE id = #{id,jdbcType=BIGINT}
+    </delete>
+    <insert id="insert" parameterType="com.github.prontera.domain.EventPublish">
+        INSERT INTO t_event_publish (id, create_time, update_time,
+                                     delete_time, event_status,
+                                     event_type,
+                                     biz_type, payload, publish_guid,
+                                     process_guid)
+        VALUES (#{id,jdbcType=BIGINT}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP},
+                #{deleteTime,jdbcType=TIMESTAMP},
+                #{eventStatus,jdbcType=TINYINT,typeHandler=com.github.prontera.model.type.handler.EventPublishStatusHandler},
+                #{eventType,jdbcType=TINYINT,typeHandler=com.github.prontera.model.type.handler.EventPublishTypeHandler},
+                #{bizType,jdbcType=VARCHAR}, #{payload,jdbcType=VARCHAR}, #{publishGuid,jdbcType=CHAR},
+                #{processGuid,jdbcType=CHAR})
+    </insert>
+    <insert id="insertSelective" parameterType="com.github.prontera.domain.EventPublish">
+        insert into t_event_publish
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="updateTime != null">
+                update_time,
+            </if>
+            <if test="deleteTime != null">
+                delete_time,
+            </if>
+            <if test="eventStatus != null">
+                event_status,
+            </if>
+            <if test="eventType != null">
+                event_type,
+            </if>
+            <if test="bizType != null">
+                biz_type,
+            </if>
+            <if test="payload != null">
+                payload,
+            </if>
+            <if test="publishGuid != null">
+                publish_guid,
+            </if>
+            <if test="processGuid != null">
+                process_guid,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateTime != null">
+                #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="deleteTime != null">
+                #{deleteTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="eventStatus != null">
+                #{eventStatus,jdbcType=TINYINT,typeHandler=com.github.prontera.model.type.handler.EventPublishStatusHandler},
+            </if>
+            <if test="eventType != null">
+                #{eventType,jdbcType=TINYINT,typeHandler=com.github.prontera.model.type.handler.EventPublishTypeHandler},
+            </if>
+            <if test="bizType != null">
+                #{bizType,jdbcType=VARCHAR},
+            </if>
+            <if test="payload != null">
+                #{payload,jdbcType=VARCHAR},
+            </if>
+            <if test="publishGuid != null">
+                #{publishGuid,jdbcType=CHAR},
+            </if>
+            <if test="processGuid != null">
+                #{processGuid,jdbcType=CHAR},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.github.prontera.domain.EventPublish">
+        update t_event_publish
+        <set>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="deleteTime != null">
+                delete_time = #{deleteTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="eventStatus != null">
+                event_status =
+                #{eventStatus,jdbcType=TINYINT,typeHandler=com.github.prontera.model.type.handler.EventPublishStatusHandler},
+            </if>
+            <if test="eventType != null">
+                event_type =
+                #{eventType,jdbcType=TINYINT,typeHandler=com.github.prontera.model.type.handler.EventPublishTypeHandler},
+            </if>
+            <if test="bizType != null">
+                biz_type = #{bizType,jdbcType=VARCHAR},
+            </if>
+            <if test="payload != null">
+                payload = #{payload,jdbcType=VARCHAR},
+            </if>
+            <if test="publishGuid != null">
+                publish_guid = #{publishGuid,jdbcType=CHAR},
+            </if>
+            <if test="processGuid != null">
+                process_guid = #{processGuid,jdbcType=CHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.github.prontera.domain.EventPublish">
+        UPDATE t_event_publish
+        SET create_time  = #{createTime,jdbcType=TIMESTAMP},
+            update_time  = #{updateTime,jdbcType=TIMESTAMP},
+            delete_time  = #{deleteTime,jdbcType=TIMESTAMP},
+            event_status = #{eventStatus,jdbcType=TINYINT,typeHandler=com.github.prontera.model.type.handler.EventPublishStatusHandler},
+            event_type   = #{eventType,jdbcType=TINYINT,typeHandler=com.github.prontera.model.type.handler.EventPublishTypeHandler},
+            biz_type     = #{bizType,jdbcType=VARCHAR},
+            payload      = #{payload,jdbcType=VARCHAR},
+            publish_guid = #{publishGuid,jdbcType=CHAR},
+            process_guid = #{processGuid,jdbcType=CHAR}
+        WHERE id = #{id,jdbcType=BIGINT}
+    </update>
+    <select id="selectByEventStatus" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from t_event_publish tevent_publish
+        where tevent_publish.event_status =
+        #{eventStatus,typeHandler=com.github.prontera.model.type.handler.EventPublishStatusHandler}
+        limit #{limitCount}
+    </select>
+    <select id="selectByPublishGuid" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from t_event_publish tevent_publish
+        where tevent_publish.publish_guid = #{publishGuid}
+    </select>
+    <update id="updateByPrimaryKeySelectiveWithUpdateTimeOptLock">
+        update t_event_publish
+        <set>
+            <if test="entity.createTime != null">
+                create_time = #{entity.createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="entity.updateTime != null">
+                update_time = #{entity.updateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="entity.deleteTime != null">
+                delete_time = #{entity.deleteTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="entity.eventStatus != null">
+                event_status =
+                #{entity.eventStatus,jdbcType=TINYINT,typeHandler=com.github.prontera.model.type.handler.EventPublishStatusHandler},
+            </if>
+            <if test="entity.eventType != null">
+                event_type =
+                #{entity.eventType,jdbcType=TINYINT,typeHandler=com.github.prontera.model.type.handler.EventPublishTypeHandler},
+            </if>
+            <if test="entity.bizType != null">
+                biz_type = #{entity.bizType,jdbcType=VARCHAR},
+            </if>
+            <if test="entity.payload != null">
+                payload = #{entity.payload,jdbcType=VARCHAR},
+            </if>
+            <if test="entity.publishGuid != null">
+                publish_guid = #{entity.publishGuid,jdbcType=CHAR},
+            </if>
+            <if test="entity.processGuid != null">
+                process_guid = #{entity.processGuid,jdbcType=CHAR},
+            </if>
+        </set>
+        where id = #{entity.id,jdbcType=BIGINT} and update_time = #{oldUpdateTime,jdbcType=TIMESTAMP}
+    </update>
+</mapper>

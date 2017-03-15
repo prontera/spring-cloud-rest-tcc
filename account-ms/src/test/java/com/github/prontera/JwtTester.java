@@ -5,8 +5,11 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.github.prontera.common.util.Jacksons;
+import com.google.common.collect.ImmutableSet;
+import org.junit.Assert;
 import org.junit.Test;
 
+import java.security.SecureRandom;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.Date;
@@ -44,6 +47,23 @@ public class JwtTester {
         System.out.println(Jacksons.parseInPrettyMode(jwt));
         // ********************************   DECODE **************************************
         JWT.decode(token);
+    }
+
+    @Test
+    public void name() throws Exception {
+        final int total = 1000;
+        final SecureRandom random = new SecureRandom();
+        //final String localIp = InetAddress.getLocalHost().getHostAddress().replaceAll("\\.", "");
+        //System.out.println(id);
+        final ImmutableSet.Builder<String> builder = ImmutableSet.builder();
+        final long begin = System.currentTimeMillis();
+        for (int i = 0; i < total; i++) {
+            final String result = UUID.randomUUID().toString().replaceAll("-", "") + (random.nextInt(8999) + 1000);
+            System.out.println(result.length());
+            builder.add(result);
+        }
+        System.out.println("time: " + (System.currentTimeMillis() - begin) + "ms");
+        Assert.assertEquals(total, builder.build().size());
     }
 
 }

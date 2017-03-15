@@ -2,7 +2,7 @@ package com.github.prontera.config;
 
 import com.github.prontera.common.model.swagger.SwaggerApiInfo;
 import com.github.prontera.common.config.SwaggerConfigurationAdaptor;
-import com.github.prontera.web.StatusCode;
+import com.github.prontera.controller.StatusCode;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import springfox.documentation.builders.ResponseMessageBuilder;

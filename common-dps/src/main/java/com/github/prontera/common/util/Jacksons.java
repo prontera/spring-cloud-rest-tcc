@@ -2,7 +2,6 @@ package com.github.prontera.common.util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.prontera.common.util.converter.jackson.OffsetDateTimeToIso8601Serializer;
 import com.google.common.base.Throwables;
 
 /**
@@ -16,6 +15,9 @@ public final class Jacksons {
 
     public static <T> String parse(T obj) {
         try {
+            if (obj == null) {
+                return null;
+            }
             return MAPPER.writeValueAsString(obj);
         } catch (JsonProcessingException e) {
             Throwables.throwIfUnchecked(e);
