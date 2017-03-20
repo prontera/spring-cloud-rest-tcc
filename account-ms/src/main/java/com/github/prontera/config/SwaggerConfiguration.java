@@ -1,8 +1,7 @@
 package com.github.prontera.config;
 
-import com.github.prontera.common.model.swagger.SwaggerApiInfo;
-import com.github.prontera.common.config.SwaggerConfigurationAdaptor;
 import com.github.prontera.controller.StatusCode;
+import com.github.prontera.model.swagger.SwaggerApiInfo;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import springfox.documentation.builders.ResponseMessageBuilder;
@@ -17,7 +16,7 @@ import java.util.List;
  */
 @EnableSwagger2
 @Configuration
-public class SwaggerConfiguration extends SwaggerConfigurationAdaptor {
+public class SwaggerConfiguration extends SwaggerTemplate {
 
     @Bean
     public SwaggerApiInfo info() {

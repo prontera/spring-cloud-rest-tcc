@@ -32,9 +32,10 @@
 
     <logger name="com.umeng.push" level="DEBUG"/>
 
+    <logger name="com.github.prontera.persistence.UserBalanceTccMapper" level="WARN"/>
+
     <logger name="org.apache.ibatis.cache.decorators.LoggingCache" level="DEBUG" additivity="false">
         <appender-ref ref="CONSOLE"/>
-        <!--<appender-ref ref="FILE"/>-->
     </logger>
 
     <root level="WARN">

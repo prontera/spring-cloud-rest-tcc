@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.github.prontera.persistence.UserBalanceTccMapper">
+    <resultMap id="BaseResultMap" type="com.github.prontera.domain.UserBalanceTcc">
+        <id column="tuser_balance_tcc_id" jdbcType="BIGINT" property="id"/>
+        <result column="tuser_balance_tcc_create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="tuser_balance_tcc_update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="tuser_balance_tcc_delete_time" jdbcType="TIMESTAMP" property="deleteTime"/>
+        <result column="tuser_balance_tcc_expire_time" jdbcType="TIMESTAMP" property="expireTime"/>
+        <result column="tuser_balance_tcc_amount" jdbcType="BIGINT" property="amount"/>
+        <result column="tuser_balance_tcc_status" jdbcType="TINYINT" property="status"
+                typeHandler="com.github.prontera.domain.type.handler.TccStatusTypeHandler"/>
+        <result column="tuser_balance_tcc_t_user_id" jdbcType="BIGINT" property="userId"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        tuser_balance_tcc.id as tuser_balance_tcc_id, tuser_balance_tcc.create_time as tuser_balance_tcc_create_time,
+        tuser_balance_tcc.update_time as tuser_balance_tcc_update_time, tuser_balance_tcc.delete_time as tuser_balance_tcc_delete_time,
+        tuser_balance_tcc.expire_time as tuser_balance_tcc_expire_time, tuser_balance_tcc.amount as tuser_balance_tcc_amount,
+        tuser_balance_tcc.status as tuser_balance_tcc_status, tuser_balance_tcc.t_user_id as tuser_balance_tcc_t_user_id
+    </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from t_user_balance_tcc tuser_balance_tcc
+        where tuser_balance_tcc.id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+        DELETE FROM t_user_balance_tcc
+        WHERE id = #{id,jdbcType=BIGINT}
+    </delete>
+    <insert id="insert" parameterType="com.github.prontera.domain.UserBalanceTcc" useGeneratedKeys="true"
+            keyProperty="id">
+        INSERT INTO t_user_balance_tcc (id, delete_time, expire_time,
+                                        amount, status,
+                                        t_user_id)
+        VALUES (#{id,jdbcType=BIGINT}, #{deleteTime,jdbcType=TIMESTAMP}, #{expireTime,jdbcType=TIMESTAMP},
+                #{amount,jdbcType=BIGINT},
+                #{status,jdbcType=TINYINT,typeHandler=com.github.prontera.domain.type.handler.TccStatusTypeHandler},
+                #{userId,jdbcType=BIGINT})
+    </insert>
+    <insert id="insertSelective" parameterType="com.github.prontera.domain.UserBalanceTcc" useGeneratedKeys="true"
+            keyProperty="id">
+        insert into t_user_balance_tcc
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="deleteTime != null">
+                delete_time,
+            </if>
+            <if test="expireTime != null">
+                expire_time,
+            </if>
+            <if test="amount != null">
+                amount,
+            </if>
+            <if test="status != null">
+                status,
+            </if>
+            <if test="userId != null">
+                t_user_id,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="deleteTime != null">
+                #{deleteTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="expireTime != null">
+                #{expireTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="amount != null">
+                #{amount,jdbcType=BIGINT},
+            </if>
+            <if test="status != null">
+                #{status,jdbcType=TINYINT,typeHandler=com.github.prontera.domain.type.handler.TccStatusTypeHandler},
+            </if>
+            <if test="userId != null">
+                #{userId,jdbcType=BIGINT},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.github.prontera.domain.UserBalanceTcc">
+        update t_user_balance_tcc
+        <set>
+            <if test="deleteTime != null">
+                delete_time = #{deleteTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="expireTime != null">
+                expire_time = #{expireTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="amount != null">
+                amount = #{amount,jdbcType=BIGINT},
+            </if>
+            <if test="status != null">
+                status =
+                #{status,jdbcType=TINYINT,typeHandler=com.github.prontera.domain.type.handler.TccStatusTypeHandler},
+            </if>
+            <if test="userId != null">
+                t_user_id = #{userId,jdbcType=BIGINT},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.github.prontera.domain.UserBalanceTcc">
+        UPDATE t_user_balance_tcc
+        SET delete_time = #{deleteTime,jdbcType=TIMESTAMP},
+            expire_time = #{expireTime,jdbcType=TIMESTAMP},
+            amount      = #{amount,jdbcType=BIGINT},
+            status      = #{status,jdbcType=TINYINT,typeHandler=com.github.prontera.domain.type.handler.TccStatusTypeHandler},
+            t_user_id   = #{userId,jdbcType=BIGINT}
+        WHERE id = #{id,jdbcType=BIGINT}
+    </update>
+    <select id="selectExpireReservation" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        <![CDATA[
+        FROM t_user_balance_tcc tuser_balance_tcc
+        WHERE tuser_balance_tcc.expire_time <= NOW() AND tuser_balance_tcc.status = 0
+        LIMIT #{limitation}
+        ]]>
+    </select>
+    <delete id="deleteTryingById">
+        DELETE FROM t_user_balance_tcc
+        WHERE id = #{id,jdbcType=BIGINT} AND `status` = 0
+    </delete>
+    <update id="updateToConfirmationById">
+        UPDATE t_user_balance_tcc
+        SET `status` = 1
+        WHERE id = #{id,jdbcType=BIGINT} AND `status` = 0
+    </update>
+</mapper>

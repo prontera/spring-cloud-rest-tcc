@@ -16,12 +16,6 @@
         tuser.delete_time as tuser_delete_time, tuser.mobile as tuser_mobile, tuser.login_pwd as tuser_login_pwd,
         tuser.pwd_salt as tuser_pwd_salt, tuser.balance as tuser_balance
     </sql>
-    <select id="selectByMobile" resultMap="BaseResultMap">
-        select
-        <include refid="Base_Column_List"/>
-        from t_user tuser
-        where tuser.mobile = #{mobile}
-    </select>
     <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
@@ -32,13 +26,14 @@
         DELETE FROM t_user
         WHERE id = #{id,jdbcType=BIGINT}
     </delete>
-    <insert id="insert" parameterType="com.github.prontera.domain.User" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO t_user (id, create_time, update_time,
-                            delete_time, mobile, login_pwd,
-                            pwd_salt, balance)
-        VALUES (#{id,jdbcType=BIGINT}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP},
-                #{deleteTime,jdbcType=TIMESTAMP}, #{mobile,jdbcType=VARCHAR}, #{loginPwd,jdbcType=VARCHAR},
-                #{pwdSalt,jdbcType=VARCHAR}, #{balance,jdbcType=BIGINT})
+    <insert id="insert" parameterType="com.github.prontera.domain.User" useGeneratedKeys="true"
+            keyProperty="id">
+        INSERT INTO t_user (id, delete_time, mobile,
+                            login_pwd, pwd_salt, balance
+        )
+        VALUES (#{id,jdbcType=BIGINT}, #{deleteTime,jdbcType=TIMESTAMP}, #{mobile,jdbcType=VARCHAR},
+                #{loginPwd,jdbcType=VARCHAR}, #{pwdSalt,jdbcType=VARCHAR}, #{balance,jdbcType=BIGINT}
+        )
     </insert>
     <insert id="insertSelective" parameterType="com.github.prontera.domain.User" useGeneratedKeys="true"
             keyProperty="id">
@@ -46,12 +41,6 @@
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="id != null">
                 id,
-            </if>
-            <if test="createTime != null">
-                create_time,
-            </if>
-            <if test="updateTime != null">
-                update_time,
             </if>
             <if test="deleteTime != null">
                 delete_time,
@@ -73,12 +62,6 @@
             <if test="id != null">
                 #{id,jdbcType=BIGINT},
             </if>
-            <if test="createTime != null">
-                #{createTime,jdbcType=TIMESTAMP},
-            </if>
-            <if test="updateTime != null">
-                #{updateTime,jdbcType=TIMESTAMP},
-            </if>
             <if test="deleteTime != null">
                 #{deleteTime,jdbcType=TIMESTAMP},
             </if>
@@ -99,12 +82,6 @@
     <update id="updateByPrimaryKeySelective" parameterType="com.github.prontera.domain.User">
         update t_user
         <set>
-            <if test="createTime != null">
-                create_time = #{createTime,jdbcType=TIMESTAMP},
-            </if>
-            <if test="updateTime != null">
-                update_time = #{updateTime,jdbcType=TIMESTAMP},
-            </if>
             <if test="deleteTime != null">
                 delete_time = #{deleteTime,jdbcType=TIMESTAMP},
             </if>
@@ -125,13 +102,33 @@
     </update>
     <update id="updateByPrimaryKey" parameterType="com.github.prontera.domain.User">
         UPDATE t_user
-        SET create_time = #{createTime,jdbcType=TIMESTAMP},
-            update_time = #{updateTime,jdbcType=TIMESTAMP},
-            delete_time = #{deleteTime,jdbcType=TIMESTAMP},
+        SET delete_time = #{deleteTime,jdbcType=TIMESTAMP},
             mobile      = #{mobile,jdbcType=VARCHAR},
             login_pwd   = #{loginPwd,jdbcType=VARCHAR},
             pwd_salt    = #{pwdSalt,jdbcType=VARCHAR},
             balance     = #{balance,jdbcType=BIGINT}
         WHERE id = #{id,jdbcType=BIGINT}
+    </update>
+    <select id="selectByMobile" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from t_user tuser
+        where tuser.mobile = #{mobile}
+    </select>
+    <select id="selectAll" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from t_user tuser
+        limit #{offset}, #{limited}
+    </select>
+    <update id="consumeBalance">
+        UPDATE t_user
+        SET balance = balance - #{amount,jdbcType=BIGINT}
+        WHERE id = #{userId,jdbcType=BIGINT} AND balance > 0 AND (balance - #{amount}) > 0
+    </update>
+    <update id="returnReservedBalance">
+        UPDATE t_user
+        SET balance = balance + #{amount,jdbcType=BIGINT}
+        WHERE id = #{userId,jdbcType=BIGINT}
     </update>
 </mapper>

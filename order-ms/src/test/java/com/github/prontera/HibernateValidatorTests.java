@@ -1,6 +1,6 @@
 package com.github.prontera;
 
-import com.github.prontera.common.util.HibernateValidators;
+import com.github.prontera.util.HibernateValidators;
 import org.junit.Test;
 
 import javax.validation.ConstraintViolation;

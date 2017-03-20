@@ -17,6 +17,8 @@ spring:
     username: chris
     password: 123123
     virtual-host: prontera
+  application:
+    name: 'account'
 mybatis:
   type-handlers-package: 'com.github.**.type.handler'
   mapper-locations: 'classpath*:mapper/**/*Mapper.xml'

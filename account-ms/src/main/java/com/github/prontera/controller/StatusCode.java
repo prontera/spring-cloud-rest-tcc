@@ -1,6 +1,6 @@
 package com.github.prontera.controller;
 
-import com.github.prontera.common.RestStatus;
+import com.github.prontera.RestStatus;
 import com.google.common.collect.ImmutableMap;
 
 /**
@@ -48,7 +48,12 @@ public enum StatusCode implements RestStatus {
     /**
      * 凭证错误
      */
-    INVALID_CREDENTIAL(40003, "用户名或密码错误"),
+    INVALID_CREDENTIAL(42003, "用户名或密码错误"),
+
+    /**
+     * 用户余额不足
+     */
+    INSUFFICIENT_BALANCE(42004, "用户余额不足"),
 
     // 50xxx 服务端异常
     /**

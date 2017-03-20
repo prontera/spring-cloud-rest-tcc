@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.github.prontera.persistence.ProductMapper">
+    <resultMap id="BaseResultMap" type="com.github.prontera.domain.Product">
+        <id column="tproduct_id" jdbcType="BIGINT" property="id"/>
+        <result column="tproduct_create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="tproduct_update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="tproduct_delete_time" jdbcType="TIMESTAMP" property="deleteTime"/>
+        <result column="tproduct_name" jdbcType="VARCHAR" property="name"/>
+        <result column="tproduct_stock" jdbcType="INTEGER" property="stock"/>
+        <result column="tproduct_price" jdbcType="INTEGER" property="price"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        tproduct.id as tproduct_id, tproduct.create_time as tproduct_create_time, tproduct.update_time as tproduct_update_time,
+        tproduct.delete_time as tproduct_delete_time, tproduct.name as tproduct_name, tproduct.stock as tproduct_stock,
+        tproduct.price as tproduct_price
+    </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from t_product tproduct
+        where tproduct.id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+        DELETE FROM t_product
+        WHERE id = #{id,jdbcType=BIGINT}
+    </delete>
+    <insert id="insert" parameterType="com.github.prontera.domain.Product" useGeneratedKeys="true"
+            keyProperty="id">
+        INSERT INTO t_product (id, create_time, update_time,
+                               delete_time, name, stock,
+                               price)
+        VALUES (#{id,jdbcType=BIGINT}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP},
+                #{deleteTime,jdbcType=TIMESTAMP}, #{name,jdbcType=VARCHAR}, #{stock,jdbcType=INTEGER},
+                #{price,jdbcType=INTEGER})
+    </insert>
+    <insert id="insertSelective" parameterType="com.github.prontera.domain.Product" useGeneratedKeys="true"
+            keyProperty="id">
+        insert into t_product
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="updateTime != null">
+                update_time,
+            </if>
+            <if test="deleteTime != null">
+                delete_time,
+            </if>
+            <if test="name != null">
+                name,
+            </if>
+            <if test="stock != null">
+                stock,
+            </if>
+            <if test="price != null">
+                price,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateTime != null">
+                #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="deleteTime != null">
+                #{deleteTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="name != null">
+                #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="stock != null">
+                #{stock,jdbcType=INTEGER},
+            </if>
+            <if test="price != null">
+                #{price,jdbcType=INTEGER},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.github.prontera.domain.Product">
+        update t_product
+        <set>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="deleteTime != null">
+                delete_time = #{deleteTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="name != null">
+                name = #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="stock != null">
+                stock = #{stock,jdbcType=INTEGER},
+            </if>
+            <if test="price != null">
+                price = #{price,jdbcType=INTEGER},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.github.prontera.domain.Product">
+        UPDATE t_product
+        SET create_time = #{createTime,jdbcType=TIMESTAMP},
+            update_time = #{updateTime,jdbcType=TIMESTAMP},
+            delete_time = #{deleteTime,jdbcType=TIMESTAMP},
+            name        = #{name,jdbcType=VARCHAR},
+            stock       = #{stock,jdbcType=INTEGER},
+            price       = #{price,jdbcType=INTEGER}
+        WHERE id = #{id,jdbcType=BIGINT}
+    </update>
+    <select id="selectAll" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from t_product tproduct
+        limit #{offset}, #{limited}
+    </select>
+    <update id="consumeStock">
+        UPDATE t_product
+        SET stock = stock - 1
+        WHERE id = #{productId} AND stock > 0
+    </update>
+    <update id="returnReservedStock">
+        UPDATE t_product
+        SET stock = stock + 1
+        WHERE id = #{productId}
+    </update>
+</mapper>
