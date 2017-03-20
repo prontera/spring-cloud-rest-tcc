@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.github.prontera.persistence.ProductStockTccMapper">
+    <resultMap id="BaseResultMap" type="com.github.prontera.domain.ProductStockTcc">
+        <id column="tproduct_stock_tcc_id" jdbcType="BIGINT" property="id"/>
+        <result column="tproduct_stock_tcc_create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="tproduct_stock_tcc_update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="tproduct_stock_tcc_delete_time" jdbcType="TIMESTAMP" property="deleteTime"/>
+        <result column="tproduct_stock_tcc_expire_time" jdbcType="TIMESTAMP" property="expireTime"/>
+        <result column="tproduct_stock_tcc_stock" jdbcType="INTEGER" property="stock"/>
+        <result column="tproduct_stock_tcc_status" jdbcType="TINYINT" property="status"
+                typeHandler="com.github.prontera.domain.type.handler.TccStatusTypeHandler"/>
+        <result column="tproduct_stock_tcc_t_product_id" jdbcType="BIGINT" property="productId"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        tproduct_stock_tcc.id as tproduct_stock_tcc_id, tproduct_stock_tcc.create_time as tproduct_stock_tcc_create_time,
+        tproduct_stock_tcc.update_time as tproduct_stock_tcc_update_time, tproduct_stock_tcc.delete_time as tproduct_stock_tcc_delete_time,
+        tproduct_stock_tcc.expire_time as tproduct_stock_tcc_expire_time, tproduct_stock_tcc.stock as tproduct_stock_tcc_stock,
+        tproduct_stock_tcc.status as tproduct_stock_tcc_status, tproduct_stock_tcc.t_product_id as tproduct_stock_tcc_t_product_id
+    </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from t_product_stock_tcc tproduct_stock_tcc
+        where tproduct_stock_tcc.id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+        DELETE FROM t_product_stock_tcc
+        WHERE id = #{id,jdbcType=BIGINT}
+    </delete>
+    <insert id="insert" parameterType="com.github.prontera.domain.ProductStockTcc" useGeneratedKeys="true"
+            keyProperty="id">
+        INSERT INTO t_product_stock_tcc (id, delete_time, expire_time,
+                                         stock, status,
+                                         t_product_id)
+        VALUES (#{id,jdbcType=BIGINT}, #{deleteTime,jdbcType=TIMESTAMP}, #{expireTime,jdbcType=TIMESTAMP},
+                #{stock,jdbcType=INTEGER},
+                #{status,jdbcType=TINYINT,typeHandler=com.github.prontera.domain.type.handler.TccStatusTypeHandler},
+                #{productId,jdbcType=BIGINT})
+    </insert>
+    <insert id="insertSelective" parameterType="com.github.prontera.domain.ProductStockTcc" useGeneratedKeys="true"
+            keyProperty="id">
+        insert into t_product_stock_tcc
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="deleteTime != null">
+                delete_time,
+            </if>
+            <if test="expireTime != null">
+                expire_time,
+            </if>
+            <if test="stock != null">
+                stock,
+            </if>
+            <if test="status != null">
+                status,
+            </if>
+            <if test="productId != null">
+                t_product_id,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="deleteTime != null">
+                #{deleteTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="expireTime != null">
+                #{expireTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="stock != null">
+                #{stock,jdbcType=INTEGER},
+            </if>
+            <if test="status != null">
+                #{status,jdbcType=TINYINT,typeHandler=com.github.prontera.domain.type.handler.TccStatusTypeHandler},
+            </if>
+            <if test="productId != null">
+                #{productId,jdbcType=BIGINT},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.github.prontera.domain.ProductStockTcc">
+        update t_product_stock_tcc
+        <set>
+            <if test="deleteTime != null">
+                delete_time = #{deleteTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="expireTime != null">
+                expire_time = #{expireTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="stock != null">
+                stock = #{stock,jdbcType=INTEGER},
+            </if>
+            <if test="status != null">
+                status =
+                #{status,jdbcType=TINYINT,typeHandler=com.github.prontera.domain.type.handler.TccStatusTypeHandler},
+            </if>
+            <if test="productId != null">
+                t_product_id = #{productId,jdbcType=BIGINT},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.github.prontera.domain.ProductStockTcc">
+        UPDATE t_product_stock_tcc
+        SET delete_time  = #{deleteTime,jdbcType=TIMESTAMP},
+            expire_time  = #{expireTime,jdbcType=TIMESTAMP},
+            stock        = #{stock,jdbcType=INTEGER},
+            status       = #{status,jdbcType=TINYINT,typeHandler=com.github.prontera.domain.type.handler.TccStatusTypeHandler},
+            t_product_id = #{productId,jdbcType=BIGINT}
+        WHERE id = #{id,jdbcType=BIGINT}
+    </update>
+    <select id="selectExpireReservation" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        <![CDATA[
+        FROM t_product_stock_tcc tproduct_stock_tcc
+        WHERE tproduct_stock_tcc.expire_time <= NOW() AND tproduct_stock_tcc.status = 0
+        LIMIT #{limitation}
+        ]]>
+    </select>
+    <delete id="deleteTryingById">
+        DELETE FROM t_product_stock_tcc
+        WHERE id = #{id} AND `status` = 0
+    </delete>
+    <update id="updateToConfirmationById">
+        UPDATE t_product_stock_tcc
+        SET `status` = 1
+        WHERE id = #{id} AND `status` = 0
+    </update>
+</mapper>

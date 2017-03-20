@@ -1,6 +1,6 @@
 package com.github.prontera.config;
 
-import com.github.prontera.common.config.aop.HibernateValidatorAspect;
+import com.github.prontera.aspect.HibernateValidatorAspect;
 import com.github.prontera.controller.StatusCode;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

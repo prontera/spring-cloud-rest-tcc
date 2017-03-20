@@ -1,0 +1,31 @@
+server:
+  port: 8090
+eureka:
+  client:
+    service-url:
+      default-zone: 'peer1:8761/eureka/,peer2:8762/eureka/'
+  instance:
+    metadata-map:
+      cluster: prontera
+    prefer-ip-address: false
+spring:
+  application:
+    name: product
+  datasource:
+    username: chris
+    password: 123123
+    url: 'jdbc:mysql://prontera/product?useLegacyDatetimeCode=false&serverTimezone=Asia/Hong_Kong&useSSL=false'
+  rabbitmq:
+    host: prontera
+    username: chris
+    password: 123123
+    virtual-host: prontera
+    listener:
+      retry:
+        enabled: true
+    template:
+      retry:
+        enabled: true
+mybatis:
+  mapper-locations: 'classpath*:mapper/**/*Mapper.xml'
+  type-aliases-package: 'com.github.**.domain'

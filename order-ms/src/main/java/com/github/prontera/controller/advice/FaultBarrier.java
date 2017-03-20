@@ -1,11 +1,11 @@
 package com.github.prontera.controller.advice;
 
-import com.github.prontera.common.RequestLogging;
-import com.github.prontera.common.RestStatus;
-import com.github.prontera.common.config.RequestAttributeConst;
-import com.github.prontera.common.exception.IllegalValidateException;
-import com.github.prontera.common.exception.RestStatusException;
-import com.github.prontera.common.model.response.ErrorEntity;
+import com.github.prontera.RequestLogging;
+import com.github.prontera.RestStatus;
+import com.github.prontera.config.RequestAttributeConst;
+import com.github.prontera.exception.IllegalValidateException;
+import com.github.prontera.exception.RestStatusException;
+import com.github.prontera.model.response.ErrorEntity;
 import com.github.prontera.controller.StatusCode;
 import com.google.common.collect.ImmutableMap;
 import org.slf4j.Logger;

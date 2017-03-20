@@ -3,7 +3,6 @@ package com.github.prontera.model.response;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.github.prontera.common.model.response.RestfulResponse;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -23,6 +22,9 @@ import lombok.ToString;
 @JsonIgnoreProperties(value = {"hibernateLazyInitializer", "handler", "fieldHandler"}, ignoreUnknown = true)
 public class RegisterResponse extends RestfulResponse {
     private static final long serialVersionUID = 7883775815440213351L;
+
+    @ApiModelProperty(value = "用户ID", example = "1", required = true)
+    private Long id;
 
     @JsonProperty("mobile")
     @ApiModelProperty(value = "手机号", example = "18888888888", required = true)

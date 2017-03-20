@@ -1,6 +1,6 @@
 package com.github.prontera.controller;
 
-import com.github.prontera.common.RestStatus;
+import com.github.prontera.RestStatus;
 import com.google.common.collect.ImmutableMap;
 
 /**
