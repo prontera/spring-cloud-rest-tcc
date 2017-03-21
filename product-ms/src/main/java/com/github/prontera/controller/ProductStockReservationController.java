@@ -45,7 +45,7 @@ public class ProductStockReservationController {
         return new ReservationResponse(participant);
     }
 
-    @ApiOperation(value = "确认库存余额", notes = "")
+    @ApiOperation(value = "确认预留库存", notes = "")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @RequestMapping(value = RESERVATION_URI + "/{reservationId}", method = RequestMethod.PUT, produces = "application/tcc")
     public void confirm(@PathVariable Long reservationId) {

@@ -30,30 +30,21 @@ public enum StatusCode implements RestStatus {
     REQUEST_METHOD_NOT_SUPPORTED(41002, "不支持的HTTP请求方法"),
 
     // 成功接收请求, 但是处理失败
+
     /**
      * Duplicate Key
      */
     DUPLICATE_KEY(42001, "操作过快, 请稍后再试"),
 
     /**
-     * 用于注册时用户已经存在的情况
+     * service is registering with eureka
      */
-    USER_EXISTS(42002, "用户已经存在, 请尝试登录"),
+    SERVICE_INITIALIZING(42002, "服务注册中, 请稍后再试"),
 
     /**
-     * 用于登录时用户不存在的情况
+     * reservation conflict
      */
-    USER_NOT_EXISTS(42003, "用户不存在, 请先注册"),
-
-    /**
-     * 凭证错误
-     */
-    INVALID_CREDENTIAL(42004, "用户名或密码错误"),
-
-    /**
-     * 用户余额不足
-     */
-    INSUFFICIENT_BALANCE(42005, "用户余额不足"),
+    RESERVATION_CONFLICT(42003, "预留资源确认冲突"),
 
     // 50xxx 服务端异常
     /**

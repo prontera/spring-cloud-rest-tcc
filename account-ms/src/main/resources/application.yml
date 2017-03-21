@@ -23,3 +23,11 @@ mybatis:
   type-handlers-package: 'com.github.**.type.handler'
   mapper-locations: 'classpath*:mapper/**/*Mapper.xml'
   type-aliases-package: 'com.github.**.domain'
+eureka:
+  client:
+    service-url:
+      default-zone: 'peer1:8761/eureka/,peer2:8762/eureka/'
+  instance:
+    metadata-map:
+      cluster: prontera
+    prefer-ip-address: false

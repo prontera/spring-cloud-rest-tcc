@@ -1,0 +1,17 @@
+server:
+  port: 11020
+eureka:
+  client:
+    service-url:
+      default-zone: 'peer1:8761/eureka/,peer2:8762/eureka/'
+  instance:
+    metadata-map:
+      cluster: prontera
+    prefer-ip-address: false
+spring:
+  application:
+    name: tcc-coordinator
+  cloud:
+    loadbalancer:
+      retry:
+        enabled: true

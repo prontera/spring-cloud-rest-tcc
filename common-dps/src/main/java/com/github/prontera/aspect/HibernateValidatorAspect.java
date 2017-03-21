@@ -32,8 +32,8 @@ import java.util.HashMap;
 @Aspect
 public class HibernateValidatorAspect implements Ordered {
     private static final Logger LOGGER = LoggerFactory.getLogger(HibernateValidatorAspect.class);
-    private int order;
-    private RestStatus throwIfInvalidModel;
+    private final int order;
+    private final RestStatus throwIfInvalidModel;
 
     public HibernateValidatorAspect() {
         this(Byte.MAX_VALUE);

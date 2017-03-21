@@ -20,6 +20,7 @@
         <module>account-ms</module>
         <module>feign-demo</module>
         <module>product-ms</module>
+        <module>tcc-coordinator-ms</module>
     </modules>
     <parent>
         <groupId>org.springframework.boot</groupId>
