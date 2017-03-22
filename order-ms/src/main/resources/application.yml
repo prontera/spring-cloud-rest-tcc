@@ -10,22 +10,26 @@ eureka:
     prefer-ip-address: false
 spring:
   application:
-    name: payment
+    name: order
   datasource:
     username: chris
     password: 123123
     url: 'jdbc:mysql://prontera/order?useLegacyDatetimeCode=false&serverTimezone=Asia/Hong_Kong&useSSL=false'
-  rabbitmq:
-    host: prontera
-    username: chris
-    password: 123123
-    virtual-host: prontera
-    listener:
-      retry:
-        enabled: true
-    template:
-      retry:
-        enabled: true
 mybatis:
+  type-handlers-package: 'com.github.prontera.domain.type.handler'
   mapper-locations: 'classpath*:mapper/**/*Mapper.xml'
-  type-aliases-package: 'com.github.**.domain'
+  type-aliases-package: 'com.github.prontera.domain'
+ribbon:
+  MaxAutoRetries: 1
+  MaxAutoRetriesNextServer: 3
+  OkToRetryOnAllOperations: true
+  ConnectTimeout: 1500
+  ReadTimeout: 2000
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 1500
+

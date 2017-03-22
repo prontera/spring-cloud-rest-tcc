@@ -34,11 +34,6 @@ public class Participant implements Serializable {
 
     private static final long serialVersionUID = -1896632687832278753L;
 
-    public Participant(String uri, OffsetDateTime expireTime) {
-        this.uri = uri;
-        this.expireTime = expireTime;
-    }
-
     @URL
     @ApiModelProperty(value = "资源URI", required = true, example = "http://www.example.com/part/123")
     private String uri;

@@ -1,9 +1,6 @@
 package com.github.prontera.controller;
 
-import com.github.prontera.model.Participant;
-import com.github.prontera.model.TccRequest;
 import com.github.prontera.service.CoordinateService;
-import com.google.common.collect.Lists;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,9 +9,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.time.OffsetDateTime;
-import java.util.List;
 
 /**
  * @author Zhao Junjian
@@ -49,17 +43,6 @@ public class TestController {
     @RequestMapping(value = TEST_URI_PREFIX + "/409", method = RequestMethod.PUT)
     public void _409() {
         System.out.println("hello 409");
-    }
-
-    @ApiOperation(value = "测试tcc", notes = "")
-    @RequestMapping(value = TEST_URI_PREFIX, method = RequestMethod.GET)
-    public void test() {
-        final List<Participant> list = Lists.newArrayList();
-        list.add(new Participant("http://" + applicationName + "/api/v1/test/204", OffsetDateTime.now().plusSeconds(15)));
-        list.add(new Participant("http://" + applicationName + "/api/v1/test/204", OffsetDateTime.now().plusSeconds(1)));
-        list.add(new Participant("http://" + applicationName + "/api/v1/test/404", OffsetDateTime.now().plusSeconds(15)));
-        final TccRequest request = new TccRequest(list);
-        service.confirm(request);
     }
 
 }

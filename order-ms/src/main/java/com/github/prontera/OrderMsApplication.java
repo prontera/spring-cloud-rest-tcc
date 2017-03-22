@@ -2,17 +2,12 @@ package com.github.prontera;
 
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.scheduling.annotation.EnableAsync;
-import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.cloud.client.SpringCloudApplication;
+import org.springframework.cloud.netflix.feign.EnableFeignClients;
 
-//import org.springframework.cloud.client.SpringCloudApplication;
-
-@EnableAsync
-@EnableScheduling
-//@SpringCloudApplication
-@MapperScan(basePackages = "com.github.**.persistence", annotationClass = MyBatisRepository.class)
-@SpringBootApplication
+@EnableFeignClients
+@SpringCloudApplication
+@MapperScan(basePackages = "com.github.prontera.persistence", annotationClass = MyBatisRepository.class)
 public class OrderMsApplication {
 
     public static void main(String[] args) {

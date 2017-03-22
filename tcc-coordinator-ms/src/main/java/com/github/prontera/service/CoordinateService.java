@@ -9,6 +9,8 @@ import com.github.prontera.model.TccRequest;
 import com.github.prontera.model.TccStatus;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -29,15 +31,18 @@ import java.util.stream.Stream;
  */
 @Service
 public class CoordinateService {
-    private static final int LEEWAY = 2;
+    private static final Logger LOGGER = LoggerFactory.getLogger(CoordinateService.class);
+
+    private static final int LEEWAY = 1;
 
     private final RestTemplate restTemplate;
+    private static final HttpEntity<?> REQUEST_ENTITY;
 
     static {
-        // TODO 设置rest template的media type
         final HttpHeaders header = new HttpHeaders();
-        header.setAccept(ImmutableList.of(MediaType.valueOf("application/tcc")));
-        final HttpEntity<Object> entity = new HttpEntity<>(header);
+        header.setAccept(ImmutableList.of(MediaType.APPLICATION_JSON_UTF8));
+        header.setContentType(MediaType.APPLICATION_JSON_UTF8);
+        REQUEST_ENTITY = new HttpEntity<>(header);
     }
 
     @Autowired
@@ -47,24 +52,31 @@ public class CoordinateService {
 
     public void confirm(TccRequest request) {
         Preconditions.checkNotNull(request);
-        Preconditions.checkNotNull(request.getParticipantLinks());
+        final List<Participant> participantLinks = request.getParticipantLinks();
+        Preconditions.checkNotNull(participantLinks);
         // 获取最接近过期的时间
-        final OffsetDateTime theClosestToExpire = fetchTheRecentlyExpireTime(request.getParticipantLinks());
+        final OffsetDateTime theClosestToExpire = fetchTheRecentlyExpireTime(participantLinks);
         if (theClosestToExpire.minusSeconds(LEEWAY).isBefore(OffsetDateTime.now())) {
+            // 释放全部资源
+            cancel(request);
             throw new ReservationAlmostToExpireException("there are resources be about to expire at " + theClosestToExpire);
         }
         // 调用确认资源链接
-        for (Participant participant : request.getParticipantLinks()) {
+        for (Participant participant : participantLinks) {
             participant.setExecuteTime(OffsetDateTime.now());
             // 必须设置重试以防参与者宕机或网络抖动
-            final ResponseEntity<String> response = restTemplate.exchange(participant.getUri(), HttpMethod.PUT, null, String.class);
-            // 如果确认出现异常则记录
+            final ResponseEntity<String> response = restTemplate.exchange(participant.getUri(), HttpMethod.PUT, REQUEST_ENTITY, String.class);
             if (response.getStatusCode() == HttpStatus.NO_CONTENT) {
                 participant.setTccStatus(TccStatus.CONFIRMED);
+            } else if (response.getStatusCode() == HttpStatus.NOT_FOUND) {
+                participant.setTccStatus(TccStatus.TIMEOUT);
+                participant.setParticipantErrorResponse(response);
+                throw new ReservationExpireException("although we have check the expire time in request body, we got an expiration when confirming actually");
             } else {
                 participant.setTccStatus(TccStatus.CONFLICT);
                 participant.setParticipantErrorResponse(response);
-                throw new PartialConfirmException("all reservation were cancelled or timeout", new TccErrorResponse(request.getParticipantLinks()));
+                // 出现冲突必须返回并需要人工介入
+                throw new PartialConfirmException("all reservation were cancelled or timeout", new TccErrorResponse(participantLinks));
             }
         }
     }
@@ -88,8 +100,12 @@ public class CoordinateService {
     public void cancel(TccRequest request) {
         Preconditions.checkNotNull(request);
         final List<Participant> participantList = Preconditions.checkNotNull(request.getParticipantLinks());
-        for (Participant participant : participantList) {
-            restTemplate.exchange(participant.getUri(), HttpMethod.DELETE, null, String.class);
+        try {
+            for (Participant participant : participantList) {
+                restTemplate.exchange(participant.getUri(), HttpMethod.DELETE, null, String.class);
+            }
+        } catch (Exception e) {
+            LOGGER.debug("unexpected error when making compensation: {}", e.toString());
         }
     }
 

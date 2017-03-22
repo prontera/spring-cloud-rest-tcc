@@ -25,10 +25,11 @@ import java.time.OffsetDateTime;
  * @author Zhao Junjian
  */
 @RestController
-@RequestMapping(value = "/api/v1")
+@RequestMapping(value = ProductStockReservationController.API_PREFIX, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE}, consumes = {MediaType.APPLICATION_JSON_UTF8_VALUE})
 public class ProductStockReservationController {
 
     private static final String RESERVATION_URI = "/stocks/reservation";
+    public static final String API_PREFIX = "/api/v1";
 
     @Value("${spring.application.name}")
     private String applicationName;
@@ -36,25 +37,25 @@ public class ProductStockReservationController {
     private ProductStockTccService tccService;
 
     @ApiOperation(value = "预留库存", notes = "")
-    @RequestMapping(value = RESERVATION_URI, method = RequestMethod.POST, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE}, consumes = {MediaType.APPLICATION_JSON_UTF8_VALUE})
+    @RequestMapping(value = RESERVATION_URI, method = RequestMethod.POST)
     public ReservationResponse reserve(@Valid @RequestBody StockReservationRequest request, BindingResult error) {
         final ProductStockTcc stockTcc = tccService.trying(request.getProductId());
         final Long tccId = stockTcc.getId();
         final OffsetDateTime expireTime = stockTcc.getExpireTime();
-        final Participant participant = new Participant("http://" + applicationName + RESERVATION_URI + "/" + tccId, expireTime);
+        final Participant participant = new Participant("http://" + applicationName + API_PREFIX + RESERVATION_URI + "/" + tccId, expireTime);
         return new ReservationResponse(participant);
     }
 
     @ApiOperation(value = "确认预留库存", notes = "")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @RequestMapping(value = RESERVATION_URI + "/{reservationId}", method = RequestMethod.PUT, produces = "application/tcc")
+    @RequestMapping(value = RESERVATION_URI + "/{reservationId}", method = RequestMethod.PUT)
     public void confirm(@PathVariable Long reservationId) {
         tccService.confirmReservation(reservationId);
     }
 
     @ApiOperation(value = "撤销预留库存", notes = "")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @RequestMapping(value = RESERVATION_URI + "/{reservationId}", method = RequestMethod.DELETE, produces = "application/tcc")
+    @RequestMapping(value = RESERVATION_URI + "/{reservationId}", method = RequestMethod.DELETE)
     public void cancel(@PathVariable Long reservationId) {
         tccService.cancelReservation(reservationId);
     }

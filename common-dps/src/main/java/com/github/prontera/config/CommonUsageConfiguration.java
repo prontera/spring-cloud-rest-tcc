@@ -11,8 +11,8 @@ import org.springframework.context.annotation.Configuration;
 /**
  * @author Zhao Junjian
  */
-@Configuration("common-bean")
-public class BeanConfiguration {
+@Configuration
+public class CommonUsageConfiguration {
     @Bean
     public ResettableRequestFilter resettableRequestFilter() {
         return new ResettableRequestFilter();

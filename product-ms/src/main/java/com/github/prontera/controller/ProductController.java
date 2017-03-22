@@ -22,7 +22,6 @@ import java.util.List;
 /**
  * @author Zhao Junjian
  */
-
 @RestController
 @RequestMapping(value = "/api/v1", produces = {MediaType.APPLICATION_JSON_UTF8_VALUE}, consumes = {MediaType.APPLICATION_JSON_UTF8_VALUE})
 public class ProductController {
@@ -30,9 +29,9 @@ public class ProductController {
     private ProductService productService;
 
     @ApiOperation(value = "根据ID获取商品", notes = "")
-    @RequestMapping(value = "/products/{productId}", method = RequestMethod.GET, consumes = MediaType.ALL_VALUE)
-    public ObjectDataResponse<Product> findProduct(@PathVariable Long productId) {
-        final Product product = productService.find(productId);
+    @RequestMapping(value = "/products/{id}", method = RequestMethod.GET, consumes = MediaType.ALL_VALUE)
+    public ObjectDataResponse<Product> findProduct(@PathVariable Long id) {
+        final Product product = productService.find(id);
         if (product == null) {
             Shift.fatal(StatusCode.PRODUCT_NOT_EXISTS);
         }

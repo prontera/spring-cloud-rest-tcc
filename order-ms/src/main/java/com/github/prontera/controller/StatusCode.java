@@ -40,6 +40,16 @@ public enum StatusCode implements RestStatus {
      */
     USER_NOT_EXISTS(42002, "用户不存在, 请先注册"),
 
+    /**
+     * 用于下订单时的产品检查
+     */
+    PRODUCT_NOT_EXISTS(42003, "产品不存在"),
+
+    /**
+     * 订单不存在
+     */
+    ORDER_NOT_EXISTS(42004, "订单不存在"),
+
     // 50xxx 服务端异常
     /**
      * 用于处理未知的服务端错误

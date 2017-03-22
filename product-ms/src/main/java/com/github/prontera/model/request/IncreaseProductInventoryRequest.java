@@ -2,6 +2,7 @@ package com.github.prontera.model.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -28,6 +29,7 @@ public class IncreaseProductInventoryRequest extends RestfulRequest {
     @NotNull
     @Min(0)
     @Max(100000000)
+    @ApiModelProperty(value = "库存", required = true, example = "10000000")
     private Integer count;
 
 }

@@ -7,7 +7,6 @@ public class ReservationExpireException extends RuntimeException {
     private static final long serialVersionUID = 2180330687914729827L;
 
     public ReservationExpireException() {
-        super();
     }
 
     public ReservationExpireException(String message) {

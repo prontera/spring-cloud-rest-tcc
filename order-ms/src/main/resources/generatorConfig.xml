@@ -37,58 +37,11 @@
             <property name="rootInterface" value="com.github.prontera.persistence.CrudMapper"/>
         </javaClientGenerator>
 
-        <table alias="tevent_publish" tableName="t_event_publish" domainObjectName="EventPublish"
-               enableCountByExample="false" enableUpdateByExample="false"
-               enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false">
-            <columnOverride column="event_status"
-                            jdbcType="TINYINT"
-                            javaType="com.github.prontera.domain.type.EventPublishStatus"
-                            typeHandler="com.github.prontera.domain.type.handler.EventPublishStatusHandler"/>
-            <columnOverride column="event_type"
-                            jdbcType="TINYINT"
-                            javaType="com.github.prontera.domain.type.EventType"
-                            typeHandler="com.github.prontera.domain.type.handler.EventPublishTypeHandler"/>
-            <columnOverride column="create_time" javaType="java.time.OffsetDateTime"/>
-            <columnOverride column="update_time" javaType="java.time.OffsetDateTime"/>
-            <columnOverride column="delete_time" javaType="java.time.OffsetDateTime"/>
-        </table>
-
-        <table alias="tevent_process" tableName="t_event_process" domainObjectName="EventProcess"
-               enableCountByExample="false" enableUpdateByExample="false"
-               enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false">
-            <columnOverride column="event_status"
-                            jdbcType="TINYINT"
-                            javaType="com.github.prontera.domain.type.EventProcessStatus"
-                            typeHandler="com.github.prontera.domain.type.handler.EventProcessStatusHandler"/>
-            <columnOverride column="event_type"
-                            jdbcType="TINYINT"
-                            javaType="com.github.prontera.domain.type.EventType"
-                            typeHandler="com.github.prontera.domain.type.handler.EventPublishTypeHandler"/>
-            <columnOverride column="create_time" javaType="java.time.OffsetDateTime"/>
-            <columnOverride column="update_time" javaType="java.time.OffsetDateTime"/>
-            <columnOverride column="delete_time" javaType="java.time.OffsetDateTime"/>
-        </table>
         <table alias="torder" tableName="t_order" domainObjectName="Order"
                enableCountByExample="false" enableUpdateByExample="false"
                enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false">
-            <columnOverride column="event_status"
-                            jdbcType="TINYINT"
-                            javaType="com.github.prontera.model.type.OrderStatus"
-                            typeHandler="com.github.prontera.model.type.handler.OrderStatusHandler"/>
             <columnOverride column="status" javaType="com.github.prontera.model.type.OrderStatus"
                             typeHandler="com.github.prontera.model.type.handler.OrderStatusHandler"/>
-            <columnOverride column="create_time" javaType="java.time.OffsetDateTime"/>
-            <columnOverride column="update_time" javaType="java.time.OffsetDateTime"/>
-            <columnOverride column="delete_time" javaType="java.time.OffsetDateTime"/>
-        </table>
-
-        <table alias="torder_event_publish" tableName="t_order_event_publish" domainObjectName="OrderEventPublish"
-               enableCountByExample="false" enableUpdateByExample="false"
-               enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false">
-            <columnOverride column="publish_event_status"
-                            jdbcType="TINYINT"
-                            javaType="com.github.prontera.domain.type.EventPublishStatus"
-                            typeHandler="com.github.prontera.domain.type.handler.EventPublishStatusHandler"/>
             <columnOverride column="create_time" javaType="java.time.OffsetDateTime"/>
             <columnOverride column="update_time" javaType="java.time.OffsetDateTime"/>
             <columnOverride column="delete_time" javaType="java.time.OffsetDateTime"/>

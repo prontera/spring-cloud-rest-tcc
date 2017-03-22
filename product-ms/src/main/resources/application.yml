@@ -1,5 +1,5 @@
 server:
-  port: 8090
+  port: 8040
 eureka:
   client:
     service-url:
@@ -10,7 +10,7 @@ eureka:
     prefer-ip-address: false
 spring:
   application:
-    name: product
+    name: 'product'
   datasource:
     username: chris
     password: 123123
@@ -27,5 +27,7 @@ spring:
       retry:
         enabled: true
 mybatis:
+  type-handlers-package: 'com.github.prontera.domain.type.handler'
   mapper-locations: 'classpath*:mapper/**/*Mapper.xml'
-  type-aliases-package: 'com.github.**.domain'
+  type-aliases-package: 'com.github.prontera.domain'
+

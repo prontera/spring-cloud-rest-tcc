@@ -17,7 +17,8 @@ import lombok.ToString;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(value = {"hibernateLazyInitializer", "handler", "fieldHandler"}, ignoreUnknown = true)
 public class ObjectDataResponse<T> extends RestfulResponse {
-    private static final long serialVersionUID = 1862906172390850647L;
+
+    private static final long serialVersionUID = 1562741318988223256L;
 
     private T data;
 

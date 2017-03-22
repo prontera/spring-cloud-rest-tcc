@@ -18,22 +18,19 @@ public final class Shift {
     private Shift() {
     }
 
-    public static void fatal(RestStatus status) {
-        checkNotNull(status);
-        fatalInject(status, null);
-    }
-
     /**
      * 抛出具体的{@code RestStatus}异常
      *
      * @param status  自定义异常实体
      * @param details 额外添加至details字段中的任意实体, 最终会被解析成JSON
      */
-    public static void fatalInject(RestStatus status, Object details) {
+    public static void fatal(RestStatus status, Object... details) {
         checkNotNull(status);
         final ErrorEntity entity = new ErrorEntity(status);
         // inject details
-        Optional.ofNullable(details).ifPresent(entity::setDetails);
+        if (details.length > 0) {
+            Optional.of(details).ifPresent(entity::setDetails);
+        }
         // put it into request, details entity by Rest Status's name
         String errorCode = String.valueOf(status.code());
         bindStatusCodesInRequestScope(errorCode, entity);

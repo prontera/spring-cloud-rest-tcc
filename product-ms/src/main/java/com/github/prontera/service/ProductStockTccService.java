@@ -11,6 +11,8 @@ import com.github.prontera.persistence.CrudMapper;
 import com.github.prontera.persistence.ProductMapper;
 import com.github.prontera.persistence.ProductStockTccMapper;
 import com.google.common.base.Preconditions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -27,6 +29,7 @@ import java.util.Set;
  */
 @Service
 public class ProductStockTccService extends CrudServiceImpl<ProductStockTcc> implements ApplicationContextAware {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProductStockTccService.class);
 
     // Autowired
     private ApplicationContext context;

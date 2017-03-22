@@ -20,7 +20,7 @@ public class SwaggerConfiguration extends SwaggerTemplate {
 
     @Bean
     public SwaggerApiInfo info() {
-        return SwaggerApiInfo.builder().title("Order MicroService").version("v1").serviceUrl(null).statusList(extractStatusCodes()).build();
+        return SwaggerApiInfo.builder().title("Product MicroService").version("v1").serviceUrl(null).statusList(extractStatusCodes()).build();
     }
 
     private List<ResponseMessage> extractStatusCodes() {

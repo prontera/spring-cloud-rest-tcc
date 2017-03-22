@@ -10,8 +10,21 @@ eureka:
     prefer-ip-address: false
 spring:
   application:
-    name: tcc-coordinator
+    name: tcc
   cloud:
     loadbalancer:
       retry:
         enabled: true
+ribbon:
+  MaxAutoRetries: 1
+  MaxAutoRetriesNextServer: 3
+  OkToRetryOnAllOperations: true
+  ConnectTimeout: 1500
+  ReadTimeout: 2000
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 1500

@@ -29,14 +29,14 @@ public class CoordinateController {
 
     @ApiOperation(value = "确认预留资源", notes = "")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @RequestMapping(value = COORDINATOR_URI_PREFIX + "/confirmation", method = RequestMethod.PUT, produces = "application/tcc+json")
+    @RequestMapping(value = COORDINATOR_URI_PREFIX + "/confirmation", method = RequestMethod.PUT)
     public void confirm(@Valid @RequestBody TccRequest request, BindingResult result) {
         tccService.confirm(request);
     }
 
     @ApiOperation(value = "撤销预留资源", notes = "")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @RequestMapping(value = COORDINATOR_URI_PREFIX + "/cancellation", method = RequestMethod.PUT, produces = "application/tcc+json")
+    @RequestMapping(value = COORDINATOR_URI_PREFIX + "/cancellation", method = RequestMethod.PUT)
     public void cancel(@Valid @RequestBody TccRequest request, BindingResult result) {
         tccService.cancel(request);
     }

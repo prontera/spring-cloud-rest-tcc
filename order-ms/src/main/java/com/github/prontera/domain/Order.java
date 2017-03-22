@@ -31,8 +31,4 @@ public class Order extends BasicDomain {
 
     private OrderStatus status;
 
-    private Long orderPublishId;
-
-    private String failMsg;
-
 }
