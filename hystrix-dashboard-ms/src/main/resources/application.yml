@@ -12,3 +12,7 @@ eureka:
 spring:
   application:
     name: hystrix-dashboard
+  cloud:
+    loadbalancer:
+      retry:
+        enabled: true

@@ -24,7 +24,7 @@
         DELETE FROM t_order_conflict
         WHERE id = #{id,jdbcType=BIGINT}
     </delete>
-    <insert id="insert" parameterType="com.github.prontera.domain.OrderConflict">
+    <insert id="insert" parameterType="com.github.prontera.domain.OrderConflict" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO t_order_conflict (id, create_time, update_time,
                                       delete_time, error_detail, t_order_id
         )
@@ -32,7 +32,7 @@
                 #{deleteTime,jdbcType=TIMESTAMP}, #{errorDetail,jdbcType=VARCHAR}, #{orderId,jdbcType=BIGINT}
         )
     </insert>
-    <insert id="insertSelective" parameterType="com.github.prontera.domain.OrderConflict">
+    <insert id="insertSelective" parameterType="com.github.prontera.domain.OrderConflict" useGeneratedKeys="true" keyProperty="id">
         insert into t_order_conflict
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="id != null">

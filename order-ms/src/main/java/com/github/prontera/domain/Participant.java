@@ -1,4 +1,4 @@
-package com.github.prontera.model;
+package com.github.prontera.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;

@@ -3,11 +3,12 @@ package com.github.prontera.controller.advice;
 import com.github.prontera.RequestLogging;
 import com.github.prontera.RestStatus;
 import com.github.prontera.config.RequestAttributeConst;
+import com.github.prontera.controller.StatusCode;
 import com.github.prontera.exception.IllegalValidateException;
 import com.github.prontera.exception.RestStatusException;
 import com.github.prontera.model.response.ErrorEntity;
-import com.github.prontera.controller.StatusCode;
 import com.google.common.collect.ImmutableMap;
+import com.netflix.hystrix.exception.HystrixRuntimeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DuplicateKeyException;
@@ -76,6 +77,19 @@ public class FaultBarrier {
     public Object illegalValidateException(Exception e, HttpServletRequest request) {
         // 取出存储在Request域中的Map
         return request.getAttribute(e.getMessage());
+    }
+
+    @ResponseBody
+    @RequestLogging
+    @ExceptionHandler(HystrixRuntimeException.class)
+    public Object hystrixRuntimeException(HystrixRuntimeException e, HttpServletRequest request) {
+        final Throwable fallbackException = e.getFallbackException().getCause().getCause();
+        if (RestStatusException.class.isAssignableFrom(fallbackException.getClass())) {
+            final String statusCode = fallbackException.getMessage();
+            final StatusCode error = StatusCode.valueOfCode(Integer.valueOf(statusCode));
+            return new ErrorEntity(error);
+        }
+        return exception(e, request);
     }
 
     @ResponseBody

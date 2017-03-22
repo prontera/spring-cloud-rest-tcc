@@ -14,8 +14,15 @@ import org.springframework.web.bind.annotation.RequestMethod;
 /**
  * @author Zhao Junjian
  */
-@FeignClient(name = "account")
+@FeignClient(name = AccountClient.SERVICE_ID, fallback = AccountClientFallback.class)
 public interface AccountClient {
+    /**
+     * eureka service name
+     */
+    String SERVICE_ID = "account";
+    /**
+     * common api prefix
+     */
     String API_PATH = "/api/v1";
 
     @RequestMapping(value = API_PATH + "/users/{userId}", method = RequestMethod.GET)

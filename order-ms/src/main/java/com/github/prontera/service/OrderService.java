@@ -9,7 +9,7 @@ import com.github.prontera.domain.Order;
 import com.github.prontera.domain.OrderConflict;
 import com.github.prontera.exception.PartialConfirmException;
 import com.github.prontera.exception.ReservationExpireException;
-import com.github.prontera.model.Participant;
+import com.github.prontera.domain.Participant;
 import com.github.prontera.model.Product;
 import com.github.prontera.model.User;
 import com.github.prontera.model.request.BalanceReservationRequest;
