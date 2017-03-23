@@ -9,7 +9,7 @@
     <packaging>pom</packaging>
 
     <name>spring-cloud-microservice</name>
-    <description>Spring Cloud Microservice</description>
+    <description>try-confirm-cancel coordinator</description>
 
     <modules>
         <module>api-gateway-ms</module>
@@ -18,7 +18,6 @@
         <module>common-dps</module>
         <module>order-ms</module>
         <module>account-ms</module>
-        <module>feign-demo</module>
         <module>product-ms</module>
         <module>tcc-coordinator-ms</module>
     </modules>

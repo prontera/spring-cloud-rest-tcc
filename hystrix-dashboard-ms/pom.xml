@@ -8,7 +8,7 @@
     <packaging>jar</packaging>
 
     <name>hystrix-dashboard-ms</name>
-    <description>Demo project for Spring Boot</description>
+    <description>hystrix dashboard that is aggregating with turbine</description>
 
     <parent>
         <groupId>com.github.prontera</groupId>

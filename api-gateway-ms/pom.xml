@@ -8,7 +8,7 @@
     <packaging>jar</packaging>
 
     <name>api-gateway-ms</name>
-    <description>Demo project for Spring Boot</description>
+    <description>microservice api gateway</description>
 
     <parent>
         <groupId>com.github.prontera</groupId>

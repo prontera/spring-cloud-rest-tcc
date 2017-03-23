@@ -8,7 +8,7 @@
     <packaging>jar</packaging>
 
     <name>common-dps</name>
-    <description>持久层通用CrudMapper与通用CrudService</description>
+    <description>common dependency, such as CRUD Mapper of MyBatis</description>
 
     <parent>
         <groupId>com.github.prontera</groupId>
