@@ -1,0 +1,19 @@
+server:
+  port: 7020
+eureka:
+  client:
+    service-url:
+      default-zone: 'peer1:8761/eureka/,peer2:8762/eureka/'
+    registry-fetch-interval-seconds: 5
+  instance:
+    metadata-map:
+      cluster: prontera
+    prefer-ip-address: false
+    lease-renewal-interval-in-seconds: 10
+spring:
+  application:
+    name: 'spring-boot-admin'
+  cloud:
+    loadbalancer:
+      retry:
+        enabled: true
