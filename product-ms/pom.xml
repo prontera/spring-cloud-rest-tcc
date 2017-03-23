@@ -8,7 +8,7 @@
     <packaging>jar</packaging>
 
     <name>product-ms</name>
-    <description>Demo project for Spring Boot</description>
+    <description>product management</description>
 
     <parent>
         <groupId>com.github.prontera</groupId>
@@ -45,10 +45,6 @@
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-feign</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-turbine</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>

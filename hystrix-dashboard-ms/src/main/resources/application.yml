@@ -1,17 +1,17 @@
 server:
   port: 7001
 turbine:
-  app-config: payment,order
+  app-config: account,gateway,order,product,tcc
   aggregator:
     clusterConfig: prontera
   cluster-name-expression: metadata['cluster']
 eureka:
   client:
    service-url:
-    default-zone: http://www:payon.com:8761/eureka/
+      default-zone: 'peer1:8761/eureka/,peer2:8762/eureka/'
 spring:
   application:
-    name: hystrix-dashboard
+    name: hystrix
   cloud:
     loadbalancer:
       retry:

@@ -8,7 +8,7 @@
     <packaging>jar</packaging>
 
     <name>eureka-registry-ms</name>
-    <description>Service Registry</description>
+    <description>microservice registry center</description>
 
     <parent>
         <groupId>com.github.prontera</groupId>
@@ -30,6 +30,10 @@
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-eureka-server</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-actuator</artifactId>
         </dependency>
 
         <dependency>

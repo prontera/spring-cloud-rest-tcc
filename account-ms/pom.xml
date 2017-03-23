@@ -8,7 +8,7 @@
     <packaging>jar</packaging>
 
     <name>account-ms</name>
-    <description>账号注册与授权服务</description>
+    <description>account management, user registry center</description>
 
     <parent>
         <groupId>com.github.prontera</groupId>
@@ -47,8 +47,8 @@
             <artifactId>spring-cloud-starter-feign</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-turbine</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>

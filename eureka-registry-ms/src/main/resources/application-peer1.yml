@@ -1,0 +1,16 @@
+server:
+  port: ${port:${PORT:8761}}
+eureka:
+  instance:
+    hostname: peer1
+    prefer-ip-address: false
+    metadata-map:
+      cluster: prontera
+  client:
+    service-url:
+      defaultZone: 'http://peer2:8762/eureka/'
+    fetch-registry: true
+    register-with-eureka: true
+spring:
+  application:
+    name: 'registry'
