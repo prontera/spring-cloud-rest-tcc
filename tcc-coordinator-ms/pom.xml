@@ -8,7 +8,7 @@
     <packaging>jar</packaging>
 
     <name>tcc-coordinator-ms</name>
-    <description>Demo project for Spring Boot</description>
+    <description>try-confirm-cancel coordinator</description>
 
     <parent>
         <groupId>com.github.prontera</groupId>

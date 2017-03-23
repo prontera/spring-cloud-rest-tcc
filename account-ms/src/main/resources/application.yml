@@ -34,4 +34,3 @@ mybatis:
   type-handlers-package: 'com.github.prontera.domain.type.handler'
   mapper-locations: 'classpath*:mapper/**/*Mapper.xml'
   type-aliases-package: 'com.github.prontera.domain'
-
