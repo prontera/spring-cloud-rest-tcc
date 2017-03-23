@@ -5,7 +5,7 @@ package com.github.prontera.model.type;
  */
 public enum OrderStatus {
 
-    PROCESSING(0), DONE(1), INSUFFICIENT_BALANCE(2), INSUFFICIENT_STOCK(3), TIMEOUT(4), CONFLICT(5);
+    PROCESSING(0), DONE(1), TIMEOUT(2), CONFLICT(3);
 
     private final int code;
 

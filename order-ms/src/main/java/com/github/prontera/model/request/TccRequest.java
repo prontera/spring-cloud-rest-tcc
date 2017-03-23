@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import com.github.prontera.domain.Participant;
+import com.github.prontera.domain.OrderParticipant;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -38,6 +38,6 @@ public class TccRequest implements Serializable {
     @NotNull
     @Size(min = 1)
     @ApiModelProperty(value = "参与方提供的链接集合", required = true)
-    private List<Participant> participantLinks;
+    private List<OrderParticipant> participantLinks;
 
 }
