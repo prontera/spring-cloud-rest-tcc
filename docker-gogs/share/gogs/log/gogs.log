@@ -1,0 +1,29 @@
+2017/03/24 09:54:45 [TRACE] Log Mode: File (Trace)
+2017/03/24 09:54:45 [ INFO] Solar Gogs 0.10.1.0228
+2017/03/24 09:54:45 [ INFO] Cache Service Enabled
+2017/03/24 09:54:45 [ INFO] Session Service Enabled
+2017/03/24 09:54:46 [ INFO] Git Version: 2.11.1
+2017/03/24 09:54:46 [ INFO] Git config user.name set to Gogs
+2017/03/24 09:54:46 [ INFO] Git config user.email set to gogs@fake.local
+2017/03/24 09:54:46 [ INFO] SQLite3 Supported
+2017/03/24 09:54:46 [ INFO] Run Mode: Production
+2017/03/24 09:54:46 [TRACE] Doing: CheckRepoStats
+2017/03/24 09:54:46 [TRACE] Template: install
+2017/03/24 09:55:02 [TRACE] Session ID: c11e9fa2ea3d4d52
+2017/03/24 09:55:02 [TRACE] CSRF Token: RPmi-zLSUtTYgBF5KzeQeJGGdZI6MTQ5MDM0OTIzMjYxMDcyMzM0Mg==
+2017/03/24 09:55:02 [TRACE] Custom path: /data/gogs
+2017/03/24 09:55:02 [TRACE] Log path: /app/gogs/log
+2017/03/24 09:55:02 [TRACE] Log Mode: File (Trace)
+2017/03/24 09:55:02 [ INFO] Solar Gogs 0.10.1.0228
+2017/03/24 09:55:02 [ INFO] Cache Service Enabled
+2017/03/24 09:55:02 [ INFO] Session Service Enabled
+2017/03/24 09:55:02 [ INFO] Git Version: 2.11.1
+2017/03/24 09:55:02 [TRACE] Doing: CheckRepoStats
+2017/03/24 09:55:02 [ INFO] SQLite3 Supported
+2017/03/24 09:55:02 [ INFO] Run Mode: Production
+2017/03/24 09:55:02 [ INFO] First-time run install finished!
+2017/03/24 09:55:08 [TRACE] Session ID: c11e9fa2ea3d4d52
+2017/03/24 09:55:08 [TRACE] CSRF Token: UAhAf4ZGAmiBkeQpUkt_lr6NY_U6MTQ5MDM0OTMwODg3Mzc1NDY5Mg==
+2017/03/24 09:55:08 [TRACE] Session ID: c11e9fa2ea3d4d52
+2017/03/24 09:55:08 [TRACE] CSRF Token: UAhAf4ZGAmiBkeQpUkt_lr6NY_U6MTQ5MDM0OTMwODg3Mzc1NDY5Mg==
+2017/03/24 09:55:08 [TRACE] Template: user/dashboard/dashboard
