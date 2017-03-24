@@ -1,0 +1,17 @@
+version: "2"
+
+services:
+    share:
+        image: debian:jessie
+        volumes:
+            - "./share/:/data/"
+    master:
+        image: gogs/gogs
+        ports:
+            - "10022:22"
+            - "10080:3000"
+        hostname: gogs
+        volumes_from:
+            - share
+        volumes:
+            - "/usr/share/zoneinfo/Asia/Shanghai:/usr/share/zoneinfo/Asia/Shanghai:ro"
