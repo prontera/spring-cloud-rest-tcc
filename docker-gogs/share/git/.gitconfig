@@ -1,0 +1,5 @@
+[user]
+	name = Gogs
+	email = gogs@fake.local
+[core]
+	quotepath = false
