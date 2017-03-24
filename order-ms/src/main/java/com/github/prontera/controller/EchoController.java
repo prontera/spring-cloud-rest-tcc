@@ -1,12 +1,9 @@
 package com.github.prontera.controller;
 
 import com.github.prontera.util.Echoes;
-import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.netflix.discovery.EurekaClient;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.codec.digest.HmacUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.http.MediaType;
@@ -94,22 +91,4 @@ public class EchoController {
         return ImmutableMap.of("fallback", echoes.mark(request, requestBody));
     }
 
-    public static void main(String[] args) {
-        int loop = 100000;
-        String key = "129123ksd93";
-        long begin = System.currentTimeMillis();
-        String toBeEncrypted = Strings.repeat("9*3j@!@#&asdkjvir", 100);
-        // SHA系列加key
-        final String data = toBeEncrypted + key;
-        for (int i = 0; i < loop; i++) {
-            DigestUtils.sha256(data);
-        }
-        System.out.println("sha256 time consuming: " + (System.currentTimeMillis() - begin));
-        begin = System.currentTimeMillis();
-        // HMAC有key
-        for (int i = 0; i < loop; i++) {
-            HmacUtils.hmacSha256(key, toBeEncrypted);
-        }
-        System.out.println("hmac-sha256 time consuming: " + (System.currentTimeMillis() - begin));
-    }
 }
