@@ -1,0 +1,37 @@
+server:
+  port: 11020
+eureka:
+  client:
+    service-url:
+      default-zone: 'peer1:8761/eureka/,peer2:8762/eureka/'
+  instance:
+    metadata-map:
+      cluster: prontera
+    prefer-ip-address: false
+spring:
+  application:
+    name: tcc
+  cloud:
+    loadbalancer:
+      retry:
+        enabled: true
+    config:
+      discovery:
+        enabled: true
+        service-id: 'config-server'
+      fail-fast: true
+encrypt:
+  key: '*&3loa#@9no_0*(!'
+ribbon:
+  MaxAutoRetries: 1
+  MaxAutoRetriesNextServer: 3
+  OkToRetryOnAllOperations: true
+  ConnectTimeout: 1500
+  ReadTimeout: 2000
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 1500

@@ -1,5 +1,7 @@
 package com.github.prontera.controller;
 
+import com.github.prontera.Delay;
+import com.github.prontera.RandomlyThrowsException;
 import com.github.prontera.Shift;
 import com.github.prontera.domain.User;
 import com.github.prontera.model.request.RechargeRequest;
@@ -30,6 +32,8 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    @Delay
+    @RandomlyThrowsException
     @ApiOperation(value = "根据ID获取用户", notes = "")
     @RequestMapping(value = "/users/{userId}", method = RequestMethod.GET, consumes = MediaType.ALL_VALUE)
     public ObjectDataResponse<User> findUser(@PathVariable Long userId) {
@@ -40,6 +44,8 @@ public class UserController {
         return new ObjectDataResponse<>(user);
     }
 
+    @Delay
+    @RandomlyThrowsException
     @ApiOperation(value = "获取全部用户", notes = "")
     @RequestMapping(value = "/users", method = RequestMethod.GET, consumes = MediaType.ALL_VALUE)
     public ObjectCollectionResponse<User> findAll() {
@@ -47,12 +53,16 @@ public class UserController {
         return new ObjectCollectionResponse<>(userList);
     }
 
+    @Delay
+    @RandomlyThrowsException
     @ApiOperation(value = "用户注册", notes = "注册新用户, 余额自定义, 用于下单等一系列操作, 并可获取JWT")
     @RequestMapping(value = "/users", method = RequestMethod.POST)
     public RegisterResponse register(@Valid @RequestBody RegisterRequest request, BindingResult error) {
         return userService.register(request);
     }
 
+    @Delay
+    @RandomlyThrowsException
     @ApiOperation(value = "用户余额变更", notes = "直接变更指定用户的余额")
     @RequestMapping(value = "/users/{userId}/balance", method = RequestMethod.PATCH)
     public ObjectDataResponse<User> recharge(@PathVariable Long userId, @Valid @RequestBody RechargeRequest request, BindingResult error) {

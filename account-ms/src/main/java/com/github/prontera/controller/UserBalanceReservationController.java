@@ -1,5 +1,7 @@
 package com.github.prontera.controller;
 
+import com.github.prontera.Delay;
+import com.github.prontera.RandomlyThrowsException;
 import com.github.prontera.domain.UserBalanceTcc;
 import com.github.prontera.model.Participant;
 import com.github.prontera.model.request.BalanceReservationRequest;
@@ -36,6 +38,8 @@ public class UserBalanceReservationController {
     @Autowired
     private UserBalanceTccService tccService;
 
+    @Delay
+    @RandomlyThrowsException
     @ApiOperation(value = "预留余额", notes = "")
     @RequestMapping(value = RESERVATION_URI, method = RequestMethod.POST)
     public ReservationResponse reserve(@Valid @RequestBody BalanceReservationRequest request, BindingResult error) {
@@ -46,6 +50,8 @@ public class UserBalanceReservationController {
         return new ReservationResponse(participant);
     }
 
+    @Delay
+    @RandomlyThrowsException
     @ApiOperation(value = "确认预留余额", notes = "")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @RequestMapping(value = RESERVATION_URI + "/{reservationId}", method = RequestMethod.PUT)
@@ -53,6 +59,8 @@ public class UserBalanceReservationController {
         tccService.confirmReservation(reservationId);
     }
 
+    @Delay
+    @RandomlyThrowsException
     @ApiOperation(value = "撤销预留余额", notes = "")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @RequestMapping(value = RESERVATION_URI + "/{reservationId}", method = RequestMethod.DELETE)
