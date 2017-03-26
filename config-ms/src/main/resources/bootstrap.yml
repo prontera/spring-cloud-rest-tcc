@@ -9,6 +9,17 @@ eureka:
       cluster: prontera
     prefer-ip-address: false
 spring:
+  rabbitmq:
+    host: prontera
+    username: chris
+    password: 123123
+    virtual-host: prontera
+    listener:
+      retry:
+        enabled: true
+    template:
+      retry:
+        enabled: true
   cloud:
     config:
       server:
