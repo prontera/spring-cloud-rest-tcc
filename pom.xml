@@ -22,6 +22,7 @@
         <module>product-ms</module>
         <module>spring-boot-admin-ms</module>
         <module>tcc-coordinator-ms</module>
+        <module>zipkin-ms</module>
     </modules>
     <parent>
         <groupId>org.springframework.boot</groupId>

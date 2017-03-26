@@ -28,8 +28,10 @@ public class DelayReturnAspect implements Ordered {
     public Object aroundMethod(ProceedingJoinPoint joinPoint) throws Throwable {
         final Object result = joinPoint.proceed();
         final long timeInMillseconds = delayProperties.getTimeInMillseconds();
-        LOGGER.debug("method {} was made delay {} mills to return result", joinPoint.getSignature(), timeInMillseconds);
-        TimeUnit.MILLISECONDS.sleep(timeInMillseconds);
+        if (timeInMillseconds != 0L) {
+            LOGGER.debug("method {} was made delay {} mills to return result", joinPoint.getSignature(), timeInMillseconds);
+            TimeUnit.MILLISECONDS.sleep(timeInMillseconds);
+        }
         return result;
     }
 
