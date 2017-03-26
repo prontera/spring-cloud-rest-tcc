@@ -1,0 +1,45 @@
+server:
+  port: 8080
+eureka:
+  client:
+    service-url:
+      default-zone: 'peer1:8761/eureka/,peer2:8762/eureka/'
+  instance:
+    metadata-map:
+      cluster: prontera
+    prefer-ip-address: false
+spring:
+  application:
+    name: order
+  datasource:
+    username: chris
+    password: 123123
+    url: 'jdbc:mysql://prontera/order?useLegacyDatetimeCode=false&serverTimezone=Asia/Hong_Kong&useSSL=false'
+  cloud:
+    loadbalancer:
+      retry:
+        enabled: true
+    config:
+      discovery:
+        enabled: true
+        service-id: 'config-server'
+      fail-fast: true
+encrypt:
+  key: '*&3loa#@9no_0*(!'
+mybatis:
+  type-handlers-package: 'com.github.prontera.domain.type.handler'
+  mapper-locations: 'classpath*:mapper/**/*Mapper.xml'
+  type-aliases-package: 'com.github.prontera.domain'
+ribbon:
+  MaxAutoRetries: 1
+  MaxAutoRetriesNextServer: 3
+  OkToRetryOnAllOperations: true
+  ConnectTimeout: 1500
+  ReadTimeout: 2000
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 2000

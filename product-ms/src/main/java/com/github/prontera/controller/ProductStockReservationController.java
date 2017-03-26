@@ -1,5 +1,7 @@
 package com.github.prontera.controller;
 
+import com.github.prontera.Delay;
+import com.github.prontera.RandomlyThrowsException;
 import com.github.prontera.domain.ProductStockTcc;
 import com.github.prontera.model.Participant;
 import com.github.prontera.model.request.StockReservationRequest;
@@ -36,6 +38,8 @@ public class ProductStockReservationController {
     @Autowired
     private ProductStockTccService tccService;
 
+    @Delay
+    @RandomlyThrowsException
     @ApiOperation(value = "预留库存", notes = "")
     @RequestMapping(value = RESERVATION_URI, method = RequestMethod.POST)
     public ReservationResponse reserve(@Valid @RequestBody StockReservationRequest request, BindingResult error) {
@@ -46,6 +50,8 @@ public class ProductStockReservationController {
         return new ReservationResponse(participant);
     }
 
+    @Delay
+    @RandomlyThrowsException
     @ApiOperation(value = "确认预留库存", notes = "")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @RequestMapping(value = RESERVATION_URI + "/{reservationId}", method = RequestMethod.PUT)
@@ -53,6 +59,8 @@ public class ProductStockReservationController {
         tccService.confirmReservation(reservationId);
     }
 
+    @Delay
+    @RandomlyThrowsException
     @ApiOperation(value = "撤销预留库存", notes = "")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @RequestMapping(value = RESERVATION_URI + "/{reservationId}", method = RequestMethod.DELETE)

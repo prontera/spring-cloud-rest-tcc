@@ -1,5 +1,7 @@
 package com.github.prontera.controller;
 
+import com.github.prontera.Delay;
+import com.github.prontera.RandomlyThrowsException;
 import com.github.prontera.model.TccRequest;
 import com.github.prontera.service.CoordinateService;
 import io.swagger.annotations.ApiOperation;
@@ -27,6 +29,8 @@ public class CoordinateController {
     @Autowired
     private CoordinateService tccService;
 
+    @Delay
+    @RandomlyThrowsException
     @ApiOperation(value = "确认预留资源", notes = "")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @RequestMapping(value = COORDINATOR_URI_PREFIX + "/confirmation", method = RequestMethod.PUT)
@@ -34,6 +38,8 @@ public class CoordinateController {
         tccService.confirm(request);
     }
 
+    @Delay
+    @RandomlyThrowsException
     @ApiOperation(value = "撤销预留资源", notes = "")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @RequestMapping(value = COORDINATOR_URI_PREFIX + "/cancellation", method = RequestMethod.PUT)
