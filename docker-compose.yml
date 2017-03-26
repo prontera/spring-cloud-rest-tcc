@@ -1,0 +1,34 @@
+version: "2"
+
+services:
+    mq_share:
+        image: debian:jessie
+        volumes:
+            - "./docker-rabbitmq/share/:/opt/"
+    rabbitmq:
+        image: rabbitmq:3.6.6-management
+        ports:
+            - "5671:5671"
+            - "5672:5672"
+            - "15672:15672"
+        hostname: prontera-rabbit
+        volumes_from:
+            - mq_share
+        environment:
+            - RABBITMQ_DEFAULT_USER=chris
+            - RABBITMQ_DEFAULT_PASS=123123
+            - RABBITMQ_DEFAULT_VHOST=prontera
+    gogs_share:
+        image: debian:jessie
+        volumes:
+            - "./docker-gogs/share/:/data/"
+    gogs:
+        image: gogs/gogs
+        ports:
+            - "10022:22"
+            - "10080:3000"
+        hostname: gogs
+        volumes_from:
+            - gogs_share
+        volumes:
+            - "/usr/share/zoneinfo/Asia/Shanghai:/usr/share/zoneinfo/Asia/Shanghai:ro"

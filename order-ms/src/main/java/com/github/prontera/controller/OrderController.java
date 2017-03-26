@@ -1,5 +1,7 @@
 package com.github.prontera.controller;
 
+import com.github.prontera.Delay;
+import com.github.prontera.RandomlyThrowsException;
 import com.github.prontera.domain.Order;
 import com.github.prontera.model.request.PaymentRequest;
 import com.github.prontera.model.request.PlaceOrderRequest;
@@ -25,12 +27,16 @@ public class OrderController {
     @Autowired
     private OrderService orderService;
 
+    @Delay
+    @RandomlyThrowsException
     @ApiOperation(value = "下单", notes = "生成预订单")
     @RequestMapping(value = "/orders", method = RequestMethod.POST)
     public ObjectDataResponse<Order> placeOrder(@Valid @RequestBody PlaceOrderRequest request, BindingResult result) {
         return orderService.placeOrder(request);
     }
 
+    @Delay
+    @RandomlyThrowsException
     @ApiOperation(value = "确认订单", notes = "支付及确认")
     @RequestMapping(value = "/orders/confirmation", method = RequestMethod.POST)
     public ObjectDataResponse<Order> payOff(@Valid @RequestBody PaymentRequest request, BindingResult result) {

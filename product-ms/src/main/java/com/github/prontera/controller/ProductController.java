@@ -1,5 +1,7 @@
 package com.github.prontera.controller;
 
+import com.github.prontera.Delay;
+import com.github.prontera.RandomlyThrowsException;
 import com.github.prontera.Shift;
 import com.github.prontera.domain.Product;
 import com.github.prontera.model.request.IncreaseProductInventoryRequest;
@@ -28,6 +30,8 @@ public class ProductController {
     @Autowired
     private ProductService productService;
 
+    @Delay
+    @RandomlyThrowsException
     @ApiOperation(value = "根据ID获取商品", notes = "")
     @RequestMapping(value = "/products/{id}", method = RequestMethod.GET, consumes = MediaType.ALL_VALUE)
     public ObjectDataResponse<Product> findProduct(@PathVariable Long id) {
@@ -38,6 +42,8 @@ public class ProductController {
         return new ObjectDataResponse<>(product);
     }
 
+    @Delay
+    @RandomlyThrowsException
     @ApiOperation(value = "获取全部商品", notes = "")
     @RequestMapping(value = "/products", method = RequestMethod.GET, consumes = MediaType.ALL_VALUE)
     public ObjectCollectionResponse<Product> getAllProducts() {
@@ -45,6 +51,8 @@ public class ProductController {
         return new ObjectCollectionResponse<>(productList);
     }
 
+    @Delay
+    @RandomlyThrowsException
     @ApiOperation(value = "变更商品库存", notes = "")
     @RequestMapping(value = "/products/{productId}/inventory", method = RequestMethod.PATCH)
     public ObjectDataResponse<Product> updateInventory(@PathVariable Long productId, @Valid @RequestBody IncreaseProductInventoryRequest request, BindingResult result) {
