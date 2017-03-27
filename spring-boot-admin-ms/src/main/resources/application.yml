@@ -6,7 +6,7 @@ management:
 eureka:
   client:
     service-url:
-      defaultZone: 'http://peer1:8763/eureka/,http://peer2:8762/eureka/'
+      defaultZone: 'http://eureka_peer1:8763/eureka/,http://eureka_peer2:8762/eureka/'
     registry-fetch-interval-seconds: 5
   instance:
     metadata-map:
