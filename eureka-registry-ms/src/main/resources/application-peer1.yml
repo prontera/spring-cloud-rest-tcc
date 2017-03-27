@@ -1,11 +1,21 @@
 server:
   port: ${port:${PORT:8763}}
+management:
+  port: 9274
+  context-path: '/55395018-70b7-47c3-8fef-5bf24c9da9af'
 eureka:
   instance:
     hostname: peer1
     prefer-ip-address: false
     metadata-map:
       cluster: prontera
+      management:
+        port: ${management.port}
+        context-path: ${management.context-path}
+      health:
+        path: ${management.context-path}/health
+    status-page-url-path: ${management.context-path}/info
+    health-check-url-path: ${management.context-path}/health
   client:
     service-url:
       defaultZone: 'http://peer2:8762/eureka/'

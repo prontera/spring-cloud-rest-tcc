@@ -1,5 +1,8 @@
 server:
   port: 10888
+management:
+  port: 10481
+  context-path: '/f7597180-e480-400e-81a0-847c22e2e0b8'
 eureka:
   client:
     service-url:
@@ -7,6 +10,13 @@ eureka:
   instance:
     metadata-map:
       cluster: prontera
+      management:
+        port: ${management.port}
+        context-path: ${management.context-path}
+      health:
+        path: ${management.context-path}/health
+    status-page-url-path: ${management.context-path}/info
+    health-check-url-path: ${management.context-path}/health
     prefer-ip-address: false
 spring:
   rabbitmq:
@@ -35,3 +45,4 @@ spring:
     name: 'config-server'
 encrypt:
   key: '*&3loa#@9no_0*(!'
+
