@@ -1,12 +1,22 @@
 server:
   port: 8040
+management:
+  port: 10912
+  context-path: '/78d504ff-82e8-4a87-82e8-724d72d1171b'
 eureka:
   client:
     service-url:
-      default-zone: 'peer1:8761/eureka/,peer2:8762/eureka/'
+      defaultZone: 'http://peer1:8763/eureka/,http://peer2:8762/eureka/'
   instance:
     metadata-map:
       cluster: prontera
+      management:
+        port: ${management.port}
+        context-path: ${management.context-path}
+      health:
+        path: ${management.context-path}/health
+    status-page-url-path: ${management.context-path}/info
+    health-check-url-path: ${management.context-path}/health
     prefer-ip-address: false
 spring:
   application:
@@ -41,4 +51,3 @@ mybatis:
   type-handlers-package: 'com.github.prontera.domain.type.handler'
   mapper-locations: 'classpath*:mapper/**/*Mapper.xml'
   type-aliases-package: 'com.github.prontera.domain'
-

@@ -1,14 +1,28 @@
 server:
-  port: 7001
+  port: 8193
+management:
+  port: 7104
+  context-path: '/9511d89d-6488-4293-8df8-c4feb8681e83'
 turbine:
   app-config: account,gateway,order,product,tcc
   aggregator:
     clusterConfig: prontera
   cluster-name-expression: metadata['cluster']
+  instanceUrlSuffix:
+    prontera: '/78d504ff-82e8-4a87-82e8-724d72d1171b/hystrix.stream'
 eureka:
   client:
    service-url:
-      default-zone: 'peer1:8761/eureka/,peer2:8762/eureka/'
+      defaultZone: 'http://peer1:8763/eureka/,http://peer2:8762/eureka/'
+  instance:
+    metadata-map:
+      management:
+        port: ${management.port}
+        context-path: ${management.context-path}
+      health:
+        path: ${management.context-path}/health
+    status-page-url-path: ${management.context-path}/info
+    health-check-url-path: ${management.context-path}/health
 spring:
   application:
     name: hystrix

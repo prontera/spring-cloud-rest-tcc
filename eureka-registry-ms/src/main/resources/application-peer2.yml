@@ -1,16 +1,28 @@
 server:
   port: ${port:${PORT:8762}}
+management:
+  port: 10177
+  context-path: '/e5da837b-a575-4447-b037-100850226a11'
 eureka:
   instance:
     hostname: peer2
     prefer-ip-address: false
     metadata-map:
       cluster: prontera
+      management:
+        port: ${management.port}
+        context-path: ${management.context-path}
+      health:
+        path: ${management.context-path}/health
+    status-page-url-path: ${management.context-path}/info
+    health-check-url-path: ${management.context-path}/health
   client:
     service-url:
-      defaultZone: 'http://peer1:8761/eureka/'
+      defaultZone: 'http://peer1:8763/eureka/'
     fetch-registry: true
     register-with-eureka: true
+  server:
+    renewal-percent-threshold: '0.8'
 spring:
   application:
     name: 'registry'

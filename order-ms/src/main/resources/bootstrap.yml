@@ -1,12 +1,22 @@
 server:
-  port: 8080
+  port: 8295
+management:
+  port: 10848
+  context-path: '/78d504ff-82e8-4a87-82e8-724d72d1171b'
 eureka:
   client:
     service-url:
-      default-zone: 'peer1:8761/eureka/,peer2:8762/eureka/'
+      defaultZone: 'http://peer1:8763/eureka/,http://peer2:8762/eureka/'
   instance:
     metadata-map:
       cluster: prontera
+      management:
+        port: ${management.port}
+        context-path: ${management.context-path}
+      health:
+        path: ${management.context-path}/health
+    status-page-url-path: ${management.context-path}/info
+    health-check-url-path: ${management.context-path}/health
     prefer-ip-address: false
 spring:
   application:
