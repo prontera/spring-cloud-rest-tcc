@@ -8,7 +8,7 @@ turbine:
 eureka:
   client:
    service-url:
-      default-zone: 'peer1:8761/eureka/,peer2:8762/eureka/'
+      defaultZone: 'http://peer1:8763/eureka/,http://peer2:8762/eureka/'
 spring:
   application:
     name: hystrix

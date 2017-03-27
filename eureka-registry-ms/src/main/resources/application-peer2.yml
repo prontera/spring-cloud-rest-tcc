@@ -8,9 +8,11 @@ eureka:
       cluster: prontera
   client:
     service-url:
-      defaultZone: 'http://peer1:8761/eureka/'
+      defaultZone: 'http://peer1:8763/eureka/'
     fetch-registry: true
     register-with-eureka: true
+  server:
+    renewal-percent-threshold: '0.8'
 spring:
   application:
     name: 'registry'
