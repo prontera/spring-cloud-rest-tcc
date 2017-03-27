@@ -6,7 +6,7 @@ management:
 eureka:
   client:
     service-url:
-      defaultZone: 'http://eureka_peer1:8763/eureka/,http://eureka_peer2:8762/eureka/'
+      defaultZone: 'http://eureka1:8763/eureka/,http://eureka2:8762/eureka/'
     registry-fetch-interval-seconds: 5
   instance:
     metadata-map:
@@ -27,3 +27,8 @@ spring:
     loadbalancer:
       retry:
         enabled: true
+  boot:
+    admin:
+      turbine:
+        url: 'http://hystrix_dashboard:8193/turbine.stream'
+        clusters: 'prontera'

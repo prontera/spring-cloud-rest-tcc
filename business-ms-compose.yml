@@ -1,0 +1,70 @@
+version: "3"
+
+services:
+    jce_java:
+        build: ./docker-jce-jre
+        image: pronter/jce-java
+        read_only: true
+        command: echo "jce java"
+        environment:
+            - TZ=Asia/Shanghai
+    account:
+        build: ./account-ms
+        image: prontera/account-ms
+        ports:
+            - "10014:10014"
+            - "10248:10248"
+        depends_on:
+            - 'jce_java'
+        healthcheck:
+           test: ["CMD", "curl", "-f", "http://localhost:10888"]
+           interval: 10s
+           timeout: 5s
+           retries: 3
+        environment:
+            - TZ=Asia/Shanghai
+    order:
+        build: ./order-ms
+        image: prontera/order-ms
+        ports:
+            - "8295:8295"
+            - "10848:10848"
+        depends_on:
+            - 'jce_java'
+        healthcheck:
+           test: ["CMD", "curl", "-f", "http://localhost:10888"]
+           interval: 10s
+           timeout: 5s
+           retries: 3
+        environment:
+            - TZ=Asia/Shanghai
+    product:
+        build: ./product-ms
+        image: prontera/product-ms
+        ports:
+            - "8040:8040"
+            - "10912:10912"
+        depends_on:
+            - 'jce_java'
+        healthcheck:
+           test: ["CMD", "curl", "-f", "http://localhost:10888"]
+           interval: 10s
+           timeout: 5s
+           retries: 3
+        environment:
+            - TZ=Asia/Shanghai
+    tcc_coordinator:
+        build: ./tcc-coordinator-ms
+        image: prontera/tcc-coordinator-ms
+        ports:
+            - "11020:11020"
+            - "12841:12841"
+        depends_on:
+            - 'jce_java'
+        healthcheck:
+           test: ["CMD", "curl", "-f", "http://localhost:10888"]
+           interval: 10s
+           timeout: 5s
+           retries: 3
+        environment:
+            - TZ=Asia/Shanghai

@@ -6,7 +6,7 @@ management:
 eureka:
   client:
     service-url:
-      defaultZone: 'http://eureka_peer1:8763/eureka/,http://eureka_peer2:8762/eureka/'
+      defaultZone: 'http://eureka1:8763/eureka/,http://eureka2:8762/eureka/'
   instance:
     metadata-map:
       cluster: prontera
@@ -30,6 +30,8 @@ spring:
         enabled: true
         service-id: 'config-server'
       fail-fast: true
+  zipkin:
+    base-url: 'http://zipkin_server:9411/'
 encrypt:
   key: '*&3loa#@9no_0*(!'
 ribbon:

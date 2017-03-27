@@ -6,7 +6,7 @@ management:
 eureka:
   client:
     service-url:
-      defaultZone: 'http://eureka_peer1:8763/eureka/,http://eureka_peer2:8762/eureka/'
+      defaultZone: 'http://eureka1:8763/eureka/,http://eureka2:8762/eureka/'
   instance:
     metadata-map:
       cluster: prontera
@@ -20,7 +20,7 @@ eureka:
     prefer-ip-address: false
 spring:
   rabbitmq:
-    host: prontera
+    host: rabbitmq
     username: chris
     password: 123123
     virtual-host: prontera
@@ -34,11 +34,11 @@ spring:
     config:
       server:
         git:
-          uri: 'http://prontera:10080/chris/config-repo.git'
+          uri: 'http://gitlab/chris/config-repo.git'
           #searchPaths: '{application}'
           clone-on-start: true
           username: 'chris'
-          password: '123123'
+          password: '123123123'
         encrypt:
           enabled: false
   application:
