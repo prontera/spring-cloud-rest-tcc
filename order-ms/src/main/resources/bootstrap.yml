@@ -53,3 +53,7 @@ hystrix:
         isolation:
           thread:
             timeoutInMilliseconds: 2000
+flyway:
+  enabled: true
+  baseline-on-migrate: true
+  validate-on-migrate: false

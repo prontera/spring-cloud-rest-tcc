@@ -32,3 +32,22 @@ services:
             - gogs_share
         volumes:
             - "/usr/share/zoneinfo/Asia/Shanghai:/usr/share/zoneinfo/Asia/Shanghai:ro"
+    mysql_share:
+        image: debian:jessie
+        volumes:
+            - "./docker-mysql/share/:/share/"
+            - "/usr/share/zoneinfo/Asia/Shanghai:/usr/share/zoneinfo/Asia/Shanghai:ro"
+            - "./docker-mysql/db/:/docker-entrypoint-initdb.d/:ro"
+            - "./docker-mysql/master/lib/:/var/lib/mysql/"
+            - "./docker-mysql/master/log/:/var/log/mysql/"
+            - "./docker-mysql/master/conf.d/:/etc/mysql/mysql.conf.d/"
+    mysql:
+        build: ./docker-mysql/build
+        image: solar_mysql
+        ports:
+            - "3306:3306"
+        volumes_from:
+            - mysql_share
+        environment:
+            - MYSQL_ROOT_PASSWORD=123456
+
