@@ -1,5 +1,8 @@
 server:
   port: 7020
+management:
+  port: 9218
+  context-path: '/e58a0ff5-9f60-4545-9aa2-2b91c8a6d53b'
 eureka:
   client:
     service-url:
@@ -8,6 +11,13 @@ eureka:
   instance:
     metadata-map:
       cluster: prontera
+      management:
+        port: ${management.port}
+        context-path: ${management.context-path}
+      health:
+        path: ${management.context-path}/health
+    status-page-url-path: ${management.context-path}/info
+    health-check-url-path: ${management.context-path}/health
     prefer-ip-address: false
     lease-renewal-interval-in-seconds: 10
 spring:

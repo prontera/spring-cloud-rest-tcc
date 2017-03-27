@@ -1,6 +1,9 @@
 ## SERVER
 server:
-  port: 8000
+  port: 7291
+management:
+  port: 10211
+  context-path: '/fb83deee-dd46-472b-99a9-f0ebffe20d0e'
 eureka:
   client:
     service-url:
@@ -8,6 +11,13 @@ eureka:
   instance:
     metadata-map:
       cluster: prontera
+      management:
+        port: ${management.port}
+        context-path: ${management.context-path}
+      health:
+        path: ${management.context-path}/health
+    status-page-url-path: ${management.context-path}/info
+    health-check-url-path: ${management.context-path}/health
     prefer-ip-address: false
 spring:
   application:
