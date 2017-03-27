@@ -1,5 +1,7 @@
 package com.github.prontera.service;
 
+import com.github.prontera.Shift;
+import com.github.prontera.controller.StatusCode;
 import com.github.prontera.exception.PartialConfirmException;
 import com.github.prontera.exception.ReservationAlmostToExpireException;
 import com.github.prontera.exception.ReservationExpireException;
@@ -54,30 +56,46 @@ public class CoordinateService {
         Preconditions.checkNotNull(request);
         final List<Participant> participantLinks = request.getParticipantLinks();
         Preconditions.checkNotNull(participantLinks);
-        // 获取最接近过期的时间
-        final OffsetDateTime theClosestToExpire = fetchTheRecentlyExpireTime(participantLinks);
-        if (theClosestToExpire.minusSeconds(LEEWAY).isBefore(OffsetDateTime.now())) {
-            // 释放全部资源
-            cancel(request);
-            throw new ReservationAlmostToExpireException("there are resources be about to expire at " + theClosestToExpire);
-        }
+        //checkExpireInLocal(request, participantLinks);
         // 调用确认资源链接
+        int success = 0;
+        int fail = 0;
         for (Participant participant : participantLinks) {
             participant.setExecuteTime(OffsetDateTime.now());
             // 必须设置重试以防参与者宕机或网络抖动
             final ResponseEntity<String> response = restTemplate.exchange(participant.getUri(), HttpMethod.PUT, REQUEST_ENTITY, String.class);
             if (response.getStatusCode() == HttpStatus.NO_CONTENT) {
                 participant.setTccStatus(TccStatus.CONFIRMED);
+                success++;
             } else if (response.getStatusCode() == HttpStatus.NOT_FOUND) {
                 participant.setTccStatus(TccStatus.TIMEOUT);
                 participant.setParticipantErrorResponse(response);
-                throw new ReservationExpireException("although we have check the expire time in request body, we got an expiration when confirming actually");
+                fail++;
             } else {
-                participant.setTccStatus(TccStatus.CONFLICT);
-                participant.setParticipantErrorResponse(response);
-                // 出现冲突必须返回并需要人工介入
-                throw new PartialConfirmException("all reservation were cancelled or timeout", new TccErrorResponse(participantLinks));
+                Shift.fatal(StatusCode.SERVER_UNKNOWN_ERROR, response);
             }
+        }
+        // 检查是否有冲突
+        if (success > 0 && fail > 0) {
+            // 出现冲突必须返回并需要人工介入
+            throw new PartialConfirmException("all reservation were cancelled or timeout", new TccErrorResponse(participantLinks));
+        } else if (fail == participantLinks.size()) {
+            // 全部timeout
+            throw new ReservationExpireException("although we have check the expire time in request body, we got an expiration when confirming actually");
+        }
+    }
+
+    /**
+     * 直接向服务查询, 不再自作聪明地在本地进行过期时间检查, 以免无法区分not found与conflict
+     */
+    @Deprecated
+    private void checkExpireInLocal(TccRequest request, List<Participant> participantLinks) {
+        // 获取最接近过期的时间
+        final OffsetDateTime theClosestToExpire = fetchTheRecentlyExpireTime(participantLinks);
+        if (theClosestToExpire.minusSeconds(LEEWAY).isBefore(OffsetDateTime.now())) {
+            // 释放全部资源
+            cancel(request);
+            throw new ReservationAlmostToExpireException("there are resources be about to expire at " + theClosestToExpire);
         }
     }
 

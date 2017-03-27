@@ -37,11 +37,11 @@
             <property name="rootInterface" value="com.github.prontera.persistence.CrudMapper"/>
         </javaClientGenerator>
 
-        <table alias="torder" tableName="t_order" domainObjectName="Order"
+        <table alias="torder_participant" tableName="t_order_participant" domainObjectName="OrderParticipant"
                enableCountByExample="false" enableUpdateByExample="false"
                enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false">
-            <columnOverride column="status" javaType="com.github.prontera.model.type.OrderStatus"
-                            typeHandler="com.github.prontera.model.type.handler.OrderStatusHandler"/>
+            <columnOverride column="t_order_id" property="orderId"/>
+            <columnOverride column="expire_time" javaType="java.time.OffsetDateTime"/>
             <columnOverride column="create_time" javaType="java.time.OffsetDateTime"/>
             <columnOverride column="update_time" javaType="java.time.OffsetDateTime"/>
             <columnOverride column="delete_time" javaType="java.time.OffsetDateTime"/>

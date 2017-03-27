@@ -50,6 +50,16 @@ public enum StatusCode implements RestStatus {
      */
     ORDER_NOT_EXISTS(42004, "订单不存在"),
 
+    /**
+     * 库存不足
+     */
+    INSUFFICIENT_PRODUCT(42005, "库存不足"),
+
+    /**
+     * 余额不足
+     */
+    INSUFFICIENT_BALANCE(42006, "余额不足"),
+
     // 50xxx 服务端异常
     /**
      * 用于处理未知的服务端错误

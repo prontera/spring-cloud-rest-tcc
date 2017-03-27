@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.github.prontera.persistence.OrderParticipantMapper">
+    <resultMap id="BaseResultMap" type="com.github.prontera.domain.OrderParticipant">
+        <id column="torder_participant_id" jdbcType="BIGINT" property="id"/>
+        <result column="torder_participant_create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="torder_participant_update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="torder_participant_delete_time" jdbcType="TIMESTAMP" property="deleteTime"/>
+        <result column="torder_participant_expire_time" jdbcType="TIMESTAMP" property="expireTime"/>
+        <result column="torder_participant_uri" jdbcType="VARCHAR" property="uri"/>
+        <result column="torder_participant_t_order_id" jdbcType="BIGINT" property="orderId"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        torder_participant.id as torder_participant_id, torder_participant.create_time as torder_participant_create_time,
+        torder_participant.update_time as torder_participant_update_time, torder_participant.delete_time as torder_participant_delete_time,
+        torder_participant.expire_time as torder_participant_expire_time, torder_participant.uri as torder_participant_uri,
+        torder_participant.t_order_id as torder_participant_t_order_id
+    </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from t_order_participant torder_participant
+        where torder_participant.id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+        DELETE FROM t_order_participant
+        WHERE id = #{id,jdbcType=BIGINT}
+    </delete>
+    <insert id="insert" parameterType="com.github.prontera.domain.OrderParticipant">
+        INSERT INTO t_order_participant (id, create_time, update_time,
+                                         delete_time, expire_time, uri,
+                                         t_order_id)
+        VALUES (#{id,jdbcType=BIGINT}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP},
+                #{deleteTime,jdbcType=TIMESTAMP}, #{expireTime,jdbcType=TIMESTAMP}, #{uri,jdbcType=VARCHAR},
+                #{orderId,jdbcType=BIGINT})
+    </insert>
+    <insert id="insertSelective" parameterType="com.github.prontera.domain.OrderParticipant">
+        insert into t_order_participant
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="updateTime != null">
+                update_time,
+            </if>
+            <if test="deleteTime != null">
+                delete_time,
+            </if>
+            <if test="expireTime != null">
+                expire_time,
+            </if>
+            <if test="uri != null">
+                uri,
+            </if>
+            <if test="orderId != null">
+                t_order_id,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateTime != null">
+                #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="deleteTime != null">
+                #{deleteTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="expireTime != null">
+                #{expireTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="uri != null">
+                #{uri,jdbcType=VARCHAR},
+            </if>
+            <if test="orderId != null">
+                #{orderId,jdbcType=BIGINT},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.github.prontera.domain.OrderParticipant">
+        update t_order_participant
+        <set>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="deleteTime != null">
+                delete_time = #{deleteTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="expireTime != null">
+                expire_time = #{expireTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="uri != null">
+                uri = #{uri,jdbcType=VARCHAR},
+            </if>
+            <if test="orderId != null">
+                t_order_id = #{orderId,jdbcType=BIGINT},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.github.prontera.domain.OrderParticipant">
+        UPDATE t_order_participant
+        SET create_time = #{createTime,jdbcType=TIMESTAMP},
+            update_time = #{updateTime,jdbcType=TIMESTAMP},
+            delete_time = #{deleteTime,jdbcType=TIMESTAMP},
+            expire_time = #{expireTime,jdbcType=TIMESTAMP},
+            uri         = #{uri,jdbcType=VARCHAR},
+            t_order_id  = #{orderId,jdbcType=BIGINT}
+        WHERE id = #{id,jdbcType=BIGINT}
+    </update>
+    <select id="selectByOrderId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from t_order_participant torder_participant
+        where torder_participant.t_order_id = #{orderId}
+    </select>
+</mapper>
