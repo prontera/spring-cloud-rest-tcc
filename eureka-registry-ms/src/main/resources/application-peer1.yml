@@ -1,5 +1,5 @@
 server:
-  port: ${port:${PORT:8761}}
+  port: ${port:${PORT:8763}}
 eureka:
   instance:
     hostname: peer1
@@ -11,6 +11,8 @@ eureka:
       defaultZone: 'http://peer2:8762/eureka/'
     fetch-registry: true
     register-with-eureka: true
+  server:
+    renewal-percent-threshold: '0.8'
 spring:
   application:
     name: 'registry'
