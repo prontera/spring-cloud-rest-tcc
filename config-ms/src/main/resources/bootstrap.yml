@@ -34,7 +34,7 @@ spring:
     config:
       server:
         git:
-          uri: 'http://gitlab/chris/config-repo.git'
+          uri: 'https://git.oschina.net/witless/conf-repo.git'
           #searchPaths: '{application}'
           clone-on-start: true
           username: 'chris'

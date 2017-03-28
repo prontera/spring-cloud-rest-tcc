@@ -22,21 +22,9 @@ services:
             - RABBITMQ_DEFAULT_USER=chris
             - RABBITMQ_DEFAULT_PASS=123123
             - RABBITMQ_DEFAULT_VHOST=prontera
-    gitlab:
-        image: daocloud.io/daocloud/gitlab:8.16.7-ce.0
-        ports:
-            - "10222:22"
-            - "80:80"
-            - "10443:443"
-        volumes:
-            - "./docker-gitlab/config/:/etc/gitlab/"
-            - "./docker-gitlab/logs/:/var/log/gitlab/"
-            - "./docker-gitlab/data/:/var/opt/gitlab/"
-        environment:
-            - TZ=Asia/Shanghai
     solar_mysql:
         build: ./docker-mysql/build
-        image: prontera/solar
+        image: prontera/mysql
         ports:
             - "3306:3306"
         volumes:
