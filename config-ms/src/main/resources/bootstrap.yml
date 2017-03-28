@@ -35,10 +35,11 @@ spring:
       server:
         git:
           uri: 'https://git.oschina.net/witless/conf-repo.git'
+          #uri: 'https://github.com/prontera/solar.git'
           #searchPaths: '{application}'
           clone-on-start: true
-          username: 'chris'
-          password: '123123123'
+          #username: 'chris'
+          #password: '123123123'
         encrypt:
           enabled: false
   application:
