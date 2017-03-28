@@ -5,7 +5,7 @@ management:
   context-path: '/e5da837b-a575-4447-b037-100850226a11'
 eureka:
   instance:
-    hostname: peer2
+    hostname: eureka2
     prefer-ip-address: false
     metadata-map:
       cluster: prontera
@@ -18,7 +18,7 @@ eureka:
     health-check-url-path: ${management.context-path}/health
   client:
     service-url:
-      defaultZone: 'http://peer1:8763/eureka/'
+      defaultZone: 'http://eureka1:8763/eureka/'
     fetch-registry: true
     register-with-eureka: true
   server:

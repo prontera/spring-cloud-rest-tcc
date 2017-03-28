@@ -1,0 +1,39 @@
+version: "3"
+
+services:
+    jce_java:
+        build: ./docker-jce-jre
+        image: pronter/jce-java
+        read_only: true
+        command: echo "jce java"
+        environment:
+            - TZ=Asia/Shanghai
+    rabbitmq:
+        image: rabbitmq:3.6.6-management
+        ports:
+            - "5671:5671"
+            - "5672:5672"
+            - "15672:15672"
+        hostname: prontera-rabbit
+        volumes:
+            - "./docker-rabbitmq/share/:/opt/"
+        environment:
+            - TZ=Asia/Shanghai
+            - RABBITMQ_DEFAULT_USER=chris
+            - RABBITMQ_DEFAULT_PASS=123123
+            - RABBITMQ_DEFAULT_VHOST=prontera
+    solar_mysql:
+        build: ./docker-mysql/build
+        image: prontera/mysql
+        ports:
+            - "3306:3306"
+        volumes:
+            - "./docker-mysql/share/:/share/"
+            - "./docker-mysql/db/:/docker-entrypoint-initdb.d/:ro"
+            - "./docker-mysql/master/lib/:/var/lib/mysql/"
+            - "./docker-mysql/master/log/:/var/log/mysql/"
+            - "./docker-mysql/master/conf.d/:/etc/mysql/mysql.conf.d/"
+            #- "/usr/share/zoneinfo/Asia/Shanghai:/usr/share/zoneinfo/Asia/Shanghai:ro"
+        environment:
+            - TZ=Asia/Shanghai
+            - MYSQL_ROOT_PASSWORD=123456

@@ -1,0 +1,49 @@
+version: "3"
+
+services:
+    jce_java:
+        build: ./docker-jce-jre
+        image: pronter/jce-java
+        read_only: true
+        command: echo "jce java"
+        environment:
+            - TZ=Asia/Shanghai
+    gateway:
+        build: ./api-gateway-ms
+        image: prontera/gateway-ms
+        ports:
+            - "7291:7291"
+            - "10211:10211"
+        depends_on:
+            - 'jce_java'
+        environment:
+            - TZ=Asia/Shanghai
+    hystrix_dashboard:
+        build: ./hystrix-dashboard-ms
+        image: prontera/hystrix-dashboard-ms
+        ports:
+            - "8193:8193"
+            - "7104:7104"
+        depends_on:
+            - 'jce_java'
+        environment:
+            - TZ=Asia/Shanghai
+    spring_boot_admin:
+        build: ./spring-boot-admin-ms
+        image: prontera/spring-boot-admin-ms
+        ports:
+            - "7020:7020"
+            - "9218:9218"
+        depends_on:
+            - 'jce_java'
+        environment:
+            - TZ=Asia/Shanghai
+    zipkin_server:
+        build: ./zipkin-ms
+        image: prontera/zipkin-ms
+        ports:
+            - "9411:9411"
+        depends_on:
+            - 'jce_java'
+        environment:
+            - TZ=Asia/Shanghai

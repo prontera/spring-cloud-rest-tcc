@@ -1,2 +1,0 @@
-#!/usr/bin/env bash
-"/app/gogs/gogs" hook --config='/data/gogs/conf/app.ini' pre-receive

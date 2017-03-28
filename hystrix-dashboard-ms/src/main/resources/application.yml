@@ -13,7 +13,7 @@ turbine:
 eureka:
   client:
    service-url:
-      defaultZone: 'http://peer1:8763/eureka/,http://peer2:8762/eureka/'
+      defaultZone: 'http://eureka1:8763/eureka/,http://eureka2:8762/eureka/'
   instance:
     metadata-map:
       management:

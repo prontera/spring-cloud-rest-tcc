@@ -1,0 +1,49 @@
+version: "3"
+
+services:
+    jce_java:
+        build: ./docker-jce-jre
+        image: pronter/jce-java
+        read_only: true
+        command: echo "jce java"
+        environment:
+            - TZ=Asia/Shanghai
+    eureka1:
+        build: ./eureka-registry-ms
+        image: prontera/eureka-registry-ms
+        ports:
+            - "8763:8763"
+            - "9274:9274"
+        depends_on:
+            - 'jce_java'
+        environment:
+            - TZ=Asia/Shanghai
+        command: "--spring.profiles.active=peer1"
+    eureka2:
+        build: ./eureka-registry-ms
+        image: prontera/eureka-registry-ms
+        ports:
+            - "8762:8762"
+            - "10177:10177"
+        depends_on:
+            - 'jce_java'
+        environment:
+            - TZ=Asia/Shanghai
+        command: "--spring.profiles.active=peer2"
+    config_server:
+        build: ./config-ms
+        image: prontera/config-server-ms
+        ports:
+            - "10888:10888"
+            - "10481:10481"
+        depends_on:
+            - 'jce_java'
+            - 'eureka1'
+            - 'eureka2'
+        healthcheck:
+           test: ["CMD", "curl", "-f", "http://localhost:8763"]
+           interval: 30s
+           timeout: 30s
+           retries: 3
+        environment:
+            - TZ=Asia/Shanghai
