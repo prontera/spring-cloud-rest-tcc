@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE generatorConfiguration PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+        "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd" >
+<generatorConfiguration>
+
+    <context id="chris">
+        <commentGenerator>
+            <property name="suppressAllComments" value="true"/>
+        </commentGenerator>
+
+        <!--com.mysql.jdbc.Driver-->
+        <!--com.mysql.cj.jdbc.Driver-->
+        <jdbcConnection driverClass="com.mysql.jdbc.Driver" connectionURL="jdbc:mysql:///account?serverTimezone=UTC"
+                        userId="chris" password="123123"/>
+
+        <javaTypeResolver>
+            <!--当数据类型为DECIMAL或者NUMERIC的时候, 如果是true的话则总是使用java.math.BigDecimal-->
+            <property name="forceBigDecimals" value="false"/>
+        </javaTypeResolver>
+
+        <javaModelGenerator targetPackage="com.github.prontera.domain"
+                            targetProject="${dao.target.dir}">
+            <property name="enableSubPackages" value="true"/>
+            <!--<property name="trimStrings" value="true"/>-->
+            <!--<property name="immutable" value="true"/>-->
+            <property name="rootClass" value="com.github.prontera.model.BasicDomain"/>
+        </javaModelGenerator>
+
+        <sqlMapGenerator targetPackage="com.github.prontera.domain"
+                         targetProject="${dao.target.dir}">
+            <property name="enableSubPackages" value="true"/>
+        </sqlMapGenerator>
+
+        <javaClientGenerator targetPackage="com.github.prontera.domain"
+                             targetProject="${dao.target.dir}" type="XMLMAPPER">
+            <property name="enableSubPackages" value="true"/>
+            <property name="rootInterface" value="com.github.prontera.persistence.CrudMapper"/>
+        </javaClientGenerator>
+
+        <table alias="tuser" tableName="t_user" domainObjectName="User"
+               enableCountByExample="false" enableUpdateByExample="false"
+               enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false">
+            <columnOverride column="create_time" javaType="java.time.OffsetDateTime" isGeneratedAlways="true"/>
+            <columnOverride column="update_time" javaType="java.time.OffsetDateTime" isGeneratedAlways="true"/>
+            <columnOverride column="delete_time" javaType="java.time.OffsetDateTime"/>
+            <columnOverride column="expire_time" javaType="java.time.OffsetDateTime"/>
+        </table>
+
+        <table alias="tuser_balance_tcc" tableName="t_user_balance_tcc" domainObjectName="UserBalanceTcc"
+               enableCountByExample="false" enableUpdateByExample="false"
+               enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false">
+            <columnOverride column="status"
+                            jdbcType="TINYINT"
+                            javaType="com.github.prontera.domain.type.TccStatus"
+                            typeHandler="com.github.prontera.domain.type.handler.TccStatusTypeHandler"/>
+            <columnOverride column="t_user_id" property="userId"/>
+            <columnOverride column="create_time" javaType="java.time.OffsetDateTime" isGeneratedAlways="true"/>
+            <columnOverride column="update_time" javaType="java.time.OffsetDateTime" isGeneratedAlways="true"/>
+            <columnOverride column="delete_time" javaType="java.time.OffsetDateTime"/>
+            <columnOverride column="expire_time" javaType="java.time.OffsetDateTime"/>
+        </table>
+
+    </context>
+</generatorConfiguration>

@@ -281,6 +281,7 @@ gitlab:
 | eureka-registry-ms-1 |           eureka1           |     registry      |    8763     |      9274       |  /55395018-70b7-47c3-8fef-5bf24c9da9af   |    ×     |
 | eureka-registry-ms-2 |           eureka2           |     registry      |    8762     |      10177      |  /e5da837b-a575-4447-b037-100850226a11   |    ×     |
 | hystrix-dashboard-ms |      hystrix_dashboard      |      hystrix      |    8193     |      7104       |  /9511d89d-6488-4293-8df8-c4feb8681e83   |          |
+|    membership-ms     |        membership_ms        |    membership     |    10673    |      10391      |  /a6da3b6f-4b59-11e7-9226-0242ac130004   |          |
 |       order-ms       |            order            |       order       |    8295     |      10848      | **/78d504ff-82e8-4a87-82e8-724d72d1171b** |          |
 |      product-ms      |           product           |      product      |    8040     |      10912      | **/78d504ff-82e8-4a87-82e8-724d72d1171b** |          |
 | spring-boot-admin-ms |      spring_boot_admin      | spring-boot-admin |    7020     |      9218       |  /e58a0ff5-9f60-4545-9aa2-2b91c8a6d53b   |          |
