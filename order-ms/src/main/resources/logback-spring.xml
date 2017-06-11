@@ -30,7 +30,12 @@
         <logger name="com.github.prontera" level="WARN"/>
     </springProfile>
 
-    <logger name="com.github.prontera.persistence" level="WARN" additivity="false">
+    <logger name="com.github.prontera.persistence" level="INFO" additivity="false">
+        <appender-ref ref="CONSOLE"/>
+        <!--<appender-ref ref="FILE"/>-->
+    </logger>
+
+    <logger name="com.github.prontera" level="DEBUG" additivity="false">
         <appender-ref ref="CONSOLE"/>
         <!--<appender-ref ref="FILE"/>-->
     </logger>

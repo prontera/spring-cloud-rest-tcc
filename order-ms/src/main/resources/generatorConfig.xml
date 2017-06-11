@@ -37,14 +37,32 @@
             <property name="rootInterface" value="com.github.prontera.persistence.CrudMapper"/>
         </javaClientGenerator>
 
-        <table alias="torder_participant" tableName="t_order_participant" domainObjectName="OrderParticipant"
+        <table alias="tevent_pub" tableName="t_event_pub" domainObjectName="EventPublisher"
                enableCountByExample="false" enableUpdateByExample="false"
                enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false">
-            <columnOverride column="t_order_id" property="orderId"/>
-            <columnOverride column="expire_time" javaType="java.time.OffsetDateTime"/>
-            <columnOverride column="create_time" javaType="java.time.OffsetDateTime"/>
-            <columnOverride column="update_time" javaType="java.time.OffsetDateTime"/>
+            <columnOverride column="event_status"
+                            jdbcType="TINYINT"
+                            javaType="com.github.prontera.domain.type.EventStatus"
+                            typeHandler="com.github.prontera.domain.type.handler.EventStatusTypeHandler"/>
+            <columnOverride column="create_time" javaType="java.time.OffsetDateTime" isGeneratedAlways="true"/>
+            <columnOverride column="update_time" javaType="java.time.OffsetDateTime" isGeneratedAlways="true"/>
             <columnOverride column="delete_time" javaType="java.time.OffsetDateTime"/>
+            <columnOverride column="pub_guid" property="guid"/>
+            <columnOverride column="biz_type" property="businessType"/>
+        </table>
+
+        <table alias="tevent_sub" tableName="t_event_sub" domainObjectName="EventSubscriber"
+               enableCountByExample="false" enableUpdateByExample="false"
+               enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false">
+            <columnOverride column="event_status"
+                            jdbcType="TINYINT"
+                            javaType="com.github.prontera.domain.type.EventStatus"
+                            typeHandler="com.github.prontera.domain.type.handler.EventStatusTypeHandler"/>
+            <columnOverride column="create_time" javaType="java.time.OffsetDateTime" isGeneratedAlways="true"/>
+            <columnOverride column="update_time" javaType="java.time.OffsetDateTime" isGeneratedAlways="true"/>
+            <columnOverride column="delete_time" javaType="java.time.OffsetDateTime"/>
+            <columnOverride column="pub_guid" property="guid"/>
+            <columnOverride column="biz_type" property="businessType"/>
         </table>
 
     </context>

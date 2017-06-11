@@ -25,6 +25,20 @@ spring:
     username: chris
     password: 123123
     url: 'jdbc:mysql://solar_mysql:3306/order?useLegacyDatetimeCode=false&serverTimezone=Asia/Hong_Kong&useSSL=false'
+  rabbitmq:
+    host: rabbitmq
+    username: chris
+    password: 123123
+    virtual-host: prontera
+    listener:
+      retry:
+        enabled: true
+    template:
+      retry:
+        enabled: true
+      mandatory: true
+    publisher-confirms: true
+    publisher-returns: true
   cloud:
     loadbalancer:
       retry:
