@@ -15,7 +15,7 @@ Spring Cloud为开发者提供了快速构建分布式系统中的一些常见�
 
 ## 系统结构
 
-![](./image/Infrastructure2.png)
+![](./image/infrastructure2.png)
 
 
 
