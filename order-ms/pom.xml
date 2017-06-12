@@ -28,11 +28,6 @@
     <dependencies>
         <dependency>
             <groupId>com.github.prontera</groupId>
-            <artifactId>common-dps</artifactId>
-            <version>${common-dps.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.github.prontera</groupId>
             <artifactId>event-driven-dps</artifactId>
             <version>${event-driven-dps.version}</version>
         </dependency>

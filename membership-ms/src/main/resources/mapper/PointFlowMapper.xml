@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.github.prontera.persistence.PointFlowMapper">
+    <resultMap id="BaseResultMap" type="com.github.prontera.domain.PointFlow">
+        <id column="tpoint_flow_id" jdbcType="BIGINT" property="id"/>
+        <result column="tpoint_flow_create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="tpoint_flow_update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="tpoint_flow_delete_time" jdbcType="TIMESTAMP" property="deleteTime"/>
+        <result column="tpoint_flow_point" jdbcType="INTEGER" property="point"/>
+        <result column="tpoint_flow_order_id" jdbcType="BIGINT" property="orderId"/>
+        <result column="tpoint_flow_user_id" jdbcType="BIGINT" property="userId"/>
+        <result column="tpoint_flow_product_id" jdbcType="BIGINT" property="productId"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        tpoint_flow.id as tpoint_flow_id, tpoint_flow.create_time as tpoint_flow_create_time,
+        tpoint_flow.update_time as tpoint_flow_update_time, tpoint_flow.delete_time as tpoint_flow_delete_time,
+        tpoint_flow.point as tpoint_flow_point, tpoint_flow.order_id as tpoint_flow_order_id,
+        tpoint_flow.user_id as tpoint_flow_user_id, tpoint_flow.product_id as tpoint_flow_product_id
+    </sql>
+    <select id="selectAllByUserId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from t_point_flow tpoint_flow
+        where tpoint_flow.user_id = #{userId,jdbcType=BIGINT}
+    </select>
+    <select id="selectByOrderId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from t_point_flow tpoint_flow
+        where tpoint_flow.order_id = #{orderId,jdbcType=BIGINT}
+    </select>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from t_point_flow tpoint_flow
+        where tpoint_flow.id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+        DELETE FROM t_point_flow
+        WHERE id = #{id,jdbcType=BIGINT}
+    </delete>
+    <insert id="insert" parameterType="com.github.prontera.domain.PointFlow" useGeneratedKeys="true"
+            keyProperty="id">
+        INSERT INTO t_point_flow (id, delete_time, point,
+                                  order_id, user_id, product_id
+        )
+        VALUES (#{id,jdbcType=BIGINT}, #{deleteTime,jdbcType=TIMESTAMP}, #{point,jdbcType=INTEGER},
+                #{orderId,jdbcType=BIGINT}, #{userId,jdbcType=BIGINT}, #{productId,jdbcType=BIGINT}
+        )
+    </insert>
+    <insert id="insertSelective" parameterType="com.github.prontera.domain.PointFlow" useGeneratedKeys="true"
+            keyProperty="id">
+        insert into t_point_flow
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="deleteTime != null">
+                delete_time,
+            </if>
+            <if test="point != null">
+                point,
+            </if>
+            <if test="orderId != null">
+                order_id,
+            </if>
+            <if test="userId != null">
+                user_id,
+            </if>
+            <if test="productId != null">
+                product_id,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="deleteTime != null">
+                #{deleteTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="point != null">
+                #{point,jdbcType=INTEGER},
+            </if>
+            <if test="orderId != null">
+                #{orderId,jdbcType=BIGINT},
+            </if>
+            <if test="userId != null">
+                #{userId,jdbcType=BIGINT},
+            </if>
+            <if test="productId != null">
+                #{productId,jdbcType=BIGINT},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.github.prontera.domain.PointFlow">
+        update t_point_flow
+        <set>
+            <if test="deleteTime != null">
+                delete_time = #{deleteTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="point != null">
+                point = #{point,jdbcType=INTEGER},
+            </if>
+            <if test="orderId != null">
+                order_id = #{orderId,jdbcType=BIGINT},
+            </if>
+            <if test="userId != null">
+                user_id = #{userId,jdbcType=BIGINT},
+            </if>
+            <if test="productId != null">
+                product_id = #{productId,jdbcType=BIGINT},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.github.prontera.domain.PointFlow">
+        UPDATE t_point_flow
+        SET delete_time = #{deleteTime,jdbcType=TIMESTAMP},
+            point       = #{point,jdbcType=INTEGER},
+            order_id    = #{orderId,jdbcType=BIGINT},
+            user_id     = #{userId,jdbcType=BIGINT},
+            product_id  = #{productId,jdbcType=BIGINT}
+        WHERE id = #{id,jdbcType=BIGINT}
+    </update>
+</mapper>

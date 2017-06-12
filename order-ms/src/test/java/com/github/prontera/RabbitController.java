@@ -16,7 +16,6 @@ import lombok.Setter;
 import lombok.ToString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.rabbit.support.CorrelationData;
@@ -45,18 +44,8 @@ public class RabbitController {
 
     //@PostConstruct
     public void init() {
-        amqpTemplate.setConfirmCallback(new RabbitTemplate.ConfirmCallback() {
-            @Override
-            public void confirm(CorrelationData correlationData, boolean ack, String cause) {
-                LOGGER.info("ACK:: correlationData: {}, ack: {}, cause: {}", correlationData, ack, cause);
-            }
-        });
-        amqpTemplate.setReturnCallback(new RabbitTemplate.ReturnCallback() {
-            @Override
-            public void returnedMessage(Message message, int replyCode, String replyText, String exchange, String routingKey) {
-                LOGGER.info("RETURN:: message: {}, replyCode: {}, replyText: {}, exchange: {}, routingKey: {}", new String(message.getBody(), Charsets.UTF_8), replyCode, replyText, exchange, routingKey);
-            }
-        });
+        amqpTemplate.setConfirmCallback((correlationData, ack, cause) -> LOGGER.info("ACK:: correlationData: {}, ack: {}, cause: {}", correlationData, ack, cause));
+        amqpTemplate.setReturnCallback((message, replyCode, replyText, exchange, routingKey) -> LOGGER.info("RETURN:: message: {}, replyCode: {}, replyText: {}, exchange: {}, routingKey: {}", new String(message.getBody(), Charsets.UTF_8), replyCode, replyText, exchange, routingKey));
     }
 
     @RequestMapping(value = "/queue-exists", method = RequestMethod.GET)
@@ -119,7 +108,7 @@ public class RabbitController {
     @RabbitListener(queues = {RabbitConfiguration.POINT_QUEUE})
     public void processBootTaskBus(Map<String, Object> event) {
         //LOGGER.debug("consume: {}", event);
-        subscriber.persistSubscribeMessage(event.get("business_type").toString(), event.get("payload").toString(), event.get("guid").toString());
+        subscriber.persistAndHandleMessage(event.get("business_type").toString(), event.get("payload").toString(), event.get("guid").toString());
     }
 
     @Getter

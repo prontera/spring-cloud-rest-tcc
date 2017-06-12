@@ -1,6 +1,8 @@
 package com.github.prontera.service;
 
+import com.github.prontera.EventDrivenPublisher;
 import com.github.prontera.Shift;
+import com.github.prontera.config.EventBusinessType;
 import com.github.prontera.controller.StatusCode;
 import com.github.prontera.controller.client.AccountClient;
 import com.github.prontera.controller.client.ProductClient;
@@ -23,9 +25,11 @@ import com.github.prontera.model.response.ReservationResponse;
 import com.github.prontera.model.type.OrderStatus;
 import com.github.prontera.persistence.CrudMapper;
 import com.github.prontera.persistence.OrderParticipantMapper;
+import com.github.prontera.util.Jacksons;
 import com.github.prontera.util.OrikaMapper;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,6 +56,8 @@ public class OrderService extends CrudServiceImpl<Order> {
     private OrderConflictService conflictService;
     @Autowired
     private OrderParticipantMapper participantMapper;
+    @Autowired
+    private EventDrivenPublisher publisher;
 
     @Autowired
     public OrderService(CrudMapper<Order> mapper) {
@@ -167,7 +173,15 @@ public class OrderService extends CrudServiceImpl<Order> {
         try {
             tccClient.confirm(tccRequest);
             order.setStatus(OrderStatus.DONE);
-            super.updateNonNullProperties(order);
+            if (super.updateNonNullProperties(order) > 0) {
+                final ImmutableMap.Builder<String, Object> payloadBuilder = ImmutableMap.builder();
+                payloadBuilder.put("point", order.getPrice());
+                payloadBuilder.put("order_id", order.getId());
+                payloadBuilder.put("user_id", order.getUserId());
+                payloadBuilder.put("product_id", order.getProductId());
+                // 发送积分添加事件
+                publisher.persistPublishMessage(Jacksons.parse(payloadBuilder.build()), EventBusinessType.ADD_PTS.name());
+            }
         } catch (HystrixRuntimeException e) {
             final Class<? extends Throwable> exceptionCause = e.getCause().getClass();
             if (ReservationExpireException.class.isAssignableFrom(exceptionCause)) {

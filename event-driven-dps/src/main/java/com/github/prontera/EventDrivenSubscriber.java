@@ -30,7 +30,7 @@ public class EventDrivenSubscriber {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public int persistSubscribeMessage(String businessType, String payload, String guid) {
+    public int persistAndHandleMessage(String businessType, String payload, String guid) {
         Preconditions.checkNotNull(businessType);
         Preconditions.checkNotNull(payload);
         Preconditions.checkNotNull(guid);
@@ -49,7 +49,7 @@ public class EventDrivenSubscriber {
         }
         // 非重复消息则执行实际的业务
         if (influence > 0) {
-            handler.handler(subscriber);
+            handler.handle(subscriber);
         }
         return influence;
     }
