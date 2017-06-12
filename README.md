@@ -98,10 +98,6 @@ Zuul在本实例中仅作为路由所使用，配置降低Ribbon的读取与连�
 
   我在服务`order`，`product`，`account`和`tcc`中的所有Controller上都添加了以上两个注解，当远程配置的更新时候，可以手工刷新`/refresh`或通过webhook等方法自动刷新本地配置. 以达到模拟微服务繁忙或熔断等情况。
 
-#### RabbitMQ
-
-原本作为可靠性事件投递的Broker，如今被TCC模式所替代. 可为日后的Spring Cloud Steam或Spring Cloud Bus的集成作为基础组件而保留。
-
 ### 监控服务
 
 #### Spring Boot Admin
