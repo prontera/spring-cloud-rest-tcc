@@ -36,6 +36,9 @@ spring:
     template:
       retry:
         enabled: true
+      mandatory: true
+    publisher-returns: true
+    publisher-confirms: true
   cloud:
     loadbalancer:
       retry:

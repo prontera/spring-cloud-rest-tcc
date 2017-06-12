@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.github.prontera.persistence.PointSummaryMapper">
+    <resultMap id="BaseResultMap" type="com.github.prontera.domain.PointSummary">
+        <id column="tpoint_sum_id" jdbcType="BIGINT" property="id"/>
+        <result column="tpoint_sum_create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="tpoint_sum_update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="tpoint_sum_delete_time" jdbcType="TIMESTAMP" property="deleteTime"/>
+        <result column="tpoint_sum_user_id" jdbcType="BIGINT" property="userId"/>
+        <result column="tpoint_sum_point_sum" jdbcType="INTEGER" property="pointSum"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        tpoint_sum.id as tpoint_sum_id, tpoint_sum.create_time as tpoint_sum_create_time,
+        tpoint_sum.update_time as tpoint_sum_update_time, tpoint_sum.delete_time as tpoint_sum_delete_time,
+        tpoint_sum.user_id as tpoint_sum_user_id, tpoint_sum.point_sum as tpoint_sum_point_sum
+    </sql>
+    <select id="selectByUserId" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from t_point_sum tpoint_sum
+        where tpoint_sum.user_id = #{userId,jdbcType=BIGINT}
+    </select>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from t_point_sum tpoint_sum
+        where tpoint_sum.id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+        DELETE FROM t_point_sum
+        WHERE id = #{id,jdbcType=BIGINT}
+    </delete>
+    <insert id="insert" parameterType="com.github.prontera.domain.PointSummary" useGeneratedKeys="true"
+            keyProperty="id">
+        INSERT INTO t_point_sum (id, delete_time, user_id,
+                                 point_sum)
+        VALUES (#{id,jdbcType=BIGINT}, #{deleteTime,jdbcType=TIMESTAMP}, #{userId,jdbcType=BIGINT},
+                #{pointSum,jdbcType=INTEGER})
+    </insert>
+    <insert id="insertSelective" parameterType="com.github.prontera.domain.PointSummary" useGeneratedKeys="true"
+            keyProperty="id">
+        insert into t_point_sum
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="deleteTime != null">
+                delete_time,
+            </if>
+            <if test="userId != null">
+                user_id,
+            </if>
+            <if test="pointSum != null">
+                point_sum,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="deleteTime != null">
+                #{deleteTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="userId != null">
+                #{userId,jdbcType=BIGINT},
+            </if>
+            <if test="pointSum != null">
+                #{pointSum,jdbcType=INTEGER},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.github.prontera.domain.PointSummary">
+        update t_point_sum
+        <set>
+            <if test="deleteTime != null">
+                delete_time = #{deleteTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="userId != null">
+                user_id = #{userId,jdbcType=BIGINT},
+            </if>
+            <if test="pointSum != null">
+                point_sum = #{pointSum,jdbcType=INTEGER},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.github.prontera.domain.PointSummary">
+        UPDATE t_point_sum
+        SET delete_time = #{deleteTime,jdbcType=TIMESTAMP},
+            user_id     = #{userId,jdbcType=BIGINT},
+            point_sum   = #{pointSum,jdbcType=INTEGER}
+        WHERE id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="increasePointByUserId">
+        UPDATE t_point_sum
+        SET
+            point_sum = point_sum + #{amount}
+        WHERE user_id = #{userId}
+    </update>
+</mapper>

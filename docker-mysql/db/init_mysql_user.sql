@@ -7,7 +7,10 @@ CREATE SCHEMA IF NOT EXISTS `product`
   DEFAULT CHARACTER SET utf8;
 CREATE SCHEMA IF NOT EXISTS `order`
   DEFAULT CHARACTER SET utf8;
+CREATE SCHEMA IF NOT EXISTS `membership`
+  DEFAULT CHARACTER SET utf8;
 
 GRANT ALL ON `account`.* TO 'chris';
 GRANT ALL ON `product`.* TO 'chris';
 GRANT ALL ON `order`.* TO 'chris';
+GRANT ALL ON `membership`.* TO 'chris';

@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.github.prontera.persistence.EventPublisherMapper">
+    <resultMap id="BaseResultMap" type="com.github.prontera.domain.EventPublisher">
+        <id column="tevent_pub_id" jdbcType="BIGINT" property="id"/>
+        <result column="tevent_pub_create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="tevent_pub_update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="tevent_pub_delete_time" jdbcType="TIMESTAMP" property="deleteTime"/>
+        <result column="tevent_pub_biz_type" jdbcType="VARCHAR" property="businessType"/>
+        <result column="tevent_pub_event_status" jdbcType="TINYINT" property="eventStatus"
+                typeHandler="com.github.prontera.domain.type.handler.EventStatusTypeHandler"/>
+        <result column="tevent_pub_payload" jdbcType="VARCHAR" property="payload"/>
+        <result column="tevent_pub_lock_version" jdbcType="INTEGER" property="lockVersion"/>
+        <result column="tevent_pub_pub_guid" jdbcType="VARCHAR" property="guid"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        tevent_pub.id as tevent_pub_id, tevent_pub.create_time as tevent_pub_create_time,
+        tevent_pub.update_time as tevent_pub_update_time, tevent_pub.delete_time as tevent_pub_delete_time,
+        tevent_pub.biz_type as tevent_pub_biz_type, tevent_pub.event_status as tevent_pub_event_status,
+        tevent_pub.payload as tevent_pub_payload, tevent_pub.lock_version as tevent_pub_lock_version,
+        tevent_pub.pub_guid as tevent_pub_pub_guid
+    </sql>
+    <select id="selectLimitedEntityByEventStatus" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from t_event_pub tevent_pub
+        where tevent_pub.event_status =
+        #{eventStatus,jdbcType=TINYINT,typeHandler=com.github.prontera.domain.type.handler.EventStatusTypeHandler}
+        limit #{limited}
+    </select>
+    <select id="selectLimitedEntityByEventStatusBeforeTheSpecifiedUpdateTime" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM t_event_pub tevent_pub
+        WHERE tevent_pub.event_status =
+        #{eventStatus,jdbcType=TINYINT,typeHandler=com.github.prontera.domain.type.handler.EventStatusTypeHandler}
+        <![CDATA[
+        AND tevent_pub.update_time < #{beforeThisTime,jdbcType=TIMESTAMP}
+        ]]>
+        LIMIT #{limited}
+    </select>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from t_event_pub tevent_pub
+        where tevent_pub.id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+        DELETE FROM t_event_pub
+        WHERE id = #{id,jdbcType=BIGINT}
+    </delete>
+    <insert id="insert" parameterType="com.github.prontera.domain.EventPublisher" useGeneratedKeys="true"
+            keyProperty="id">
+        INSERT INTO t_event_pub (id, delete_time, biz_type,
+                                 event_status,
+                                 payload, lock_version, pub_guid
+        )
+        VALUES (#{id,jdbcType=BIGINT}, #{deleteTime,jdbcType=TIMESTAMP}, #{businessType,jdbcType=VARCHAR},
+                #{eventStatus,jdbcType=TINYINT,typeHandler=com.github.prontera.domain.type.handler.EventStatusTypeHandler},
+                #{payload,jdbcType=VARCHAR}, #{lockVersion,jdbcType=INTEGER}, #{guid,jdbcType=VARCHAR}
+        )
+    </insert>
+    <insert id="insertSelective" parameterType="com.github.prontera.domain.EventPublisher" useGeneratedKeys="true"
+            keyProperty="id">
+        insert into t_event_pub
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="deleteTime != null">
+                delete_time,
+            </if>
+            <if test="businessType != null">
+                biz_type,
+            </if>
+            <if test="eventStatus != null">
+                event_status,
+            </if>
+            <if test="payload != null">
+                payload,
+            </if>
+            <if test="lockVersion != null">
+                lock_version,
+            </if>
+            <if test="guid != null">
+                pub_guid,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="deleteTime != null">
+                #{deleteTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="businessType != null">
+                #{businessType,jdbcType=VARCHAR},
+            </if>
+            <if test="eventStatus != null">
+                #{eventStatus,jdbcType=TINYINT,typeHandler=com.github.prontera.domain.type.handler.EventStatusTypeHandler},
+            </if>
+            <if test="payload != null">
+                #{payload,jdbcType=VARCHAR},
+            </if>
+            <if test="lockVersion != null">
+                #{lockVersion,jdbcType=INTEGER},
+            </if>
+            <if test="guid != null">
+                #{guid,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.github.prontera.domain.EventPublisher">
+        update t_event_pub
+        <set>
+            <if test="deleteTime != null">
+                delete_time = #{deleteTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="businessType != null">
+                biz_type = #{businessType,jdbcType=VARCHAR},
+            </if>
+            <if test="eventStatus != null">
+                event_status =
+                #{eventStatus,jdbcType=TINYINT,typeHandler=com.github.prontera.domain.type.handler.EventStatusTypeHandler},
+            </if>
+            <if test="payload != null">
+                payload = #{payload,jdbcType=VARCHAR},
+            </if>
+            <if test="lockVersion != null">
+                lock_version = #{lockVersion,jdbcType=INTEGER},
+            </if>
+            <if test="guid != null">
+                pub_guid = #{guid,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.github.prontera.domain.EventPublisher">
+        UPDATE t_event_pub
+        SET delete_time  = #{deleteTime,jdbcType=TIMESTAMP},
+            biz_type     = #{businessType,jdbcType=VARCHAR},
+            event_status = #{eventStatus,jdbcType=TINYINT,typeHandler=com.github.prontera.domain.type.handler.EventStatusTypeHandler},
+            payload      = #{payload,jdbcType=VARCHAR},
+            lock_version = #{lockVersion,jdbcType=INTEGER},
+            pub_guid     = #{guid,jdbcType=VARCHAR}
+        WHERE id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKeySelectiveWithOptimisticLock"
+            parameterType="com.github.prontera.domain.EventPublisher">
+        update t_event_pub
+        <set>
+            <if test="deleteTime != null">
+                delete_time = #{deleteTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="businessType != null">
+                biz_type = #{businessType,jdbcType=VARCHAR},
+            </if>
+            <if test="eventStatus != null">
+                event_status =
+                #{eventStatus,jdbcType=TINYINT,typeHandler=com.github.prontera.domain.type.handler.EventStatusTypeHandler},
+            </if>
+            <if test="payload != null">
+                payload = #{payload,jdbcType=VARCHAR},
+            </if>
+            <if test="guid != null">
+                pub_guid = #{guid,jdbcType=VARCHAR},
+            </if>
+            lock_version = lock_version + 1
+        </set>
+        where id = #{id,jdbcType=BIGINT} and lock_version = #{lockVersion,jdbcType=INTEGER}
+    </update>
+    <update id="updateByGuidSelective"
+            parameterType="com.github.prontera.domain.EventPublisher">
+        update t_event_pub
+        <set>
+            <if test="deleteTime != null">
+                delete_time = #{deleteTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="businessType != null">
+                biz_type = #{businessType,jdbcType=VARCHAR},
+            </if>
+            <if test="eventStatus != null">
+                event_status =
+                #{eventStatus,jdbcType=TINYINT,typeHandler=com.github.prontera.domain.type.handler.EventStatusTypeHandler},
+            </if>
+            <if test="payload != null">
+                payload = #{payload,jdbcType=VARCHAR},
+            </if>
+            lock_version = lock_version + 1
+        </set>
+        where pub_guid = #{guid,jdbcType=VARCHAR}
+    </update>
+    <update id="updateEventStatusByPrimaryKeyInCasMode">
+        UPDATE t_event_pub
+        SET
+            event_status =
+            #{target,jdbcType=TINYINT,typeHandler=com.github.prontera.domain.type.handler.EventStatusTypeHandler}
+        WHERE id = #{id,jdbcType=BIGINT} AND
+              event_status =
+              #{expect,jdbcType=TINYINT,typeHandler=com.github.prontera.domain.type.handler.EventStatusTypeHandler}
+    </update>
+</mapper>

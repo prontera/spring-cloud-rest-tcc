@@ -68,3 +68,18 @@ services:
            retries: 3
         environment:
             - TZ=Asia/Shanghai
+    membership:
+        build: ./membership-ms
+        image: prontera/membership-ms
+        ports:
+            - "10673:10673"
+            - "10391:10391"
+        depends_on:
+            - 'jce_java'
+        healthcheck:
+           test: ["CMD", "curl", "-f", "http://localhost:10888"]
+           interval: 10s
+           timeout: 5s
+           retries: 3
+        environment:
+            - TZ=Asia/Shanghai

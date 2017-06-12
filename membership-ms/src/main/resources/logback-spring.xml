@@ -30,14 +30,12 @@
         <logger name="com.github.prontera" level="WARN"/>
     </springProfile>
 
-    <logger name="com.github.prontera.persistence" level="INFO" additivity="false">
-        <appender-ref ref="CONSOLE"/>
-        <!--<appender-ref ref="FILE"/>-->
-    </logger>
+    <logger name="com.umeng.push" level="DEBUG"/>
 
-    <logger name="com.github.prontera" level="DEBUG" additivity="false">
+    <logger name="com.github.prontera.persistence.UserBalanceTccMapper" level="WARN"/>
+
+    <logger name="org.apache.ibatis.cache.decorators.LoggingCache" level="DEBUG" additivity="false">
         <appender-ref ref="CONSOLE"/>
-        <!--<appender-ref ref="FILE"/>-->
     </logger>
 
     <root level="WARN">

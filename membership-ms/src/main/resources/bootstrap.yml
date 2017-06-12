@@ -1,8 +1,8 @@
 server:
-  port: 8040
+  port: 10673
 management:
-  port: 10912
-  context-path: '/78d504ff-82e8-4a87-82e8-724d72d1171b'
+  port: 10391
+  context-path: '/a6da3b6f-4b59-11e7-9226-0242ac130004'
 eureka:
   client:
     service-url:
@@ -20,11 +20,11 @@ eureka:
     prefer-ip-address: false
 spring:
   application:
-    name: 'product'
+    name: 'membership'
   datasource:
     username: chris
     password: 123123
-    url: 'jdbc:mysql://solar_mysql:3306/product?useLegacyDatetimeCode=false&serverTimezone=Asia/Hong_Kong&useSSL=false'
+    url: 'jdbc:mysql://solar_mysql:3306/membership?useLegacyDatetimeCode=false&serverTimezone=Asia/Hong_Kong&useSSL=false'
   rabbitmq:
     host: rabbitmq
     username: chris
