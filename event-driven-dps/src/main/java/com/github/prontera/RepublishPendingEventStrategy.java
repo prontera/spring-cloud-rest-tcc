@@ -10,7 +10,7 @@ import java.util.Set;
 /**
  * @author Zhao Junjian
  */
-enum RepublishPendingEventStrategy implements BatchFetchEventStrategy {
+public enum RepublishPendingEventStrategy implements BatchFetchEventStrategy {
     SINGLETON;
 
     @Override

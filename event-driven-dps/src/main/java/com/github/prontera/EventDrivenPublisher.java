@@ -15,7 +15,6 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.rabbit.support.CorrelationData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
@@ -28,7 +27,6 @@ import java.util.concurrent.ConcurrentMap;
 /**
  * @author Zhao Junjian
  */
-@Component
 public class EventDrivenPublisher {
     private static final Logger LOGGER = LoggerFactory.getLogger(EventDrivenPublisher.class);
 

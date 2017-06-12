@@ -20,14 +20,6 @@
         tevent_sub.payload as tevent_sub_payload, tevent_sub.lock_version as tevent_sub_lock_version,
         tevent_sub.pub_guid as tevent_sub_pub_guid
     </sql>
-    <select id="selectLimitedEntityByEventStatus" resultMap="BaseResultMap">
-        select
-        <include refid="Base_Column_List"/>
-        from t_event_sub tevent_sub
-        where tevent_sub.event_status =
-        #{eventStatus,jdbcType=TINYINT,typeHandler=com.github.prontera.domain.type.handler.EventStatusTypeHandler}
-        limit #{limited}
-    </select>
     <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
@@ -38,7 +30,8 @@
         DELETE FROM t_event_sub
         WHERE id = #{id,jdbcType=BIGINT}
     </delete>
-    <insert id="insert" parameterType="com.github.prontera.domain.EventSubscriber">
+    <insert id="insert" parameterType="com.github.prontera.domain.EventSubscriber" useGeneratedKeys="true"
+            keyProperty="id">
         INSERT INTO t_event_sub (id, delete_time, biz_type,
                                  event_status,
                                  payload, lock_version, pub_guid
@@ -48,7 +41,8 @@
                 #{payload,jdbcType=VARCHAR}, #{lockVersion,jdbcType=INTEGER}, #{guid,jdbcType=VARCHAR}
         )
     </insert>
-    <insert id="insertSelective" parameterType="com.github.prontera.domain.EventSubscriber">
+    <insert id="insertSelective" parameterType="com.github.prontera.domain.EventSubscriber" useGeneratedKeys="true"
+            keyProperty="id">
         insert into t_event_sub
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="id != null">
@@ -131,5 +125,14 @@
             lock_version = #{lockVersion,jdbcType=INTEGER},
             pub_guid     = #{guid,jdbcType=VARCHAR}
         WHERE id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateEventStatusByPrimaryKeyInCasMode">
+        UPDATE t_event_sub
+        SET
+            event_status =
+            #{target,jdbcType=TINYINT,typeHandler=com.github.prontera.domain.type.handler.EventStatusTypeHandler}
+        WHERE id = #{id,jdbcType=BIGINT} AND
+              event_status =
+              #{expect,jdbcType=TINYINT,typeHandler=com.github.prontera.domain.type.handler.EventStatusTypeHandler}
     </update>
 </mapper>

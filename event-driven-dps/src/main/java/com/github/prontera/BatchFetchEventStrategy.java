@@ -8,6 +8,6 @@ import java.util.Set;
 /**
  * @author Zhao Junjian
  */
-interface BatchFetchEventStrategy {
+public interface BatchFetchEventStrategy {
     Set<EventPublisher> execute(EventPublisherMapper mapper);
 }

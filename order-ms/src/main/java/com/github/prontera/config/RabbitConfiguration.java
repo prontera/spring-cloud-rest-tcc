@@ -1,6 +1,11 @@
 package com.github.prontera.config;
 
 import com.github.prontera.EventDrivenPublisher;
+import com.github.prontera.EventDrivenSubscriber;
+import com.github.prontera.EventHandler;
+import com.github.prontera.NopeEventHandler;
+import com.github.prontera.event.ExampleHandler;
+import com.github.prontera.persistence.EventSubscriberMapper;
 import com.google.common.collect.ImmutableMap;
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
@@ -28,6 +33,22 @@ public class RabbitConfiguration {
 
     static {
         EventDrivenPublisher.registerType(EventBusinessType.ADD_PTS.name(), DEFAULT_DIRECT_EXCHANGE, POINT_KEY);
+    }
+
+    @Bean
+    public EventHandler eventHandler(EventSubscriberMapper mapper) {
+        final NopeEventHandler leaf = new NopeEventHandler(mapper);
+        return new ExampleHandler(mapper, leaf);
+    }
+
+    @Bean
+    public EventDrivenSubscriber eventDrivenSubscriber() {
+        return new EventDrivenSubscriber();
+    }
+
+    @Bean
+    public EventDrivenPublisher eventDrivenPublisher() {
+        return new EventDrivenPublisher();
     }
 
     @Bean

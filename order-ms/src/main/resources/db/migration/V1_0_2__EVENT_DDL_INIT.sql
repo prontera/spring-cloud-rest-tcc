@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS `t_event_pub` (
   `biz_type`     VARCHAR(64)   NOT NULL
   COMMENT '业务类型',
   `event_status` TINYINT       NOT NULL
-  COMMENT '事件状态, -3为NOT_FOUND(找不到exchange), -2为NO_ROUTE(找到exchange但是找不到queue), -1为FAILED(如类型尚未注册等的业务失败), 0为NEW(消息落地), 1为PENDING, 2为DONE',
+  COMMENT '事件状态, -128为未知错误, -3为NOT_FOUND(找不到exchange), -2为NO_ROUTE(找到exchange但是找不到queue), -1为FAILED(如类型尚未注册等的业务失败), 0为NEW(消息落地), 1为PENDING, 2为DONE',
   `payload`      VARCHAR(1024) NOT NULL
   COMMENT '请求时的描述负载',
   `lock_version` INT UNSIGNED  NOT NULL DEFAULT 0
@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS `t_event_sub` (
   `biz_type`     VARCHAR(64)   NOT NULL
   COMMENT '业务类型',
   `event_status` TINYINT       NOT NULL
-  COMMENT '事件状态, -3为NOT_FOUND(找不到exchange), -2为NO_ROUTE(找到exchange但是找不到queue), -1为FAILED(如类型尚未注册等的业务失败), 0为NEW(消息落地), 1为PENDING, 2为DONE',
+  COMMENT '事件状态, -128为未知错误, -3为NOT_FOUND(找不到handler), -1为FAILED(业务失败), 0为NEW, 2为DONE',
   `payload`      VARCHAR(1024) NOT NULL
   COMMENT '请求方的描述负载',
   `lock_version` INT UNSIGNED  NOT NULL DEFAULT 0

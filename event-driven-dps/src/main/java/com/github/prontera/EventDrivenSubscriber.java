@@ -1,54 +1,32 @@
 package com.github.prontera;
 
-import com.github.prontera.domain.Event;
-import com.github.prontera.domain.EventPublisher;
 import com.github.prontera.domain.EventSubscriber;
 import com.github.prontera.domain.type.EventStatus;
 import com.github.prontera.persistence.EventSubscriberMapper;
 import com.github.prontera.util.HibernateValidators;
-import com.github.prontera.util.Jacksons;
-import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.amqp.core.Message;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.amqp.rabbit.support.CorrelationData;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.ApplicationEventPublisherAware;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
-import java.util.Set;
-import java.util.UUID;
+import javax.annotation.PostConstruct;
 
 /**
  * @author Zhao Junjian
  */
-//@Component
-public class EventDrivenSubscriber implements ApplicationEventPublisherAware {
+public class EventDrivenSubscriber {
     private static final Logger LOGGER = LoggerFactory.getLogger(EventDrivenSubscriber.class);
 
     @Autowired
     private EventSubscriberMapper subscriberMapper;
     @Autowired
-    private RabbitTemplate rabbitTemplate;
-    private ApplicationEventPublisher springEventPublisher;
     private EventHandler handler;
 
-    public EventDrivenSubscriber(EventHandler handler) {
-        this.handler = handler;
-    }
-
-    /**
-     * 扫面定量的PENDING事件并重新发布至Broker，意在防止实例因为意外宕机导致basic.return和basic.ack的状态丢失。
-     */
-    @Scheduled(fixedRate = 5000)
-    public void fetchAndRepublishEventInPendingStatus() {
-        //fetchAndPublishToBroker(RepublishPendingEventStrategy.SINGLETON);
+    @PostConstruct
+    public void afterProperties() {
+        Preconditions.checkState(handler != null, "root EventHandler MUST not be null");
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -63,12 +41,17 @@ public class EventDrivenSubscriber implements ApplicationEventPublisherAware {
         subscriber.setLockVersion(0);
         subscriber.setEventStatus(EventStatus.NEW);
         HibernateValidators.throwsIfInvalid(subscriber);
-        return subscriberMapper.insertSelective(subscriber);
-    }
-
-    @Override
-    public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
-        this.springEventPublisher = applicationEventPublisher;
+        int influence = 0;
+        try {
+            influence = subscriberMapper.insertSelective(subscriber);
+        } catch (DuplicateKeyException e) {
+            LOGGER.info("duplicate key in processing message '{}'", guid);
+        }
+        // 非重复消息则执行实际的业务
+        if (influence > 0) {
+            handler.handler(subscriber);
+        }
+        return influence;
     }
 
 }
