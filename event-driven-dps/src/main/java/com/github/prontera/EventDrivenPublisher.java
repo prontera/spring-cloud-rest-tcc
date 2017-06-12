@@ -4,7 +4,6 @@ import com.github.prontera.domain.Event;
 import com.github.prontera.domain.EventPublisher;
 import com.github.prontera.domain.type.EventStatus;
 import com.github.prontera.persistence.EventPublisherMapper;
-import com.github.prontera.persistence.EventSubscriberMapper;
 import com.github.prontera.util.HibernateValidators;
 import com.github.prontera.util.Jacksons;
 import com.google.common.base.Charsets;
@@ -30,20 +29,14 @@ import java.util.concurrent.ConcurrentMap;
  * @author Zhao Junjian
  */
 @Component
-public class EventBus {
-    private static final Logger LOGGER = LoggerFactory.getLogger(EventBus.class);
-
-    private final EventPublisherMapper publisherMapper;
-    private final EventSubscriberMapper subscriberMapper;
-    private final RabbitTemplate rabbitTemplate;
-    private static final ConcurrentMap<String, MessageRoute> REGISTRY = new ConcurrentHashMap<>();
+public class EventDrivenPublisher {
+    private static final Logger LOGGER = LoggerFactory.getLogger(EventDrivenPublisher.class);
 
     @Autowired
-    public EventBus(EventPublisherMapper publisherMapper, EventSubscriberMapper subscriberMapper, RabbitTemplate rabbitTemplate) {
-        this.publisherMapper = publisherMapper;
-        this.subscriberMapper = subscriberMapper;
-        this.rabbitTemplate = rabbitTemplate;
-    }
+    private EventPublisherMapper publisherMapper;
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
+    private static final ConcurrentMap<String, MessageRoute> REGISTRY = new ConcurrentHashMap<>();
 
     /**
      * the basic.return is sent to the client before basic.ack
@@ -110,6 +103,7 @@ public class EventBus {
     public int persistPublishMessage(Object payload, String businessType) {
         Preconditions.checkNotNull(payload);
         Preconditions.checkNotNull(businessType);
+        // 严格控制发往Broker的业务类型
         throwIfNotIncluded(businessType);
         final EventPublisher publisher = new EventPublisher();
         publisher.setEventStatus(EventStatus.NEW);
@@ -152,9 +146,10 @@ public class EventBus {
                 // 更新状态为'处理中'顺便刷新一下update_time
                 event.setEventStatus(EventStatus.PENDING);
                 // 意在多实例的情况下不要重复刷新
-                publisherMapper.updateByPrimaryKeySelectiveWithOptimisticLock(event);
-                // 正式发送至Broker
-                publish(dto, route.getExchange(), route.getRouteKey(), new CorrelationData(String.valueOf(event.getId())));
+                if (publisherMapper.updateByPrimaryKeySelectiveWithOptimisticLock(event) > 0) {
+                    // 正式发送至Broker
+                    publish(dto, route.getExchange(), route.getRouteKey(), new CorrelationData(String.valueOf(event.getId())));
+                }
             } else {
                 // 将event status置为FAILED，等待人工处理
                 event.setEventStatus(EventStatus.FAILED);

@@ -1,6 +1,6 @@
 package com.github.prontera.config;
 
-import com.github.prontera.EventBus;
+import com.github.prontera.EventDrivenPublisher;
 import com.google.common.collect.ImmutableMap;
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
@@ -27,7 +27,7 @@ public class RabbitConfiguration {
     public static final String DEAD_POINT_KEY = "a0b1d08b-4ccd-11e7-9226-0242ac130004";
 
     static {
-        EventBus.registerType(EventBusinessType.ADD_PTS.name(), DEFAULT_DIRECT_EXCHANGE, POINT_KEY);
+        EventDrivenPublisher.registerType(EventBusinessType.ADD_PTS.name(), DEFAULT_DIRECT_EXCHANGE, POINT_KEY);
     }
 
     @Bean

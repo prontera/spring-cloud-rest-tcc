@@ -34,7 +34,9 @@
         FROM t_event_pub tevent_pub
         WHERE tevent_pub.event_status =
         #{eventStatus,jdbcType=TINYINT,typeHandler=com.github.prontera.domain.type.handler.EventStatusTypeHandler}
-        AND #{beforeThisTime,jdbcType=TIMESTAMP}
+        <![CDATA[
+        AND tevent_pub.update_time < #{beforeThisTime,jdbcType=TIMESTAMP}
+        ]]>
         LIMIT #{limited}
     </select>
     <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
@@ -51,7 +53,7 @@
         INSERT INTO t_event_pub (id, delete_time, biz_type,
                                  event_status,
                                  payload, lock_version, pub_guid
-        )
+       )
         VALUES (#{id,jdbcType=BIGINT}, #{deleteTime,jdbcType=TIMESTAMP}, #{businessType,jdbcType=VARCHAR},
                 #{eventStatus,jdbcType=TINYINT,typeHandler=com.github.prontera.domain.type.handler.EventStatusTypeHandler},
                 #{payload,jdbcType=VARCHAR}, #{lockVersion,jdbcType=INTEGER}, #{guid,jdbcType=VARCHAR}

@@ -9,7 +9,7 @@ import java.util.Set;
 /**
  * @author Zhao Junjian
  */
-public enum PublishNewEventStrategy implements BatchFetchEventStrategy {
+enum PublishNewEventStrategy implements BatchFetchEventStrategy {
     SINGLETON;
 
     @Override

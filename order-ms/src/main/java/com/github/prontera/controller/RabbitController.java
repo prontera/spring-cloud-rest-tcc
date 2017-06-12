@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import com.github.prontera.EventBus;
+import com.github.prontera.EventDrivenPublisher;
 import com.github.prontera.config.EventBusinessType;
 import com.github.prontera.config.RabbitConfiguration;
 import com.google.common.base.Charsets;
@@ -38,7 +38,7 @@ public class RabbitController {
     @Autowired
     private RabbitTemplate amqpTemplate;
     @Autowired
-    private EventBus eventBus;
+    private EventDrivenPublisher eventBus;
     private static final SecureRandom RANDOM = new SecureRandom();
     private static final Logger LOGGER = LoggerFactory.getLogger(RabbitController.class);
 
@@ -103,14 +103,14 @@ public class RabbitController {
 
     @RequestMapping(value = "/bus/exchange-exists-but-queue-not", method = RequestMethod.GET)
     public Map<String, ?> exchangeExistsButQueueNotEventBus() {
-        EventBus.registerType("111", RabbitConfiguration.DEFAULT_DIRECT_EXCHANGE, "02394234");
+        EventDrivenPublisher.registerType("111", RabbitConfiguration.DEFAULT_DIRECT_EXCHANGE, "02394234");
         eventBus.persistPublishMessage(ImmutableMap.of("hello", "java"), "111");
         return ImmutableMap.of("code", 20000);
     }
 
     @RequestMapping(value = "/bus/exchange-not-exist", method = RequestMethod.GET)
     public Map<String, ?> exchangeNotExistEventBus() {
-        EventBus.registerType("111", "129313", "02394234");
+        EventDrivenPublisher.registerType("111", "129313", "02394234");
         eventBus.persistPublishMessage(ImmutableMap.of("hello", "java"), "111");
         return ImmutableMap.of("code", 20000);
     }
@@ -118,6 +118,7 @@ public class RabbitController {
     @RabbitListener(queues = {RabbitConfiguration.POINT_QUEUE})
     public void processBootTaskBus(Map<String, Object> event) {
         LOGGER.debug("consume: {}", event);
+        //eventBus.persistSubscribeMessage(event.get("business_type").toString(), event.get("payload").toString(), event.get("guid").toString());
     }
 
     @Getter

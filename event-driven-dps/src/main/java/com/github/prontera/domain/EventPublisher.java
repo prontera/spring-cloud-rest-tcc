@@ -34,6 +34,7 @@ public class EventPublisher extends BasicDomain {
     @NotNull
     private EventStatus eventStatus;
 
+    @NotNull
     @JsonRawValue
     private String payload;
 

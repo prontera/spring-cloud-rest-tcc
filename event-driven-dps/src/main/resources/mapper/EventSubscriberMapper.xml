@@ -20,6 +20,14 @@
         tevent_sub.payload as tevent_sub_payload, tevent_sub.lock_version as tevent_sub_lock_version,
         tevent_sub.pub_guid as tevent_sub_pub_guid
     </sql>
+    <select id="selectLimitedEntityByEventStatus" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from t_event_sub tevent_sub
+        where tevent_sub.event_status =
+        #{eventStatus,jdbcType=TINYINT,typeHandler=com.github.prontera.domain.type.handler.EventStatusTypeHandler}
+        limit #{limited}
+    </select>
     <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
