@@ -17,13 +17,13 @@ Spring Cloud为开发者提供了快速构建分布式系统中的一些常见�
 
 ![](./image/infrastructure2.png)
 
-
-
 ## Try Confirm Cancel 补偿模式
 
 本实例遵循的是Atomikos公司对微服务的分布式事务所提出的[RESTful TCC](https://www.atomikos.com/Blog/TransactionManagementAPIForRESTTCC)解决方案。
 
 RESTful TCC模式分3个阶段执行
+
+![](./image/tcc.png)
 
 1. Trying阶段主要针对业务系统检测及作出预留资源请求，若预留资源成功，则返回确认资源的链接与过期时间。
 2. Confirm阶段主要是对业务系统的预留资源作出确认，要求TCC服务的提供方要对确认预留资源的接口实现幂等性，若Confirm成功则返回204，资源超时则证明已经被回收且返回404。
