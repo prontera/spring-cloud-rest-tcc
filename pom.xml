@@ -23,6 +23,8 @@
         <module>spring-boot-admin-ms</module>
         <module>tcc-coordinator-ms</module>
         <module>zipkin-ms</module>
+        <module>event-driven-dps</module>
+        <module>membership-ms</module>
     </modules>
     <parent>
         <groupId>org.springframework.boot</groupId>
