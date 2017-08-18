@@ -160,6 +160,8 @@ public class EventDrivenPublisher {
 
     /**
      * 在Mandatory下，当exchange存在但无法路由至queue的情况下记录入库
+     * <p>
+     * basic.return（basic.return将会发生在basic.ack之前）
      */
     private class RabbitReturnCallback implements RabbitTemplate.ReturnCallback {
         @Override
@@ -190,6 +192,8 @@ public class EventDrivenPublisher {
 
     /**
      * 确认Broker接收消息的状态
+     * <p>
+     * basic.ack
      */
     private class RabbitConfirmCallback implements RabbitTemplate.ConfirmCallback {
         @Override
