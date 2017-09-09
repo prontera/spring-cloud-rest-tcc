@@ -168,30 +168,30 @@ TCC资源协调器，其职责如下：
 
 在项目根路径下执行脚本`build.sh`，该脚本会执行Maven的打包操作，并会迭代目录下的`*-compose.yml`进行容器构建。
 
-构建完成后需要按照指定的顺序启动：
+构建完成后需要按照指定的顺序启动，需要注意的一点是容器内服务的启动是需要备留预热时间，并非Docker容器启动后容器内的所有服务就能马上启动起来，要注意区分**容器的启动**和**容器内的服务的启动**，建议配合docker-compse logs来观察启动情况。而且容器之间的服务是有依赖的，如`account-ms`和`product-ms`此类业务服务的启动是会快速失败于`config-ms`的失联。所以建议按照以下顺序启动Docker容器，并且在一组Docker容器**服务完全启动**后，再启动下一组的Docker容器。
 
 1. 启动MySQL，RabbitMQ等基础组件
 
    ```shell
-   ➜  solar git:(feature/cleanup) ✗ docker-compose -f infrastructure-compose.yml up -d
+   docker-compose -f infrastructure-compose.yml up -d
    ```
 
 2. 启动Eureka Server与Config Server
 
    ```shell
-   ➜  solar git:(feature/cleanup) ✗ docker-compose -f basic-ms-compose.yml up -d
+   docker-compose -f basic-ms-compose.yml up -d
    ```
 
 3. 启动监控服务
 
    ```shell
-   ➜  solar git:(feature/cleanup) ✗ docker-compose -f monitor-ms-compose.yml up -d
+   docker-compose -f monitor-ms-compose.yml up -d
    ```
 
 4. 启动业务服务
 
    ```shell
-   ➜  solar git:(feature/cleanup) ✗ docker-compose -f business-ms-compose.yml up -d
+   docker-compose -f business-ms-compose.yml up -d
    ```
 
 #### IDE运行
@@ -210,7 +210,7 @@ TCC资源协调器，其职责如下：
 
 根据依赖关系，程序最好按照以下的顺序执行
 
-docker mysql > docker rabbitmq > eureka server > config server > zipkin server > 其他微服务
+docker mysql > docker rabbitmq > eureka server > config server > zipkin server > 其他业务微服务（account-ms, product-ms, order-ms, tcc-coordinator-ms等）
 
 ## 示例
 
