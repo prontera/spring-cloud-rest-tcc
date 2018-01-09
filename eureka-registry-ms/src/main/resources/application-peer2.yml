@@ -13,9 +13,9 @@ eureka:
         port: ${management.port}
         context-path: ${management.context-path}
       health:
-        path: ${management.context-path}/health
-    status-page-url-path: ${management.context-path}/info
-    health-check-url-path: ${management.context-path}/health
+        path: /health
+    status-page-url-path: /info
+    health-check-url-path: /health
   client:
     service-url:
       defaultZone: 'http://eureka1:8763/eureka/'
