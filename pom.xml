@@ -12,19 +12,11 @@
     <description>spring cloud netflix samples</description>
 
     <modules>
-        <module>api-gateway-ms</module>
-        <module>eureka-registry-ms</module>
-        <module>hystrix-dashboard-ms</module>
         <module>common-dps</module>
-        <module>config-ms</module>
         <module>order-ms</module>
         <module>account-ms</module>
         <module>product-ms</module>
-        <module>spring-boot-admin-ms</module>
         <module>tcc-coordinator-ms</module>
-        <module>zipkin-ms</module>
-        <module>event-driven-dps</module>
-        <module>membership-ms</module>
     </modules>
     <parent>
         <groupId>org.springframework.boot</groupId>
