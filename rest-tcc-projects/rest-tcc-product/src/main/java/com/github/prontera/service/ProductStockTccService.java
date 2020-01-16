@@ -36,8 +36,10 @@ public class ProductStockTccService extends CrudServiceImpl<ProductStockTcc> imp
 
     @Autowired
     private ProductService productService;
+
     @Autowired
     private ProductMapper productMapper;
+
     @Autowired
     private ProductStockTccMapper tccMapper;
 

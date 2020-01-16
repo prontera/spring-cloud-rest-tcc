@@ -3,16 +3,16 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>product-ms</artifactId>
+    <artifactId>rest-tcc-product</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>product-ms</name>
+    <name>rest-tcc-product</name>
     <description>product management</description>
 
     <parent>
         <groupId>com.github.prontera</groupId>
-        <artifactId>spring-cloud-microservice</artifactId>
+        <artifactId>rest-tcc-projects</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
@@ -27,24 +27,8 @@
     <dependencies>
         <dependency>
             <groupId>com.github.prontera</groupId>
-            <artifactId>common-dps</artifactId>
-            <version>${common-dps.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-config</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-eureka</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-hystrix</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-feign</artifactId>
+            <artifactId>rest-tcc-commons</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -80,6 +64,5 @@
             </plugin>
         </plugins>
     </build>
-
 
 </project>

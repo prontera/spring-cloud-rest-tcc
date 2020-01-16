@@ -1,9 +1,7 @@
 package com.github.prontera.config;
 
 import com.fasterxml.classmate.TypeResolver;
-import com.github.pagehelper.PageInfo;
 import com.github.prontera.model.swagger.SwaggerApiInfo;
-import com.github.prontera.model.swagger.SwaggerPaginationResponse;
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableList;
 import org.apache.commons.io.IOUtils;
@@ -57,37 +55,34 @@ public class SwaggerTemplate {
     @Bean
     public Docket configure(SwaggerApiInfo info, TypeResolver typeResolver) {
         return new Docket(DocumentationType.SWAGGER_2)
-                .select()
-                .apis(RequestHandlerSelectors.basePackage("com.github.prontera"))
-                .paths(PathSelectors.any())
-                .build()
-                .pathMapping("/")
-                .useDefaultResponseMessages(false)
-                .globalResponseMessage(RequestMethod.OPTIONS, info.getStatusList())
-                .apiInfo(new ApiInfo(info.getTitle(), DESCRIPTION, info.getVersion(), info.getServiceUrl(), new Contact(null, null, null), null, null))
-                .alternateTypeRules(
-                        AlternateTypeRules.newRule(
-                                typeResolver.resolve(PageInfo.class, WildcardType.class),
-                                typeResolver.resolve(SwaggerPaginationResponse.class, WildcardType.class)),
-                        AlternateTypeRules.newRule(
-                                typeResolver.resolve(Collection.class, WildcardType.class),
-                                typeResolver.resolve(List.class, WildcardType.class))
-                )
-                //.enableUrlTemplating(true)
-                .forCodeGeneration(false);
+            .select()
+            .apis(RequestHandlerSelectors.basePackage("com.github.prontera"))
+            .paths(PathSelectors.any())
+            .build()
+            .pathMapping("/")
+            .useDefaultResponseMessages(false)
+            .globalResponseMessage(RequestMethod.OPTIONS, info.getStatusList())
+            .apiInfo(new ApiInfo(info.getTitle(), DESCRIPTION, info.getVersion(), info.getServiceUrl(), new Contact(null, null, null), null, null))
+            .alternateTypeRules(
+                AlternateTypeRules.newRule(
+                    typeResolver.resolve(Collection.class, WildcardType.class),
+                    typeResolver.resolve(List.class, WildcardType.class))
+            )
+            //.enableUrlTemplating(true)
+            .forCodeGeneration(false);
     }
 
     @Bean
     UiConfiguration uiConfig() {
         return new UiConfiguration(
-                "validatorUrl",           // url
-                "list",       // docExpansion          => none | list
-                "alpha",      // apiSorter             => alpha
-                "schema",     // defaultModelRendering => schema
-                UiConfiguration.Constants.DEFAULT_SUBMIT_METHODS,
-                false,        // enableJsonEditor      => true | false
-                true,
-                null);
+            "validatorUrl",           // url
+            "list",       // docExpansion          => none | list
+            "alpha",      // apiSorter             => alpha
+            "schema",     // defaultModelRendering => schema
+            UiConfiguration.Constants.DEFAULT_SUBMIT_METHODS,
+            false,        // enableJsonEditor      => true | false
+            true,
+            null);
     }
 
 }
