@@ -2,17 +2,22 @@ package com.github.prontera;
 
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
-import org.springframework.cloud.client.SpringCloudApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
+/**
+ * @author Zhao Junjian
+ * @date 2020/01/17
+ */
 @EnableAsync
 @EnableScheduling
 @MapperScan(basePackages = "com.github.prontera.persistence", annotationClass = MyBatisRepository.class)
-@SpringCloudApplication
-public class AccountMsApplication {
+@SpringBootApplication
+public class AccountApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(AccountMsApplication.class, args);
+        SpringApplication.run(AccountApplication.class, args);
     }
+
 }

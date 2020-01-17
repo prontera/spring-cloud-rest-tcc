@@ -1,17 +1,21 @@
 package com.github.prontera.config;
 
 import com.fasterxml.classmate.TypeResolver;
-import com.github.prontera.model.swagger.SwaggerApiInfo;
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableList;
-import org.apache.commons.io.IOUtils;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import com.google.common.io.Files;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
+import org.reactivestreams.Publisher;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.web.bind.annotation.RequestMethod;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import springfox.bean.validators.configuration.BeanValidatorPluginsConfiguration;
-import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
 import springfox.documentation.schema.AlternateTypeRules;
 import springfox.documentation.schema.WildcardType;
@@ -19,25 +23,34 @@ import springfox.documentation.service.ApiInfo;
 import springfox.documentation.service.Contact;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
+import springfox.documentation.swagger.web.DocExpansion;
+import springfox.documentation.swagger.web.ModelRendering;
 import springfox.documentation.swagger.web.UiConfiguration;
+import springfox.documentation.swagger.web.UiConfigurationBuilder;
+import springfox.documentation.swagger2.annotations.EnableSwagger2WebFlux;
 
+import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
+/**
+ * @author Zhao Junjian
+ * @date 2020/01/17
+ */
+@Configuration
+@EnableSwagger2WebFlux
 @Import(BeanValidatorPluginsConfiguration.class)
-public class SwaggerTemplate {
+public class SwaggerConfig {
+
     private static final String DESCRIPTION;
 
     static {
         try {
             final ClassPathResource resource = new ClassPathResource("SWAGGER.md");
             if (resource.exists()) {
-                final InputStream inputStream = resource.getInputStream();
-                final List<String> lines = IOUtils.readLines(inputStream, Charsets.UTF_8);
-                DESCRIPTION = lines.stream().collect(Collectors.joining("\n"));
+                final List<String> lines = Files.readLines(new File(resource.getPath()), Charsets.UTF_8);
+                DESCRIPTION = String.join("\n", lines);
             } else {
                 DESCRIPTION = null;
             }
@@ -46,23 +59,21 @@ public class SwaggerTemplate {
         }
     }
 
-    @Bean
-    @ConditionalOnMissingBean
-    public SwaggerApiInfo apiInfo() {
-        return SwaggerApiInfo.builder().title("Solar").version("v1").serviceUrl(null).statusList(ImmutableList.of()).build();
+    public SwaggerApiInfo generateApiInfo() {
+        return SwaggerApiInfo.builder().title("order-plane").version("2.0.0").serviceUrl(null).build();
     }
 
     @Bean
-    public Docket configure(SwaggerApiInfo info, TypeResolver typeResolver) {
+    public Docket configure(TypeResolver typeResolver) {
+        final SwaggerApiInfo info = generateApiInfo();
         return new Docket(DocumentationType.SWAGGER_2)
+            .genericModelSubstitutes(Mono.class, Flux.class, Publisher.class)
             .select()
             .apis(RequestHandlerSelectors.basePackage("com.github.prontera"))
-            .paths(PathSelectors.any())
             .build()
             .pathMapping("/")
             .useDefaultResponseMessages(false)
-            .globalResponseMessage(RequestMethod.OPTIONS, info.getStatusList())
-            .apiInfo(new ApiInfo(info.getTitle(), DESCRIPTION, info.getVersion(), info.getServiceUrl(), new Contact(null, null, null), null, null))
+            .apiInfo(new ApiInfo(info.getTitle(), DESCRIPTION, info.getVersion(), info.getServiceUrl(), new Contact(null, null, null), null, null, ImmutableList.of()))
             .alternateTypeRules(
                 AlternateTypeRules.newRule(
                     typeResolver.resolve(Collection.class, WildcardType.class),
@@ -73,16 +84,27 @@ public class SwaggerTemplate {
     }
 
     @Bean
-    UiConfiguration uiConfig() {
-        return new UiConfiguration(
-            "validatorUrl",           // url
-            "list",       // docExpansion          => none | list
-            "alpha",      // apiSorter             => alpha
-            "schema",     // defaultModelRendering => schema
-            UiConfiguration.Constants.DEFAULT_SUBMIT_METHODS,
-            false,        // enableJsonEditor      => true | false
-            true,
-            null);
+    public UiConfiguration uiConfig() {
+        return UiConfigurationBuilder.builder()
+            .defaultModelsExpandDepth(0)
+            .defaultModelRendering(ModelRendering.MODEL)
+            .docExpansion(DocExpansion.LIST)
+            .displayOperationId(false)
+            .build();
+    }
+
+    @Getter
+    @Builder
+    @ToString(callSuper = true)
+    @EqualsAndHashCode
+    private static class SwaggerApiInfo {
+
+        private final String title;
+
+        private final String version;
+
+        private final String serviceUrl;
+
     }
 
 }

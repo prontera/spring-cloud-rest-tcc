@@ -4,7 +4,6 @@ import com.github.prontera.exception.RestStatusException;
 import com.github.prontera.model.response.ErrorEntity;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.util.Optional;
 
@@ -41,8 +40,9 @@ public final class Shift {
         checkNotNull(entity);
         checkNotNull(key);
         final RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
-        if (requestAttributes != null) {
-            ((ServletRequestAttributes) requestAttributes).getRequest().setAttribute(key, entity);
-        }
+        // TODO custom context instead
+        //if (requestAttributes != null) {
+        //((ServletRequestAttributes) requestAttributes).getRequest().setAttribute(key, entity);
+        //}
     }
 }

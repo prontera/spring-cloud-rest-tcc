@@ -2,15 +2,18 @@ package com.github.prontera;
 
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
-import org.springframework.cloud.client.SpringCloudApplication;
-import org.springframework.cloud.netflix.feign.EnableFeignClients;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@EnableFeignClients
-@SpringCloudApplication
+/**
+ * @author Zhao Junjian
+ * @date 2020/01/17
+ */
+@SpringBootApplication
 @MapperScan(basePackages = "com.github.prontera.persistence", annotationClass = MyBatisRepository.class)
-public class OrderMsApplication {
+public class OrderApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(OrderMsApplication.class, args);
+        SpringApplication.run(OrderApplication.class, args);
     }
+
 }

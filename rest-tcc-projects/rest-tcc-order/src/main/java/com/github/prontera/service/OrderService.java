@@ -188,14 +188,14 @@ public class OrderService extends CrudServiceImpl<Order> {
             } else if (PartialConfirmException.class.isAssignableFrom(exceptionCause)) {
                 order.setStatus(OrderStatus.CONFLICT);
                 super.updateNonNullProperties(order);
-                markdownConfliction(order, e);
+                markdownConflict(order, e);
             } else {
                 throw e;
             }
         }
     }
 
-    private void markdownConfliction(Order order, HystrixRuntimeException e) {
+    private void markdownConflict(Order order, HystrixRuntimeException e) {
         Preconditions.checkNotNull(order);
         Preconditions.checkNotNull(e);
         final String message = e.getCause().getMessage();

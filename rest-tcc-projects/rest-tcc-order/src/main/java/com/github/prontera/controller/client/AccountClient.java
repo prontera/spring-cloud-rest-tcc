@@ -4,7 +4,6 @@ import com.github.prontera.model.User;
 import com.github.prontera.model.request.BalanceReservationRequest;
 import com.github.prontera.model.response.ObjectDataResponse;
 import com.github.prontera.model.response.ReservationResponse;
-import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -14,12 +13,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 /**
  * @author Zhao Junjian
  */
-@FeignClient(name = AccountClient.SERVICE_ID, fallback = AccountClientFallback.class)
 public interface AccountClient {
     /**
      * eureka service name
      */
     String SERVICE_ID = "account";
+
     /**
      * common api prefix
      */
