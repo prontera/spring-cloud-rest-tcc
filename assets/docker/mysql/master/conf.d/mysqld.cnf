@@ -20,12 +20,12 @@
 # http://dev.mysql.com/doc/mysql/en/server-system-variables.html
 
 [mysql]
-default-character-set = utf8
+default-character-set = utf8mb4
 
 [mysqld]
 default-time-zone = '+8:00'
-character_set_server   = utf8
-collation_server       = utf8_general_ci
+character_set_server   = utf8mb4
+collation_server       = utf8mb4_unicode_ci
 pid-file	= /var/run/mysqld/mysqld.pid
 socket		= /var/run/mysqld/mysqld.sock
 datadir		= /var/lib/mysql

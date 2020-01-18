@@ -9,7 +9,7 @@ services:
         environment:
             - TZ=Asia/Shanghai
     account:
-        build: ./account-ms
+      build: ../../../account-ms
         image: prontera/account-ms
         ports:
             - "10014:10014"
@@ -24,7 +24,7 @@ services:
         environment:
             - TZ=Asia/Shanghai
     order:
-        build: ./order-ms
+      build: ../../../order-ms
         image: prontera/order-ms
         ports:
             - "8295:8295"
@@ -39,7 +39,7 @@ services:
         environment:
             - TZ=Asia/Shanghai
     product:
-        build: ./product-ms
+      build: ../../../product-ms
         image: prontera/product-ms
         ports:
             - "8040:8040"
