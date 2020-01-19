@@ -2,26 +2,32 @@ package com.github.prontera.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import com.github.prontera.model.BasicDomain;
-import com.github.prontera.model.type.OrderStatus;
+import com.github.prontera.enums.OrderState;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.io.Serializable;
+import java.time.OffsetDateTime;
+
+/**
+ * @author Zhao Junjian
+ * @date 2020/01/18
+ */
 @Getter
 @Setter
 @NoArgsConstructor
 @ToString
-@EqualsAndHashCode(callSuper = true)
-@JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
+@EqualsAndHashCode
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(value = {"hibernateLazyInitializer", "handler", "fieldHandler"}, ignoreUnknown = true)
-public class Order extends BasicDomain {
-    private static final long serialVersionUID = 7490727266143841610L;
+public class Order implements Serializable {
+
+    private static final long serialVersionUID = -7880174624621304089L;
+
+    private Long id;
 
     private Long userId;
 
@@ -29,6 +35,12 @@ public class Order extends BasicDomain {
 
     private Integer price;
 
-    private OrderStatus status;
+    private OrderState state;
+
+    private OffsetDateTime createAt;
+
+    private OffsetDateTime updateAt;
+
+    private Integer timeZone;
 
 }

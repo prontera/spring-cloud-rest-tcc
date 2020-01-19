@@ -14,6 +14,7 @@
     <modules>
         <module>rest-tcc-commons</module>
         <module>rest-tcc-contract</module>
+        <module>rest-tcc-dependencies</module>
         <module>rest-tcc-projects</module>
     </modules>
 

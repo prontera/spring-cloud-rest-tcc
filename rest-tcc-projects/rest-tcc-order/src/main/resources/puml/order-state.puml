@@ -1,0 +1,32 @@
+@startuml
+skinparam monochrome true
+scale 1
+title Order State Machine
+
+' State
+state "PENDING[√]" as PENDING
+PENDING: + action: initial "state" 0000
+PENDING: + action: recording final field "version"
+PENDING: + action: recording final field "partition"
+'''
+state "DONE[√]" as DONE
+DONE: + action: update "state" to 0001
+DONE: + action: set "done_at" as now
+'''
+state "TIMEOUT[√]" as TIMEOUT
+TIMEOUT: + action: update "state" to 0010
+TIMEOUT: + action: set "done_at" as now
+'''
+state "CONFLICT[√]" as CONFLICT
+CONFLICT: + action: update "state" to 0011
+CONFLICT: + action: set "done_at" as now
+' Transition
+[*] --> PENDING
+PENDING --> DONE: confirm \n [all participants confirmed]
+PENDING --> TIMEOUT: cancel \n [all participants cancelled OR not confirm at all]
+PENDING --> CONFLICT: partial_confirm \n [confirmed a part of it but not all of them]
+DONE --> [*]
+TIMEOUT --> [*]
+CONFLICT --> [*]
+@enduml
+

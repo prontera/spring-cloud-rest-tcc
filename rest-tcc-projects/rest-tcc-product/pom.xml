@@ -27,7 +27,7 @@
     <dependencies>
         <dependency>
             <groupId>com.github.prontera</groupId>
-            <artifactId>rest-tcc-commons</artifactId>
+            <artifactId>rest-tcc-dependencies</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
