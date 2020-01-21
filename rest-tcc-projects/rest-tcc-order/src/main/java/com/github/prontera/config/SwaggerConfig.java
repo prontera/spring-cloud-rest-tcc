@@ -69,7 +69,7 @@ public class SwaggerConfig {
         return new Docket(DocumentationType.SWAGGER_2)
             .genericModelSubstitutes(Mono.class, Flux.class, Publisher.class)
             .select()
-            .apis(RequestHandlerSelectors.basePackage("com.github.prontera"))
+            .apis(RequestHandlerSelectors.basePackage("com.github.prontera.http"))
             .build()
             .pathMapping("/")
             .useDefaultResponseMessages(false)

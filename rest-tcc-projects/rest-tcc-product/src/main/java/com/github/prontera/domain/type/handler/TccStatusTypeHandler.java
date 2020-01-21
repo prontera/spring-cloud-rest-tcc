@@ -1,6 +1,7 @@
 package com.github.prontera.domain.type.handler;
 
 import com.github.prontera.domain.type.TccStatus;
+import com.github.prontera.persistence.GenericTypeHandler;
 
 /**
  * @author Zhao Junjian

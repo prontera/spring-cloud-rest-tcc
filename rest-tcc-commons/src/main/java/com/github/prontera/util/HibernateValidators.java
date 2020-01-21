@@ -1,44 +1,62 @@
 package com.github.prontera.util;
 
-import com.google.common.collect.ImmutableMap;
+import com.github.prontera.exception.InvalidModelException;
+import org.hibernate.validator.HibernateValidator;
 
+import javax.annotation.Nonnull;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /**
  * @author Zhao Junjian
+ * @date 2018/05/23
  */
 public final class HibernateValidators {
 
     private static final Validator VALIDATOR;
 
-    private HibernateValidators() {
-    }
-
     static {
-        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        ValidatorFactory factory = Validation.byProvider(HibernateValidator.class)
+            .configure()
+            .failFast(true)
+            .buildValidatorFactory();
         VALIDATOR = factory.getValidator();
     }
 
-
-    public static <T> Set<ConstraintViolation<T>> validate(T object, Class<?>... groups) {
-        return VALIDATOR.validate(object, groups);
+    private HibernateValidators() {
     }
 
     /**
-     * @throws IllegalArgumentException 当校验有错误的时候抛出异常
+     * 当校验有错误的时候聚合成Map集合, 否则返回空集合
      */
-    public static <T> void throwsIfInvalid(T object, Class<?>... groups) {
-        final Set<ConstraintViolation<T>> constraintViolations = validate(object, groups);
+    public static <T> Map<String, String> asInvalidMap(@Nonnull T object, Class<?>... groups) {
+        Objects.requireNonNull(object);
+        final Set<ConstraintViolation<T>> constraintViolations = VALIDATOR.validate(object, groups);
+        Map<String, String> errorMap = Collections.emptyMap();
         if (!constraintViolations.isEmpty()) {
-            final ImmutableMap.Builder<String, String> errorBuilder = ImmutableMap.builder();
+            errorMap = new HashMap<>(Capacity.toMapExpectedSize(constraintViolations.size()));
             for (ConstraintViolation<T> violation : constraintViolations) {
-                errorBuilder.put(violation.getPropertyPath().toString(), violation.getMessage());
+                errorMap.put(violation.getPropertyPath().toString(), violation.getMessage());
             }
-            throw new IllegalArgumentException(errorBuilder.build().toString());
+        }
+        return errorMap;
+    }
+
+    /**
+     * @throws InvalidModelException 当校验有错误的时候抛出异常
+     */
+    public static <T> void throwsIfInvalid(@Nonnull T object, Class<?>... groups) {
+        final Map<String, String> invalidMap = asInvalidMap(object, groups);
+        if (!invalidMap.isEmpty()) {
+            throw new InvalidModelException(invalidMap);
         }
     }
+
 }

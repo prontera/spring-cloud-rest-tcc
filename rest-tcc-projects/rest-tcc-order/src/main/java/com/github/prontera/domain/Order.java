@@ -2,30 +2,31 @@ package com.github.prontera.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.github.prontera.enums.OrchestrationVersion;
 import com.github.prontera.enums.OrderState;
+import com.github.prontera.model.IdenticalDomain;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.io.Serializable;
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
 
 /**
  * @author Zhao Junjian
- * @date 2020/01/18
+ * @date 2020/01/20
  */
 @Getter
 @Setter
 @NoArgsConstructor
 @ToString
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(value = {"hibernateLazyInitializer", "handler", "fieldHandler"}, ignoreUnknown = true)
-public class Order implements Serializable {
+public class Order extends IdenticalDomain {
 
-    private static final long serialVersionUID = -7880174624621304089L;
+    private static final long serialVersionUID = -7328815311359399684L;
 
     private Long id;
 
@@ -35,12 +36,20 @@ public class Order implements Serializable {
 
     private Integer price;
 
+    private Integer quantity;
+
     private OrderState state;
 
-    private OffsetDateTime createAt;
+    private OrchestrationVersion version;
 
-    private OffsetDateTime updateAt;
+    private Integer virtualPartition;
 
-    private Integer timeZone;
+    private LocalDateTime createAt;
+
+    private LocalDateTime updateAt;
+
+    private LocalDateTime expireAt;
+
+    private LocalDateTime doneAt;
 
 }

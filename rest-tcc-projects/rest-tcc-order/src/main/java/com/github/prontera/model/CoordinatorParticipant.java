@@ -33,9 +33,8 @@ public class CoordinatorParticipant implements Serializable {
 
     private static final long serialVersionUID = -1896632687832278753L;
 
-    @URL
     @ApiModelProperty(value = "资源URI", required = true, example = "http://www.example.com/part/123")
-    private String uri;
+    private @URL String uri;
 
     @ApiModelProperty(value = "过期时间, ISO标准", required = true, example = "2017-03-20T14:00:41+08:00")
     @JsonSerialize(using = OffsetDateTimeToIso8601Serializer.class)

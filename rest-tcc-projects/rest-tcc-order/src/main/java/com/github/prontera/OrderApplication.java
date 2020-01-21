@@ -1,8 +1,9 @@
 package com.github.prontera;
 
 import org.mybatis.spring.annotation.MapperScan;
-import org.springframework.boot.SpringApplication;
+import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.builder.SpringApplicationBuilder;
 
 /**
  * @author Zhao Junjian
@@ -13,7 +14,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class OrderApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(OrderApplication.class, args);
+        new SpringApplicationBuilder(OrderApplication.class)
+            .web(WebApplicationType.REACTIVE)
+            .run(args);
     }
 
 }

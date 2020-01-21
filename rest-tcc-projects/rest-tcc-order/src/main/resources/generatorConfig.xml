@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE generatorConfiguration PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
-        "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd" >
+    "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd" >
 <generatorConfiguration>
     <!-- 数据库驱动 -->
     <context id="context">
@@ -34,13 +34,14 @@
         <table tableName="t_order" domainObjectName="Order" enableCountByExample="false"
                enableUpdateByExample="false" enableDeleteByExample="false" enableSelectByExample="false"
                selectByExampleQueryId="false">
-            <!--<columnOverride column="type"-->
-            <!--jdbcType="TINYINT"-->
-            <!--javaType="org.solar.domain.enumerator.AuthorityType"-->
-            <!--typeHandler="org.solar.domain.typehandler.AuthorityTypeHandler"/>-->
-            <!--<columnOverride column="createTime" isGeneratedAlways="true"/>-->
-            <!--<columnOverride column="updateTime" isGeneratedAlways="true"/>-->
-            <columnOverride column="interval_sec" property="intervalSeconds" isGeneratedAlways="true"/>
+            <columnOverride column="ver" property="version" javaType="com.github.prontera.enums.OrchestrationVersion"
+                            typeHandler="com.github.prontera.persistence.handler.OrchestrationVersionHandler"/>
+            <columnOverride column="state" jdbcType="TINYINT" javaType="com.github.prontera.enums.OrderState"
+                            typeHandler="com.github.prontera.persistence.handler.OrderStateHandler"/>
+            <columnOverride column="create_at" jdbcType="TIMESTAMP" javaType="java.time.LocalDateTime"/>
+            <columnOverride column="update_at" jdbcType="TIMESTAMP" javaType="java.time.LocalDateTime"/>
+            <columnOverride column="expire_at" jdbcType="TIMESTAMP" javaType="java.time.LocalDateTime"/>
+            <columnOverride column="done_at" jdbcType="TIMESTAMP" javaType="java.time.LocalDateTime"/>
         </table>
 
     </context>

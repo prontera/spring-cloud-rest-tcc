@@ -33,13 +33,11 @@ public class Participant implements Serializable {
 
     private static final long serialVersionUID = 4420192491905210084L;
 
-    @URL
     @ApiModelProperty(value = "资源URI", required = true, example = "http://www.example.com/part/123")
-    private String uri;
+    private @URL String uri;
 
-    @Future
-    @ApiModelProperty(value = "过期时间, ISO标准", required = true, example = "2017-03-20T14:00:41+08:00")
     @JsonSerialize(using = OffsetDateTimeToIso8601Serializer.class)
-    private OffsetDateTime expireTime;
+    @ApiModelProperty(value = "过期时间, ISO标准", required = true, example = "2017-03-20T14:00:41+08:00")
+    private @Future OffsetDateTime expireTime;
 
 }

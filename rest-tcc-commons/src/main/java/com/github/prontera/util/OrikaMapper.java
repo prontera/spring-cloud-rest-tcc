@@ -36,16 +36,10 @@ public final class OrikaMapper {
     private OrikaMapper() {
     }
 
-    /**
-     * 基于Dozer转换对象的类型.
-     */
     public static <S, D> D map(S source, Class<D> destinationClass) {
         return FACADE.map(source, destinationClass);
     }
 
-    /**
-     * 基于Dozer转换Collection中对象的类型.
-     */
     public static <S, D> List<D> mapList(Iterable<S> sourceList, Class<D> destinationClass) {
         return FACADE.mapAsList(sourceList, destinationClass);
     }

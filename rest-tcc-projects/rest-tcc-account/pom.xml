@@ -26,7 +26,12 @@
     <dependencies>
         <dependency>
             <groupId>com.github.prontera</groupId>
-            <artifactId>rest-tcc-dependencies</artifactId>
+            <artifactId>rest-tcc-commons</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.prontera</groupId>
+            <artifactId>rest-tcc-account-client</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
         <dependency>

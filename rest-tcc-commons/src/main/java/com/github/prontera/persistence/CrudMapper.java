@@ -1,11 +1,13 @@
 package com.github.prontera.persistence;
 
+import com.github.prontera.MyBatisRepository;
+
 /**
- * MyBatis通用Mapper, 通常搭配MBG一起使用
- *
  * @author Zhao Junjian
+ * @date 2020/01/20
  */
 @SuppressWarnings({"InterfaceNeverImplemented", "MybatisMapperMethodInspection"})
+@MyBatisRepository
 public interface CrudMapper<T> {
 
     int deleteByPrimaryKey(Long id);
@@ -19,4 +21,5 @@ public interface CrudMapper<T> {
     int updateByPrimaryKeySelective(T record);
 
     int updateByPrimaryKey(T record);
+
 }

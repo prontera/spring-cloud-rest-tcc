@@ -32,10 +32,7 @@ public class TccRequest implements Serializable {
 
     private static final long serialVersionUID = 1847362921754190531L;
 
-    @Valid
-    @NotNull
-    @Size(min = 1)
     @ApiModelProperty(value = "参与方提供的链接集合", required = true)
-    private List<CoordinatorParticipant> participantLinks;
+    private @Valid @NotNull @Size(min = 1) List<CoordinatorParticipant> participantLinks;
 
 }

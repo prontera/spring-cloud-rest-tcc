@@ -12,14 +12,17 @@ PENDING: + action: recording final field "partition"
 state "DONE[√]" as DONE
 DONE: + action: update "state" to 0001
 DONE: + action: set "done_at" as now
+DONE: + action: set "partition" to empty string
 '''
 state "TIMEOUT[√]" as TIMEOUT
 TIMEOUT: + action: update "state" to 0010
 TIMEOUT: + action: set "done_at" as now
+TIMEOUT: + action: set "partition" to empty string
 '''
 state "CONFLICT[√]" as CONFLICT
 CONFLICT: + action: update "state" to 0011
 CONFLICT: + action: set "done_at" as now
+CONFLICT: + action: set "partition" to empty string
 ' Transition
 [*] --> PENDING
 PENDING --> DONE: confirm \n [all participants confirmed]

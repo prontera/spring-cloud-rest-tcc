@@ -1,7 +1,7 @@
 package com.github.prontera.service;
 
 import com.github.prontera.Shift;
-import com.github.prontera.controller.StatusCode;
+import com.github.prontera.enums.StatusCode;
 import com.github.prontera.exception.PartialConfirmException;
 import com.github.prontera.exception.ReservationAlmostToExpireException;
 import com.github.prontera.exception.ReservationExpireException;
@@ -14,14 +14,12 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.OffsetDateTime;
@@ -32,7 +30,6 @@ import java.util.stream.Stream;
 /**
  * @author Zhao Junjian
  */
-@Service
 public class CoordinateService {
     private static final Logger LOGGER = LoggerFactory.getLogger(CoordinateService.class);
 
@@ -49,7 +46,6 @@ public class CoordinateService {
 
     private final RestTemplate restTemplate;
 
-    @Autowired
     public CoordinateService(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
     }
