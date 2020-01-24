@@ -1,6 +1,5 @@
-package com.github.prontera.controller;
+package com.github.prontera.enums;
 
-import com.github.prontera.enums.NumericStatusCode;
 import com.google.common.collect.ImmutableMap;
 
 /**

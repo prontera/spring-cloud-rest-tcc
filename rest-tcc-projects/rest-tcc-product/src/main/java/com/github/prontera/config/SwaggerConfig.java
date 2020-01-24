@@ -60,7 +60,7 @@ public class SwaggerConfig {
     }
 
     public SwaggerApiInfo generateApiInfo() {
-        return SwaggerApiInfo.builder().title("order-plane").version("2.0.0").serviceUrl(null).build();
+        return SwaggerApiInfo.builder().title("product-plane").version("2.0.0").serviceUrl(null).build();
     }
 
     @Bean
