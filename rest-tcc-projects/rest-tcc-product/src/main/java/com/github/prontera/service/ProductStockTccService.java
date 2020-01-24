@@ -1,6 +1,6 @@
 package com.github.prontera.service;
 
-import com.github.prontera.Shift;
+import com.github.prontera.Shifts;
 import com.github.prontera.controller.StatusCode;
 import com.github.prontera.domain.Product;
 import com.github.prontera.domain.ProductStockTcc;
@@ -56,7 +56,7 @@ public class ProductStockTccService extends CrudServiceImpl<ProductStockTcc> imp
         Preconditions.checkArgument(productId > 0);
         final Product product = productService.find(productId);
         if (product == null) {
-            Shift.fatal(StatusCode.PRODUCT_NOT_EXISTS);
+            Shifts.fatal(StatusCode.PRODUCT_NOT_EXISTS);
         }
         return trying(product, expireSeconds);
     }
@@ -68,7 +68,7 @@ public class ProductStockTccService extends CrudServiceImpl<ProductStockTcc> imp
         Preconditions.checkArgument(expireSeconds > 0);
         final int isLock = productMapper.consumeStock(product.getId());
         if (isLock == 0) {
-            Shift.fatal(StatusCode.INSUFFICIENT_PRODUCT);
+            Shifts.fatal(StatusCode.INSUFFICIENT_PRODUCT);
         }
         final ProductStockTcc tcc = new ProductStockTcc();
         // 每次下单默认只能1个

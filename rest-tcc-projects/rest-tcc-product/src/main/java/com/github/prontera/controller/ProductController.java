@@ -1,6 +1,6 @@
 package com.github.prontera.controller;
 
-import com.github.prontera.Shift;
+import com.github.prontera.Shifts;
 import com.github.prontera.domain.Product;
 import com.github.prontera.model.request.IncreaseProductInventoryRequest;
 import com.github.prontera.model.response.ObjectCollectionResponse;
@@ -33,7 +33,7 @@ public class ProductController {
     public ObjectDataResponse<Product> findProduct(@PathVariable Long id) {
         final Product product = productService.find(id);
         if (product == null) {
-            Shift.fatal(StatusCode.PRODUCT_NOT_EXISTS);
+            Shifts.fatal(StatusCode.PRODUCT_NOT_EXISTS);
         }
         return new ObjectDataResponse<>(product);
     }
@@ -50,7 +50,7 @@ public class ProductController {
     public ObjectDataResponse<Product> updateInventory(@PathVariable Long productId, @Valid @RequestBody IncreaseProductInventoryRequest request, BindingResult result) {
         final Product product = productService.find(productId);
         if (product == null) {
-            Shift.fatal(StatusCode.PRODUCT_NOT_EXISTS);
+            Shifts.fatal(StatusCode.PRODUCT_NOT_EXISTS);
         }
         product.setStock(request.getCount());
         productService.updateNonNullProperties(product);

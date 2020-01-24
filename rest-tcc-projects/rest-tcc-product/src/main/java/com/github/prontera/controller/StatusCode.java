@@ -1,12 +1,12 @@
 package com.github.prontera.controller;
 
-import com.github.prontera.RestStatus;
+import com.github.prontera.enums.NumericStatusCode;
 import com.google.common.collect.ImmutableMap;
 
 /**
  * @author Zhao Junjian
  */
-public enum StatusCode implements RestStatus {
+public enum StatusCode implements NumericStatusCode {
 
     OK(20000, "请求成功"),
 

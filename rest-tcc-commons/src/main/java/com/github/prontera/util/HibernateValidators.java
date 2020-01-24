@@ -16,7 +16,7 @@ import java.util.Set;
 
 /**
  * @author Zhao Junjian
- * @date 2018/05/23
+ * @date 2020/01/20
  */
 public final class HibernateValidators {
 

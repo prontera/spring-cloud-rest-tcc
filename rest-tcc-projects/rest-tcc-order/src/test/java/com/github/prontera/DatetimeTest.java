@@ -1,9 +1,11 @@
 package com.github.prontera;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.TimeZone;
 
 /**
@@ -36,6 +38,12 @@ public class DatetimeTest {
         System.out.println(localDateTime.atZone(ZoneId.of("Asia/Shanghai")));
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
         System.out.println(localDateTime);
+    }
+
+    @Test
+    public void testTimeBetween() {
+        Assertions.assertEquals(1, ChronoUnit.SECONDS.between(LocalDateTime.now(), LocalDateTime.now().plusSeconds(1)));
+        Assertions.assertEquals(1, ChronoUnit.SECONDS.between(LocalDateTime.now().plusSeconds(1), LocalDateTime.now()));
     }
 
 }

@@ -13,7 +13,7 @@
             <property name="useActualColumnNames" value="false"/>
         </commentGenerator>
 
-        <jdbcConnection driverClass="com.mysql.cj.jdbc.Driver" connectionURL="jdbc:mysql://localhost:3306/order?useSSL=false&amp;serverTimezone=UTC"
+        <jdbcConnection driverClass="com.mysql.cj.jdbc.Driver" connectionURL="jdbc:mysql://localhost:3306/order?useSSL=false"
                         userId="chris" password="123123"/>
 
         <javaModelGenerator targetPackage="com.github.prontera.domain"

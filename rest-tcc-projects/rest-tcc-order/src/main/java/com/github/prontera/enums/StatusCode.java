@@ -1,18 +1,16 @@
 package com.github.prontera.enums;
 
-import com.github.prontera.RestStatus;
 import com.github.prontera.util.Capacity;
 
-import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * @author Zhao Junjian
+ * @date 2020/01/22
  */
-public enum StatusCode implements RestStatus {
+public enum StatusCode implements NumericStatusCode {
 
     // 20xxx 客户端请求成功
     OK(20000, "请求成功"),
@@ -89,15 +87,6 @@ public enum StatusCode implements RestStatus {
             throw new IllegalArgumentException("No matching constant for [" + code + "]");
         }
         return status;
-    }
-
-    public static boolean isSuccess(@Nonnull StatusCode statusCode) {
-        Objects.requireNonNull(statusCode);
-        return isSuccess(statusCode.code());
-    }
-
-    public static boolean isSuccess(int code) {
-        return code >= 20000 && code <= 30000;
     }
 
     @Override

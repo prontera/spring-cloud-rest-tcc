@@ -29,23 +29,24 @@ import java.util.Objects;
 @RestController
 @RequestMapping(value = "/orders", produces = {MediaType.APPLICATION_JSON_VALUE}, consumes = {MediaType.ALL_VALUE})
 public class OrderController {
+
     private final OrderService orderService;
 
     @Lazy
     @Autowired
-    public OrderController(OrderService orderService) {
-        this.orderService = orderService;
+    public OrderController(@Nonnull OrderService orderService) {
+        this.orderService = Objects.requireNonNull(orderService);
     }
 
     @FaultBarrier
-    @ApiOperation(value = "根据orderId查询详情", notes = "无额外note")
+    @ApiOperation(value = "根据orderId查询详情", notes = "_")
     @GetMapping(value = "/query-order")
     public Order queryPartnerList(long orderId) {
         return orderService.find(orderId);
     }
 
     @FaultBarrier
-    @ApiOperation(value = "结账", notes = "无额外note")
+    @ApiOperation(value = "结账", notes = "_")
     @PostMapping(value = "/proceed-to-checkout")
     public CheckoutResponse checkout(@Nonnull CheckoutRequest request) {
         Objects.requireNonNull(request);

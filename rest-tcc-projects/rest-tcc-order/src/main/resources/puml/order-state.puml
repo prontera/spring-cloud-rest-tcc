@@ -7,22 +7,22 @@ title Order State Machine
 state "PENDING[√]" as PENDING
 PENDING: + action: initial "state" 0000
 PENDING: + action: recording final field "version"
-PENDING: + action: recording final field "partition"
+PENDING: + action: recording final field "virtual_machine"
 '''
 state "DONE[√]" as DONE
 DONE: + action: update "state" to 0001
 DONE: + action: set "done_at" as now
-DONE: + action: set "partition" to empty string
+DONE: + action: set "virtual_machine" to empty string
 '''
 state "TIMEOUT[√]" as TIMEOUT
 TIMEOUT: + action: update "state" to 0010
 TIMEOUT: + action: set "done_at" as now
-TIMEOUT: + action: set "partition" to empty string
+TIMEOUT: + action: set "virtual_machine" to empty string
 '''
 state "CONFLICT[√]" as CONFLICT
 CONFLICT: + action: update "state" to 0011
 CONFLICT: + action: set "done_at" as now
-CONFLICT: + action: set "partition" to empty string
+CONFLICT: + action: set "virtual_machine" to empty string
 ' Transition
 [*] --> PENDING
 PENDING --> DONE: confirm \n [all participants confirmed]
