@@ -1,6 +1,6 @@
 package com.github.prontera;
 
-import com.github.prontera.service.AccountService;
+import com.github.prontera.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -18,11 +18,11 @@ import java.util.TimeZone;
 @Component
 public class ContextStartedListener implements ApplicationRunner {
 
-    private final AccountService service;
+    private final ProductService service;
 
     @Lazy
     @Autowired
-    public ContextStartedListener(@Nonnull AccountService service) {
+    public ContextStartedListener(@Nonnull ProductService service) {
         this.service = Objects.requireNonNull(service);
     }
 
@@ -33,8 +33,8 @@ public class ContextStartedListener implements ApplicationRunner {
     }
 
     protected void boostCp() {
-        for (int i = 0; i < 7; i++) {
-            service.findByUsername("chris");
+        for (int i = 0; i < 47; i++) {
+            service.findByName("ps4");
         }
     }
 

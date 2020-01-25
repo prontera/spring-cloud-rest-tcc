@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.github.prontera.persistence.ProductTransactionMapper">
+    <resultMap id="BaseResultMap" type="com.github.prontera.domain.ProductTransaction">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="product_id" jdbcType="BIGINT" property="productId"/>
+        <result column="order_id" jdbcType="BIGINT" property="orderId"/>
+        <result column="amount" jdbcType="BIGINT" property="amount"/>
+        <result column="state" jdbcType="TINYINT" property="state" typeHandler="com.github.prontera.persistence.handler.ReservingStateHandler"/>
+        <result column="create_at" jdbcType="TIMESTAMP" property="createAt"/>
+        <result column="update_at" jdbcType="TIMESTAMP" property="updateAt"/>
+        <result column="expire_at" jdbcType="TIMESTAMP" property="expireAt"/>
+        <result column="done_at" jdbcType="TIMESTAMP" property="doneAt"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, product_id, order_id, amount, state, create_at, update_at, expire_at, done_at
+    </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from t_product_transaction
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+        delete
+        from t_product_transaction
+        where id = #{id,jdbcType=BIGINT}
+    </delete>
+    <insert id="insert" parameterType="com.github.prontera.domain.ProductTransaction">
+        insert into t_product_transaction (id, product_id, order_id,
+                                           amount, state,
+                                           create_at, update_at, expire_at,
+                                           done_at)
+        values (#{id,jdbcType=BIGINT}, #{productId,jdbcType=BIGINT}, #{orderId,jdbcType=BIGINT},
+                #{amount,jdbcType=BIGINT}, #{state,jdbcType=TINYINT,typeHandler=com.github.prontera.persistence.handler.ReservingStateHandler},
+                #{createAt,jdbcType=TIMESTAMP}, #{updateAt,jdbcType=TIMESTAMP}, #{expireAt,jdbcType=TIMESTAMP},
+                #{doneAt,jdbcType=TIMESTAMP})
+    </insert>
+    <insert id="insertSelective" parameterType="com.github.prontera.domain.ProductTransaction">
+        insert into t_product_transaction
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="productId != null">
+                product_id,
+            </if>
+            <if test="orderId != null">
+                order_id,
+            </if>
+            <if test="amount != null">
+                amount,
+            </if>
+            <if test="state != null">
+                state,
+            </if>
+            <if test="createAt != null">
+                create_at,
+            </if>
+            <if test="updateAt != null">
+                update_at,
+            </if>
+            <if test="expireAt != null">
+                expire_at,
+            </if>
+            <if test="doneAt != null">
+                done_at,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="productId != null">
+                #{productId,jdbcType=BIGINT},
+            </if>
+            <if test="orderId != null">
+                #{orderId,jdbcType=BIGINT},
+            </if>
+            <if test="amount != null">
+                #{amount,jdbcType=BIGINT},
+            </if>
+            <if test="state != null">
+                #{state,jdbcType=TINYINT,typeHandler=com.github.prontera.persistence.handler.ReservingStateHandler},
+            </if>
+            <if test="createAt != null">
+                #{createAt,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateAt != null">
+                #{updateAt,jdbcType=TIMESTAMP},
+            </if>
+            <if test="expireAt != null">
+                #{expireAt,jdbcType=TIMESTAMP},
+            </if>
+            <if test="doneAt != null">
+                #{doneAt,jdbcType=TIMESTAMP},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.github.prontera.domain.ProductTransaction">
+        update t_product_transaction
+        <set>
+            <if test="productId != null">
+                product_id = #{productId,jdbcType=BIGINT},
+            </if>
+            <if test="orderId != null">
+                order_id = #{orderId,jdbcType=BIGINT},
+            </if>
+            <if test="amount != null">
+                amount = #{amount,jdbcType=BIGINT},
+            </if>
+            <if test="state != null">
+                state = #{state,jdbcType=TINYINT,typeHandler=com.github.prontera.persistence.handler.ReservingStateHandler},
+            </if>
+            <if test="createAt != null">
+                create_at = #{createAt,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateAt != null">
+                update_at = #{updateAt,jdbcType=TIMESTAMP},
+            </if>
+            <if test="expireAt != null">
+                expire_at = #{expireAt,jdbcType=TIMESTAMP},
+            </if>
+            <if test="doneAt != null">
+                done_at = #{doneAt,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.github.prontera.domain.ProductTransaction">
+        update t_product_transaction
+        set product_id = #{productId,jdbcType=BIGINT},
+            order_id   = #{orderId,jdbcType=BIGINT},
+            amount     = #{amount,jdbcType=BIGINT},
+            state      = #{state,jdbcType=TINYINT,typeHandler=com.github.prontera.persistence.handler.ReservingStateHandler},
+            create_at  = #{createAt,jdbcType=TIMESTAMP},
+            update_at  = #{updateAt,jdbcType=TIMESTAMP},
+            expire_at  = #{expireAt,jdbcType=TIMESTAMP},
+            done_at    = #{doneAt,jdbcType=TIMESTAMP}
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <select id="selectByOrderId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from t_product_transaction
+        where order_id = #{orderId}
+    </select>
+    <update id="compareAndSetState">
+        update t_product_transaction
+        set state   = #{updating,jdbcType=TINYINT,typeHandler=com.github.prontera.persistence.handler.ReservingStateHandler},
+            done_at = now()
+        where id = #{id,jdbcType=BIGINT}
+          and state = #{expected,jdbcType=TINYINT,typeHandler=com.github.prontera.persistence.handler.ReservingStateHandler}
+    </update>
+</mapper>

@@ -1,8 +1,8 @@
-package com.github.prontera.domain;
+package com.github.prontera.product.model.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.github.prontera.model.IdenticalDomain;
+import com.github.prontera.model.response.ResolvableResponse;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 
 /**
  * @author Zhao Junjian
- * @date 2020/01/24
+ * @date 2020/01/25
  */
 @Getter
 @Setter
@@ -22,18 +22,22 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode(callSuper = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(value = {"hibernateLazyInitializer", "handler", "fieldHandler"}, ignoreUnknown = true)
-public class Product extends IdenticalDomain {
+public class QueryProductTxnResponse extends ResolvableResponse {
 
-    private static final long serialVersionUID = -735618077843393503L;
+    private static final long serialVersionUID = -9159171999056024307L;
 
-    private Long id;
+    private Long productId;
 
-    private String name;
+    private Long orderId;
 
-    private Long inventory;
+    private Long amount;
+
+    private Integer state;
 
     private LocalDateTime createAt;
 
-    private LocalDateTime updateAt;
+    private LocalDateTime expireAt;
+
+    private LocalDateTime doneAt;
 
 }

@@ -1,18 +1,18 @@
 package com.github.prontera.service;
 
 import com.github.prontera.Shifts;
-import com.github.prontera.account.enums.ReservingState;
-import com.github.prontera.account.model.request.BalanceReservingRequest;
-import com.github.prontera.account.model.request.ConfirmAccountTxnRequest;
-import com.github.prontera.account.model.request.SignUpRequest;
-import com.github.prontera.account.model.response.BalanceReservingResponse;
-import com.github.prontera.account.model.response.ConfirmAccountTxnResponse;
-import com.github.prontera.account.model.response.SignUpResponse;
-import com.github.prontera.domain.Account;
-import com.github.prontera.domain.AccountTransaction;
+import com.github.prontera.domain.Product;
+import com.github.prontera.domain.ProductTransaction;
 import com.github.prontera.enums.StatusCode;
-import com.github.prontera.persistence.AccountMapper;
-import com.github.prontera.persistence.AccountTransactionMapper;
+import com.github.prontera.persistence.ProductMapper;
+import com.github.prontera.persistence.ProductTransactionMapper;
+import com.github.prontera.product.enums.ReservingState;
+import com.github.prontera.product.model.request.AddProductRequest;
+import com.github.prontera.product.model.request.ConfirmProductTxnRequest;
+import com.github.prontera.product.model.request.InventoryReservingRequest;
+import com.github.prontera.product.model.response.AddProductResponse;
+import com.github.prontera.product.model.response.ConfirmProductTxnResponse;
+import com.github.prontera.product.model.response.InventoryReservingResponse;
 import com.github.prontera.util.Responses;
 import com.google.common.base.Preconditions;
 import org.apache.commons.lang3.StringUtils;
@@ -32,23 +32,23 @@ import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author Zhao Junjian
- * @date 2020/01/22
+ * @date 2020/01/25
  */
 @Service
-public class AccountService {
+public class ProductService {
 
     public static final int MAX_RETRY_CONFIRM_TIMES = 3;
 
-    private final AccountMapper mapper;
+    private final ProductMapper mapper;
 
-    private final AccountTransactionMapper transactionMapper;
+    private final ProductTransactionMapper transactionMapper;
 
     private final TransactionTemplate transactionTemplate;
 
     @Lazy
     @Autowired
-    public AccountService(@Nonnull AccountMapper mapper,
-                          @Nonnull AccountTransactionMapper transactionMapper,
+    public ProductService(@Nonnull ProductMapper mapper,
+                          @Nonnull ProductTransactionMapper transactionMapper,
                           @Nonnull PlatformTransactionManager transactionManager) {
         this.mapper = Objects.requireNonNull(mapper);
         this.transactionMapper = Objects.requireNonNull(transactionMapper);
@@ -58,55 +58,55 @@ public class AccountService {
     }
 
     /**
-     * 简单使用username注册, 用于开设新的测试账户
+     * 上单
      */
-    public SignUpResponse signUp(@Nonnull SignUpRequest request) {
+    public AddProductResponse addProduct(@Nonnull AddProductRequest request) {
         Objects.requireNonNull(request);
         // prevent from registering many times
         final String username = StringUtils.trimToEmpty(request.getName());
-        final Optional<Account> nullableAccount = findByUsername(username);
+        final Optional<Product> nullableAccount = findByName(username);
         if (nullableAccount.isPresent()) {
-            Shifts.fatal(StatusCode.USERNAME_REGISTERED);
+            Shifts.fatal(StatusCode.PRODUCT_REGISTERED);
         }
-        final Account account = new Account();
-        account.setName(username);
-        account.setCreateAt(LocalDateTime.now());
-        account.setUpdateAt(LocalDateTime.now());
-        mapper.insertSelective(account);
-        return Responses.generate(SignUpResponse.class, StatusCode.OK);
+        final Product product = new Product();
+        product.setName(username);
+        product.setCreateAt(LocalDateTime.now());
+        product.setUpdateAt(LocalDateTime.now());
+        mapper.insertSelective(product);
+        return Responses.generate(AddProductResponse.class, StatusCode.OK);
     }
 
     /**
-     * 1. 根据username检索Account
-     * 2. 根据orderId检索是否已经存在AccountTransaction
+     * 1. 根据name检索Product
+     * 2. 根据orderId检索是否已经存在ProductTransaction
      * --- a. 如果存在, 且为intermediate state, 则再次计算reservingSecond后返回, 保持try幂等
      * --- b. 如果存在, 但为final state, 则为data violation, 响应异常
      * --- c. 如果不存在, 持久化该记录
      */
-    public BalanceReservingResponse reserving(@Nonnull BalanceReservingRequest request) {
+    public InventoryReservingResponse reserving(@Nonnull InventoryReservingRequest request) {
         Objects.requireNonNull(request);
-        // find by username
-        final String username = StringUtils.trimToEmpty(request.getUsername());
-        final Optional<Account> nullableAccount = findByUsername(username);
+        // find by name
+        final String name = StringUtils.trimToEmpty(request.getProductName());
+        final Optional<Product> nullableAccount = findByName(name);
         if (!nullableAccount.isPresent()) {
-            Shifts.fatal(StatusCode.USER_NOT_EXISTS);
+            Shifts.fatal(StatusCode.PRODUCT_NOT_EXISTS);
         }
-        final AtomicReference<BalanceReservingResponse> container = new AtomicReference<>();
+        final AtomicReference<InventoryReservingResponse> container = new AtomicReference<>();
         // according to order id, retrieve and check if any transaction existed
         final Long orderId = request.getOrderId();
-        final Optional<AccountTransaction> nullableAccountTransaction = Optional.ofNullable(transactionMapper.selectByOrderId(orderId));
+        final Optional<ProductTransaction> nullableAccountTransaction = Optional.ofNullable(transactionMapper.selectByOrderId(orderId));
         if (nullableAccountTransaction.isPresent()) {
-            final AccountTransaction accountTransaction = nullableAccountTransaction.get();
+            final ProductTransaction accountTransaction = nullableAccountTransaction.get();
             final ReservingState reservingState = accountTransaction.getState();
             if (reservingState == ReservingState.TRYING) {
-                final BalanceReservingResponse response;
+                final InventoryReservingResponse response;
                 final long expiredSeconds = Math.max(0, ChronoUnit.SECONDS.between(LocalDateTime.now(), accountTransaction.getExpireAt()));
                 if (expiredSeconds <= 0) {
                     // auto cancellation
                     cancellableFindTransaction(orderId);
                     Shifts.fatal(StatusCode.TIMEOUT_AND_CANCELLED);
                 }
-                response = Responses.generate(BalanceReservingResponse.class, StatusCode.IDEMPOTENT_RESERVING);
+                response = Responses.generate(InventoryReservingResponse.class, StatusCode.IDEMPOTENT_RESERVING);
                 response.setReservingSeconds(expiredSeconds);
                 container.set(response);
             } else if (reservingState == ReservingState.INVALID) {
@@ -115,25 +115,25 @@ public class AccountService {
                 Shifts.fatal(StatusCode.NON_RESERVING_STATE);
             }
         } else {
-            final Account account = nullableAccount.get();
+            final Product product = nullableAccount.get();
             // did not throw any exception within TransactionTemplate
             transactionTemplate.execute(status -> {
-                if (deductBalance(account.getId(), request.getAmount())) {
-                    final AccountTransaction accountTransaction = new AccountTransaction();
+                if (deductInventory(product.getId(), request.getAmount())) {
+                    final ProductTransaction accountTransaction = new ProductTransaction();
                     accountTransaction.setOrderId(orderId);
-                    accountTransaction.setUserId(account.getId());
+                    accountTransaction.setProductId(product.getId());
                     accountTransaction.setAmount(request.getAmount());
                     accountTransaction.setState(ReservingState.TRYING);
                     accountTransaction.setCreateAt(LocalDateTime.now());
                     accountTransaction.setUpdateAt(LocalDateTime.now());
                     accountTransaction.setExpireAt(LocalDateTime.now().plusSeconds(request.getExpectedReservingSeconds()));
                     transactionMapper.insertSelective(accountTransaction);
-                    final BalanceReservingResponse response = Responses.generate(BalanceReservingResponse.class, StatusCode.OK);
+                    final InventoryReservingResponse response = Responses.generate(InventoryReservingResponse.class, StatusCode.OK);
                     final long expiredSeconds = Math.max(0, ChronoUnit.SECONDS.between(LocalDateTime.now(), accountTransaction.getExpireAt()));
                     response.setReservingSeconds(expiredSeconds);
                     container.set(response);
                 } else {
-                    container.set(Responses.generate(BalanceReservingResponse.class, StatusCode.INSUFFICIENT_BALANCE));
+                    container.set(Responses.generate(InventoryReservingResponse.class, StatusCode.INSUFFICIENT_INVENTORY));
                 }
                 return null;
             });
@@ -144,20 +144,20 @@ public class AccountService {
     /**
      * 根据orderId检索事务记录, 若发现过期, 则自动过期并回写数据源, 并响应响应新的实体
      */
-    public Optional<AccountTransaction> cancellableFindTransaction(long orderId) {
-        final AccountTransaction transaction = transactionMapper.selectByOrderId(orderId);
-        final AtomicReference<AccountTransaction> container = new AtomicReference<>(transaction);
+    public Optional<ProductTransaction> cancellableFindTransaction(long orderId) {
+        final ProductTransaction transaction = transactionMapper.selectByOrderId(orderId);
+        final AtomicReference<ProductTransaction> container = new AtomicReference<>(transaction);
         if (transaction != null) {
             final LocalDateTime now = LocalDateTime.now();
             if (transaction.getState() == ReservingState.TRYING && now.isAfter(transaction.getExpireAt())) {
-                final AccountTransaction newTxn = transactionTemplate.execute(status -> {
+                final ProductTransaction newTxn = transactionTemplate.execute(status -> {
                     transaction.setState(ReservingState.CANCELLED);
                     transaction.setDoneAt(now);
                     if (transactionMapper.compareAndSetState(transaction.getId(), ReservingState.TRYING, ReservingState.CANCELLED) <= 0) {
                         // ATTENTION: u should force to retrieve from master node in production environment.
                         return transactionMapper.selectByOrderId(orderId);
                     }
-                    if (!increaseBalance(transaction.getUserId(), transaction.getAmount())) {
+                    if (!increaseInventory(transaction.getProductId(), transaction.getAmount())) {
                         Shifts.fatal(StatusCode.ACCOUNT_ROLLBACK_FAILURE);
                     }
                     return transaction;
@@ -175,19 +175,19 @@ public class AccountService {
      * --- a. 如果是cancel, 则响应特定错误码
      * --- b. 如果已经为confirm, 则同样响应成功
      */
-    public ConfirmAccountTxnResponse confirmTransaction(@Nonnull ConfirmAccountTxnRequest request, int retryTimesNow) {
+    public ConfirmProductTxnResponse confirmTransaction(@Nonnull ConfirmProductTxnRequest request, int retryTimesNow) {
         Objects.requireNonNull(request);
         // exit for fallback preventing infinity loop
         if (retryTimesNow > MAX_RETRY_CONFIRM_TIMES) {
             Shifts.fatal(StatusCode.FAIL_TO_CONFIRM);
         }
         final Long orderId = request.getOrderId();
-        final Optional<AccountTransaction> nullableTxn = cancellableFindTransaction(orderId);
+        final Optional<ProductTransaction> nullableTxn = cancellableFindTransaction(orderId);
         if (!nullableTxn.isPresent()) {
             Shifts.fatal(StatusCode.ORDER_NOT_EXISTS);
         }
-        ConfirmAccountTxnResponse response = Responses.generate(ConfirmAccountTxnResponse.class, StatusCode.OK);
-        final AccountTransaction accountTransaction = nullableTxn.get();
+        ConfirmProductTxnResponse response = Responses.generate(ConfirmProductTxnResponse.class, StatusCode.OK);
+        final ProductTransaction accountTransaction = nullableTxn.get();
         final ReservingState reservingState = accountTransaction.getState();
         if (reservingState == ReservingState.TRYING) {
             if (transactionMapper.compareAndSetState(accountTransaction.getId(), ReservingState.TRYING, ReservingState.CONFIRMED) <= 0) {
@@ -202,22 +202,22 @@ public class AccountService {
         return response;
     }
 
-    public Optional<Account> findByUsername(@Nonnull String username) {
-        Objects.requireNonNull(username);
-        Preconditions.checkArgument(!username.isEmpty());
-        return Optional.ofNullable(mapper.selectByName(username));
+    public Optional<Product> findByName(@Nonnull String name) {
+        Objects.requireNonNull(name);
+        Preconditions.checkArgument(!name.isEmpty());
+        return Optional.ofNullable(mapper.selectByName(name));
     }
 
-    boolean deductBalance(@Nonnull Long id, @Nonnull Long amount) {
+    boolean deductInventory(@Nonnull Long id, @Nonnull Long amount) {
         Objects.requireNonNull(id);
         Objects.requireNonNull(amount);
-        return mapper.deductBalance(id, amount) > 0;
+        return mapper.deductInventory(id, amount) > 0;
     }
 
-    boolean increaseBalance(@Nonnull Long id, @Nonnull Long amount) {
+    boolean increaseInventory(@Nonnull Long id, @Nonnull Long amount) {
         Objects.requireNonNull(id);
         Objects.requireNonNull(amount);
-        return mapper.increaseBalance(id, amount) > 0;
+        return mapper.increaseInventory(id, amount) > 0;
     }
 
 }

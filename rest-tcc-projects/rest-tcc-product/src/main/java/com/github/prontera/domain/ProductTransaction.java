@@ -3,6 +3,7 @@ package com.github.prontera.domain;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.github.prontera.model.IdenticalDomain;
+import com.github.prontera.product.enums.ReservingState;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,18 +23,25 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode(callSuper = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(value = {"hibernateLazyInitializer", "handler", "fieldHandler"}, ignoreUnknown = true)
-public class Product extends IdenticalDomain {
-
-    private static final long serialVersionUID = -735618077843393503L;
+public class ProductTransaction extends IdenticalDomain {
+    private static final long serialVersionUID = -1997296571733378076L;
 
     private Long id;
 
-    private String name;
+    private Long productId;
 
-    private Long inventory;
+    private Long orderId;
+
+    private Long amount;
+
+    private ReservingState state;
 
     private LocalDateTime createAt;
 
     private LocalDateTime updateAt;
+
+    private LocalDateTime expireAt;
+
+    private LocalDateTime doneAt;
 
 }

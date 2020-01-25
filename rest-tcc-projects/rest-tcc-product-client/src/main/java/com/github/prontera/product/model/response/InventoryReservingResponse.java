@@ -1,10 +1,8 @@
-package com.github.prontera.model.request;
+package com.github.prontera.product.model.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import io.swagger.annotations.ApiModelProperty;
+import com.github.prontera.model.response.ResolvableResponse;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,22 +14,19 @@ import javax.validation.constraints.NotNull;
 
 /**
  * @author Zhao Junjian
+ * @date 2020/01/25
  */
 @Getter
 @Setter
 @NoArgsConstructor
-@ToString(callSuper = true)
+@ToString
 @EqualsAndHashCode(callSuper = true)
-@JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(value = {"hibernateLazyInitializer", "handler", "fieldHandler"}, ignoreUnknown = true)
-public class StockReservationRequest extends RestfulRequest {
+public class InventoryReservingResponse extends ResolvableResponse {
 
-    private static final long serialVersionUID = -5917718724808796934L;
+    private static final long serialVersionUID = 7824624522752331589L;
 
-    @NotNull
-    @Min(1)
-    @ApiModelProperty(value = "产品ID", example = "1", required = true)
-    private Long productId;
+    private @NotNull @Min(1) Long reservingSeconds;
 
 }
