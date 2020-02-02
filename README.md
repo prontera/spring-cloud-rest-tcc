@@ -1,4 +1,4 @@
-# Solar
+# spring-cloud-rest-tcc
 
 Spring Cloud为开发者提供了快速构建分布式系统中的一些常见工具，如分布式配置中心，服务发现与注册中心，智能路由，服务熔断及降级，消息总线，分布式追踪的解决方案等。
 
@@ -42,7 +42,7 @@ Publisher中的事件状态转换如下：
 
 - NEW —> PENDING —> FAILED / NO_ROUTE / NOT_FOUND / ERROR
 
-  ![](./image/eda-pub.png)
+  ![](./assets/image/eda-pub.png)
 
 Subscriber中的事件状态转换如下：
 
@@ -50,7 +50,7 @@ Subscriber中的事件状态转换如下：
 
 - NEW —> FAILED / NOT_FOUND / ERROR
 
-  ![](./image/eda-sub.png)
+  ![](./assets/image/eda-sub.png)
 
 部分功能介绍：
 
@@ -104,19 +104,19 @@ Zuul在本实例中仅作为路由所使用，配置降低Ribbon的读取与连�
 
 此应用提供了管理Spring Boot服务的简单UI，下图是在容器中运行时的服务健康检测页
 
-![](./image/spring-boot-admin.jpg)
+![](./assets/image/spring-boot-admin.jpg)
 
 #### Hystrix Dashboard
 
 提供近实时依赖的统计和监控面板，以监测服务的超时，熔断，拒绝，降级等行为。
 
-![](./image/turbine.jpg)
+![](./assets/image/turbine.jpg)
 
 #### Zipkin Server
 
 Zipkin是一款开源的分布式实时数据追踪系统，其主要功能是聚集来自各个异构系统的实时监控数据，用来追踪微服务架构下的系统时延问题. 下图是对`order`服务的请求进行追踪的情况。
 
-![](./image/zipkin.jpg)
+![](./assets/image/zipkin.jpg)
 
 ### 业务服务
 
@@ -146,7 +146,7 @@ TCC资源协调器，其职责如下：
 - 下单. 即生成预订单，为了更好地测试TCC功能，在下单时就通过Feign向服务`account`与`product`发起预留资源请求，并且记录入库。
 - 确认订单. 确认订单时根据订单ID从库中获取订单，并获取预留资源确认的URI，交由服务`tcc`统一进行确认，如果发生冲突即记录入库，等待人工处理。
 
-![](./image/zipkin-dep.jpg)
+![](./assets/image/zipkin-dep.jpg)
 
 #### membership
 
@@ -156,7 +156,7 @@ TCC资源协调器，其职责如下：
 
 下图为`product`服务的Swagger接口文档，根据下文的服务字典可知，本接口文档可通过`http://localhost:8040/swagger-ui.html`进行访问.  `order`，`account`和`tcc`的文档访问方式亦是如出一撤。
 
-![](./image/swagger-product.jpg)
+![](./assets/image/swagger-product.jpg)
 
 ## 运行
 
@@ -298,7 +298,7 @@ gitlab:
 
 将项目的`config-repo`添加至Gitlab中，并修改`config-ms`中git仓库的相关验证等参数即可。
 
-![](./image/gitlab.jpg)
+![](./assets/image/gitlab.jpg)
 
 ## 服务字典
 
