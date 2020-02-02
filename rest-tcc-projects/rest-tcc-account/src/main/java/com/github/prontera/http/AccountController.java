@@ -1,28 +1,27 @@
 package com.github.prontera.http;
 
 import com.github.prontera.Shifts;
+import com.github.prontera.account.enums.StatusCode;
 import com.github.prontera.account.model.request.BalanceReservingRequest;
 import com.github.prontera.account.model.request.ConfirmAccountTxnRequest;
+import com.github.prontera.account.model.request.QueryAccountRequest;
 import com.github.prontera.account.model.request.QueryAccountTxnRequest;
-import com.github.prontera.account.model.request.SignUpRequest;
 import com.github.prontera.account.model.response.BalanceReservingResponse;
 import com.github.prontera.account.model.response.ConfirmAccountTxnResponse;
+import com.github.prontera.account.model.response.QueryAccountResponse;
 import com.github.prontera.account.model.response.QueryAccountTxnResponse;
-import com.github.prontera.account.model.response.SignUpResponse;
 import com.github.prontera.annotation.FaultBarrier;
 import com.github.prontera.domain.AccountTransaction;
-import com.github.prontera.enums.StatusCode;
-import com.github.prontera.mapper.AccountTransactionCopier;
 import com.github.prontera.service.AccountService;
 import com.github.prontera.util.HibernateValidators;
+import com.github.prontera.util.Responses;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -40,7 +39,7 @@ import java.util.Optional;
  */
 @Api(tags = "Account-Debugger")
 @RestController
-@RequestMapping(value = "/accounts", produces = {MediaType.APPLICATION_JSON_VALUE}, consumes = {MediaType.ALL_VALUE})
+@RequestMapping(value = "/", produces = {MediaType.APPLICATION_JSON_VALUE}, consumes = {MediaType.APPLICATION_JSON_VALUE})
 public class AccountController {
 
     private final AccountService service;
@@ -52,18 +51,18 @@ public class AccountController {
     }
 
     @FaultBarrier
-    @ApiOperation(value = "注册", notes = "新账号默认资金为100,000,000")
-    @PostMapping(value = "/sign-up")
-    public SignUpResponse signUp(@Nonnull SignUpRequest request) {
+    @ApiOperation(value = "根据用户名查询信息", notes = "_")
+    @PostMapping(value = "/query-by-username")
+    public QueryAccountResponse queryByUsername(@Nonnull @RequestBody QueryAccountRequest request) {
         Objects.requireNonNull(request);
         HibernateValidators.throwsIfInvalid(request);
-        return service.signUp(request);
+        return service.queryByUsername(request);
     }
 
     @FaultBarrier
     @ApiOperation(value = "预留资源, 锁定资金", notes = "_")
     @PostMapping(value = "/reserve-balance")
-    public BalanceReservingResponse reserveBalance(@Nonnull BalanceReservingRequest request) {
+    public BalanceReservingResponse reserveBalance(@Nonnull @RequestBody BalanceReservingRequest request) {
         Objects.requireNonNull(request);
         HibernateValidators.throwsIfInvalid(request);
         return service.reserving(request);
@@ -71,25 +70,30 @@ public class AccountController {
 
     @FaultBarrier
     @ApiOperation(value = "根据订单ID查询预留资源", notes = "如果发现预留资源过了保护期, 将自动归还资金, 具备fsm被动轮状的能力")
-    @GetMapping(value = "/query-transaction")
-    public QueryAccountTxnResponse queryTransaction(@Nonnull QueryAccountTxnRequest request) {
+    @PostMapping(value = "/query-transaction")
+    public QueryAccountTxnResponse queryTransaction(@Nonnull @RequestBody QueryAccountTxnRequest request) {
         Objects.requireNonNull(request);
         HibernateValidators.throwsIfInvalid(request);
         final Optional<AccountTransaction> nullableTxn = service.cancellableFindTransaction(request.getOrderId());
         if (!nullableTxn.isPresent()) {
             Shifts.fatal(StatusCode.ORDER_NOT_EXISTS);
         }
-        final QueryAccountTxnResponse response = AccountTransactionCopier.INSTANCE.toQueryAccountTxnResponse(nullableTxn.get());
-        response.setSuccessful(true);
-        response.setCode(StatusCode.OK.code());
-        response.setMessage(StatusCode.OK.message());
+        final AccountTransaction transaction = nullableTxn.get();
+        final QueryAccountTxnResponse response = Responses.generate(QueryAccountTxnResponse.class, StatusCode.OK);
+        response.setUserId(transaction.getUserId());
+        response.setOrderId(transaction.getOrderId());
+        response.setAmount(transaction.getAmount());
+        response.setCreateAt(transaction.getCreateAt());
+        response.setExpireAt(transaction.getExpireAt());
+        response.setDoneAt(transaction.getDoneAt());
+        response.setState(transaction.getState().val());
         return response;
     }
 
     @FaultBarrier
     @ApiOperation(value = "根据订单ID确认预留资源", notes = "具备fsm被动轮转能力")
-    @PutMapping(value = "/confirm-transaction")
-    public ConfirmAccountTxnResponse confirmTransaction(@Nonnull ConfirmAccountTxnRequest request) {
+    @PostMapping(value = "/confirm-transaction")
+    public ConfirmAccountTxnResponse confirmTransaction(@Nonnull @RequestBody ConfirmAccountTxnRequest request) {
         Objects.requireNonNull(request);
         HibernateValidators.throwsIfInvalid(request);
         return service.confirmTransaction(request, 0);

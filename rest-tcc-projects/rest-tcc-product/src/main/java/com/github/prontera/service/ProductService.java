@@ -3,16 +3,16 @@ package com.github.prontera.service;
 import com.github.prontera.Shifts;
 import com.github.prontera.domain.Product;
 import com.github.prontera.domain.ProductTransaction;
-import com.github.prontera.enums.StatusCode;
 import com.github.prontera.persistence.ProductMapper;
 import com.github.prontera.persistence.ProductTransactionMapper;
 import com.github.prontera.product.enums.ReservingState;
-import com.github.prontera.product.model.request.AddProductRequest;
+import com.github.prontera.product.enums.StatusCode;
 import com.github.prontera.product.model.request.ConfirmProductTxnRequest;
 import com.github.prontera.product.model.request.InventoryReservingRequest;
-import com.github.prontera.product.model.response.AddProductResponse;
+import com.github.prontera.product.model.request.QueryProductRequest;
 import com.github.prontera.product.model.response.ConfirmProductTxnResponse;
 import com.github.prontera.product.model.response.InventoryReservingResponse;
+import com.github.prontera.product.model.response.QueryProductResponse;
 import com.github.prontera.util.Responses;
 import com.google.common.base.Preconditions;
 import org.apache.commons.lang3.StringUtils;
@@ -28,7 +28,6 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author Zhao Junjian
@@ -58,22 +57,20 @@ public class ProductService {
     }
 
     /**
-     * 上单
+     * 根据产品名查询ID
      */
-    public AddProductResponse addProduct(@Nonnull AddProductRequest request) {
+    public QueryProductResponse queryByProductName(@Nonnull QueryProductRequest request) {
         Objects.requireNonNull(request);
-        // prevent from registering many times
-        final String username = StringUtils.trimToEmpty(request.getName());
-        final Optional<Product> nullableAccount = findByName(username);
-        if (nullableAccount.isPresent()) {
-            Shifts.fatal(StatusCode.PRODUCT_REGISTERED);
+        final String username = StringUtils.trimToEmpty(request.getProductName());
+        final Optional<Product> nullableProduct = findByName(username);
+        if (!nullableProduct.isPresent()) {
+            Shifts.fatal(StatusCode.PRODUCT_NOT_EXISTS);
         }
-        final Product product = new Product();
-        product.setName(username);
-        product.setCreateAt(LocalDateTime.now());
-        product.setUpdateAt(LocalDateTime.now());
-        mapper.insertSelective(product);
-        return Responses.generate(AddProductResponse.class, StatusCode.OK);
+        final Product product = nullableProduct.get();
+        final QueryProductResponse response = Responses.generate(QueryProductResponse.class, StatusCode.OK);
+        response.setId(product.getId());
+        response.setName(product.getName());
+        return response;
     }
 
     /**
@@ -91,81 +88,92 @@ public class ProductService {
         if (!nullableAccount.isPresent()) {
             Shifts.fatal(StatusCode.PRODUCT_NOT_EXISTS);
         }
-        final AtomicReference<InventoryReservingResponse> container = new AtomicReference<>();
         // according to order id, retrieve and check if any transaction existed
         final Long orderId = request.getOrderId();
+        final InventoryReservingResponse response;
         final Optional<ProductTransaction> nullableAccountTransaction = Optional.ofNullable(transactionMapper.selectByOrderId(orderId));
         if (nullableAccountTransaction.isPresent()) {
             final ProductTransaction accountTransaction = nullableAccountTransaction.get();
-            final ReservingState reservingState = accountTransaction.getState();
-            if (reservingState == ReservingState.TRYING) {
-                final InventoryReservingResponse response;
-                final long expiredSeconds = Math.max(0, ChronoUnit.SECONDS.between(LocalDateTime.now(), accountTransaction.getExpireAt()));
-                if (expiredSeconds <= 0) {
-                    // auto cancellation
-                    cancellableFindTransaction(orderId);
-                    Shifts.fatal(StatusCode.TIMEOUT_AND_CANCELLED);
-                }
-                response = Responses.generate(InventoryReservingResponse.class, StatusCode.IDEMPOTENT_RESERVING);
-                response.setReservingSeconds(expiredSeconds);
-                container.set(response);
-            } else if (reservingState == ReservingState.INVALID) {
-                Shifts.fatal(StatusCode.UNKNOWN_RESERVING_STATE);
-            } else {
-                Shifts.fatal(StatusCode.NON_RESERVING_STATE);
-            }
+            response = recoverTransaction(orderId, accountTransaction);
         } else {
             final Product product = nullableAccount.get();
-            // did not throw any exception within TransactionTemplate
-            transactionTemplate.execute(status -> {
-                if (deductInventory(product.getId(), request.getAmount())) {
-                    final ProductTransaction accountTransaction = new ProductTransaction();
-                    accountTransaction.setOrderId(orderId);
-                    accountTransaction.setProductId(product.getId());
-                    accountTransaction.setAmount(request.getAmount());
-                    accountTransaction.setState(ReservingState.TRYING);
-                    accountTransaction.setCreateAt(LocalDateTime.now());
-                    accountTransaction.setUpdateAt(LocalDateTime.now());
-                    accountTransaction.setExpireAt(LocalDateTime.now().plusSeconds(request.getExpectedReservingSeconds()));
-                    transactionMapper.insertSelective(accountTransaction);
-                    final InventoryReservingResponse response = Responses.generate(InventoryReservingResponse.class, StatusCode.OK);
-                    final long expiredSeconds = Math.max(0, ChronoUnit.SECONDS.between(LocalDateTime.now(), accountTransaction.getExpireAt()));
-                    response.setReservingSeconds(expiredSeconds);
-                    container.set(response);
-                } else {
-                    container.set(Responses.generate(InventoryReservingResponse.class, StatusCode.INSUFFICIENT_INVENTORY));
-                }
-                return null;
-            });
+            final Long productId = product.getId();
+            final Integer amount = request.getAmount();
+            final Integer reservingSeconds = request.getExpectedReservingSeconds();
+            response = newTransaction(orderId, productId, amount, reservingSeconds);
         }
-        return container.get();
+        return response;
+    }
+
+    private InventoryReservingResponse newTransaction(Long orderId, Long productId, Integer deductAmount, Integer reservingSeconds) {
+        return transactionTemplate.execute(status -> {
+            // did not throw any exception within TransactionTemplate
+            final InventoryReservingResponse response;
+            if (mapper.deductInventory(productId, (long) deductAmount) > 0) {
+                final ProductTransaction accountTransaction = new ProductTransaction();
+                accountTransaction.setOrderId(orderId);
+                accountTransaction.setProductId(productId);
+                accountTransaction.setAmount(Long.valueOf(deductAmount));
+                accountTransaction.setState(ReservingState.TRYING);
+                final LocalDateTime now = LocalDateTime.now();
+                accountTransaction.setCreateAt(now);
+                accountTransaction.setUpdateAt(now);
+                accountTransaction.setExpireAt(now.plusSeconds(reservingSeconds));
+                transactionMapper.insertSelective(accountTransaction);
+                response = Responses.generate(InventoryReservingResponse.class, StatusCode.OK);
+                final long expiredSeconds = Math.max(0, ChronoUnit.SECONDS.between(now, accountTransaction.getExpireAt()));
+                response.setReservingSeconds(expiredSeconds);
+            } else {
+                response = Responses.generate(InventoryReservingResponse.class, StatusCode.INSUFFICIENT_INVENTORY);
+            }
+            return response;
+        });
+    }
+
+    private InventoryReservingResponse recoverTransaction(Long orderId, ProductTransaction accountTransaction) {
+        final ReservingState reservingState = accountTransaction.getState();
+        final InventoryReservingResponse response;
+        if (reservingState == ReservingState.TRYING) {
+            final long expiredSeconds = Math.max(0, ChronoUnit.SECONDS.between(LocalDateTime.now(), accountTransaction.getExpireAt()));
+            if (expiredSeconds <= 0) {
+                // auto cancellation
+                cancellableFindTransaction(orderId);
+                Shifts.fatal(StatusCode.TIMEOUT_AND_CANCELLED);
+            }
+            response = Responses.generate(InventoryReservingResponse.class, StatusCode.IDEMPOTENT_RESERVING);
+            response.setReservingSeconds(expiredSeconds);
+        } else if (reservingState == ReservingState.INVALID) {
+            response = Responses.generate(InventoryReservingResponse.class, StatusCode.UNKNOWN_RESERVING_STATE);
+        } else {
+            response = Responses.generate(InventoryReservingResponse.class, StatusCode.RESERVING_FINAL_STATE);
+        }
+        return response;
     }
 
     /**
      * 根据orderId检索事务记录, 若发现过期, 则自动过期并回写数据源, 并响应响应新的实体
      */
     public Optional<ProductTransaction> cancellableFindTransaction(long orderId) {
-        final ProductTransaction transaction = transactionMapper.selectByOrderId(orderId);
-        final AtomicReference<ProductTransaction> container = new AtomicReference<>(transaction);
+        ProductTransaction transaction = transactionMapper.selectByOrderId(orderId);
         if (transaction != null) {
             final LocalDateTime now = LocalDateTime.now();
             if (transaction.getState() == ReservingState.TRYING && now.isAfter(transaction.getExpireAt())) {
-                final ProductTransaction newTxn = transactionTemplate.execute(status -> {
+                transactionTemplate.execute(status -> {
                     transaction.setState(ReservingState.CANCELLED);
                     transaction.setDoneAt(now);
                     if (transactionMapper.compareAndSetState(transaction.getId(), ReservingState.TRYING, ReservingState.CANCELLED) <= 0) {
                         // ATTENTION: u should force to retrieve from master node in production environment.
                         return transactionMapper.selectByOrderId(orderId);
                     }
-                    if (!increaseInventory(transaction.getProductId(), transaction.getAmount())) {
+                    Long id = transaction.getProductId();
+                    if (mapper.increaseInventory(id, transaction.getAmount()) <= 0) {
                         Shifts.fatal(StatusCode.ACCOUNT_ROLLBACK_FAILURE);
                     }
                     return transaction;
                 });
-                container.set(newTxn);
             }
         }
-        return Optional.ofNullable(container.get());
+        return Optional.ofNullable(transaction);
     }
 
     /**
@@ -195,9 +203,9 @@ public class ProductService {
                 return confirmTransaction(request, retryTimesNow + 1);
             }
         } else if (reservingState == ReservingState.CANCELLED) {
-            Shifts.fatal(StatusCode.TIMEOUT_AND_CANCELLED);
+            response = Responses.generate(ConfirmProductTxnResponse.class, StatusCode.TIMEOUT_AND_CANCELLED);
         } else if (reservingState == ReservingState.INVALID) {
-            Shifts.fatal(StatusCode.UNKNOWN_RESERVING_STATE);
+            response = Responses.generate(ConfirmProductTxnResponse.class, StatusCode.UNKNOWN_RESERVING_STATE);
         }
         return response;
     }
@@ -206,18 +214,6 @@ public class ProductService {
         Objects.requireNonNull(name);
         Preconditions.checkArgument(!name.isEmpty());
         return Optional.ofNullable(mapper.selectByName(name));
-    }
-
-    boolean deductInventory(@Nonnull Long id, @Nonnull Long amount) {
-        Objects.requireNonNull(id);
-        Objects.requireNonNull(amount);
-        return mapper.deductInventory(id, amount) > 0;
-    }
-
-    boolean increaseInventory(@Nonnull Long id, @Nonnull Long amount) {
-        Objects.requireNonNull(id);
-        Objects.requireNonNull(amount);
-        return mapper.increaseInventory(id, amount) > 0;
     }
 
 }

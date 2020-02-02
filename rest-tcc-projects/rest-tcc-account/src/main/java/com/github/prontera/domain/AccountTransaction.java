@@ -3,7 +3,6 @@ package com.github.prontera.domain;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.github.prontera.account.enums.ReservingState;
-import com.github.prontera.model.IdenticalDomain;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

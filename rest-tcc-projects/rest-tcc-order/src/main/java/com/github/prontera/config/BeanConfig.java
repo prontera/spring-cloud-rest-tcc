@@ -1,6 +1,9 @@
 package com.github.prontera.config;
 
+import org.springframework.cloud.client.loadbalancer.LoadBalanced;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.reactive.function.client.WebClient;
 
 /**
  * @author Zhao Junjian
@@ -8,5 +11,11 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 public class BeanConfig {
+
+    @Bean
+    @LoadBalanced
+    public WebClient.Builder loadBalancedWebClientBuilder() {
+        return WebClient.builder();
+    }
 
 }

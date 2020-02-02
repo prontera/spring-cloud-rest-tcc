@@ -33,7 +33,7 @@ public final class Responses {
         Objects.requireNonNull(status);
         Objects.requireNonNull(message);
         T instance = OBJENESIS.newInstance(clazz);
-        instance.setSuccessful(NumericStatusCode.isSuccess(status));
+        instance.setSuccessful(NumericStatusCode.isSuccessful(status));
         instance.setCode(status.code());
         instance.setMessage(message.toString());
         return instance;

@@ -9,9 +9,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
-
 /**
  * @author Zhao Junjian
  * @date 2020/01/22
@@ -19,14 +16,12 @@ import javax.validation.constraints.NotNull;
 @Getter
 @Setter
 @NoArgsConstructor
-@ToString
+@ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(value = {"hibernateLazyInitializer", "handler", "fieldHandler"}, ignoreUnknown = true)
 public class BalanceReservingResponse extends ResolvableResponse {
 
     private static final long serialVersionUID = -5689692298515757935L;
-
-    private @NotNull @Min(1) Long reservingSeconds;
 
 }

@@ -43,7 +43,7 @@ public class DatetimeTest {
     @Test
     public void testTimeBetween() {
         Assertions.assertEquals(1, ChronoUnit.SECONDS.between(LocalDateTime.now(), LocalDateTime.now().plusSeconds(1)));
-        Assertions.assertEquals(1, ChronoUnit.SECONDS.between(LocalDateTime.now().plusSeconds(1), LocalDateTime.now()));
+        Assertions.assertEquals(-1, ChronoUnit.SECONDS.between(LocalDateTime.now().plusSeconds(1), LocalDateTime.now()));
     }
 
 }

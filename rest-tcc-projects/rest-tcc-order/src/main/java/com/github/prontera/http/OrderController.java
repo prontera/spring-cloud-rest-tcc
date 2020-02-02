@@ -1,22 +1,24 @@
 package com.github.prontera.http;
 
 import com.github.prontera.annotation.FaultBarrier;
-import com.github.prontera.domain.Order;
-import com.github.prontera.enums.StatusCode;
+import com.github.prontera.concurrent.Pools;
 import com.github.prontera.model.request.CheckoutRequest;
+import com.github.prontera.model.request.DiagnoseRequest;
 import com.github.prontera.model.response.CheckoutResponse;
+import com.github.prontera.model.response.DiagnoseResponse;
 import com.github.prontera.service.OrderService;
 import com.github.prontera.util.HibernateValidators;
-import com.github.prontera.util.Responses;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import javax.annotation.Nonnull;
 import java.util.Objects;
@@ -27,7 +29,7 @@ import java.util.Objects;
  */
 @Api(tags = "Order-Debugger")
 @RestController
-@RequestMapping(value = "/orders", produces = {MediaType.APPLICATION_JSON_VALUE}, consumes = {MediaType.ALL_VALUE})
+@RequestMapping(value = "/orders", produces = {MediaType.APPLICATION_JSON_VALUE}, consumes = {MediaType.APPLICATION_JSON_VALUE})
 public class OrderController {
 
     private final OrderService orderService;
@@ -39,20 +41,23 @@ public class OrderController {
     }
 
     @FaultBarrier
-    @ApiOperation(value = "根据orderId查询详情", notes = "_")
-    @GetMapping(value = "/query-order")
-    public Order queryPartnerList(long orderId) {
-        return orderService.find(orderId);
+    @ApiOperation(value = "结账", notes = "_")
+    @PostMapping(value = "/checkout")
+    public Mono<CheckoutResponse> checkout(@Nonnull @RequestBody CheckoutRequest request) {
+        Objects.requireNonNull(request);
+        HibernateValidators.throwsIfInvalid(request);
+        return Mono.fromFuture(() -> orderService.checkout(request))
+            .subscribeOn(Schedulers.fromExecutorService(Pools.IO));
     }
 
     @FaultBarrier
-    @ApiOperation(value = "结账", notes = "_")
-    @PostMapping(value = "/proceed-to-checkout")
-    public CheckoutResponse checkout(@Nonnull CheckoutRequest request) {
+    @ApiOperation(value = "诊断订单", notes = "_")
+    @PostMapping(value = "/diagnose")
+    public Mono<DiagnoseResponse> diagnose(@Nonnull @RequestBody DiagnoseRequest request) {
         Objects.requireNonNull(request);
         HibernateValidators.throwsIfInvalid(request);
-        orderService.checkout(request);
-        return Responses.generate(CheckoutResponse.class, StatusCode.OK);
+        return Mono.fromFuture(() -> orderService.diagnose(request))
+            .subscribeOn(Schedulers.fromExecutorService(Pools.IO));
     }
 
 }

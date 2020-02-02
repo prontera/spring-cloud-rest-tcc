@@ -2,9 +2,8 @@ package com.github.prontera.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.github.prontera.enums.OrchestrationVersion;
+import com.github.prontera.annotation.marker.NonBehavior;
 import com.github.prontera.enums.OrderState;
-import com.github.prontera.model.IdenticalDomain;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -40,16 +39,16 @@ public class Order extends IdenticalDomain {
 
     private OrderState state;
 
-    private OrchestrationVersion version;
-
-    private Integer virtualPartition;
+    private Long guid;
 
     private LocalDateTime createAt;
 
     private LocalDateTime updateAt;
 
+    @NonBehavior
     private LocalDateTime expireAt;
 
+    @NonBehavior
     private LocalDateTime doneAt;
 
 }

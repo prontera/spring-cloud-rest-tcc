@@ -30,9 +30,9 @@ public class BalanceReservingRequest {
     private @NotBlank String username;
 
     @ApiModelProperty(value = "扣减金额, 单位元", required = true, example = "47")
-    private @NotNull @Min(1) Long amount;
+    private @NotNull @Min(1) Integer amount;
 
     @ApiModelProperty(value = "期望的预留资源时间", required = true, example = "7")
-    private @NotNull @Min(1) @Max(900) Long expectedReservingSeconds;
+    private @NotNull @Min(1) @Max(900) Integer expectedReservingSeconds;
 
 }

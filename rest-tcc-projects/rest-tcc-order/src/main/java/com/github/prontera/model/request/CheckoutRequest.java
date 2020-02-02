@@ -10,6 +10,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 /**
@@ -25,11 +26,14 @@ import javax.validation.constraints.NotNull;
 @JsonIgnoreProperties(value = {"hibernateLazyInitializer", "handler", "fieldHandler"}, ignoreUnknown = true)
 public class CheckoutRequest {
 
-    @ApiModelProperty(value = "产品ID", required = true, example = "823")
-    private @NotNull Long productId;
+    @ApiModelProperty(value = "guid", required = true, example = "1")
+    private @NotNull Long guid;
 
-    @ApiModelProperty(value = "用户ID", required = true, example = "132")
-    private @NotNull Long userId;
+    @ApiModelProperty(value = "产品名", required = true, example = "ps4")
+    private @NotBlank String productName;
+
+    @ApiModelProperty(value = "用户名", required = true, example = "chris")
+    private @NotBlank String username;
 
     @ApiModelProperty(value = "扣减金额, 单位元", required = true, example = "47")
     private @NotNull @Min(1) Integer price;

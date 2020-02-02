@@ -1,7 +1,7 @@
 package com.github.prontera.util;
 
+import com.github.prontera.account.enums.StatusCode;
 import com.github.prontera.enums.NumericStatusCode;
-import com.github.prontera.enums.StatusCode;
 import com.github.prontera.exception.ResolvableStatusException;
 import com.github.prontera.model.response.ResolvableResponse;
 import com.google.common.base.Strings;
@@ -33,7 +33,7 @@ public final class Responses {
         Objects.requireNonNull(status);
         Objects.requireNonNull(message);
         T instance = OBJENESIS.newInstance(clazz);
-        instance.setSuccessful(NumericStatusCode.isSuccess(status));
+        instance.setSuccessful(NumericStatusCode.isSuccessful(status));
         instance.setCode(status.code());
         instance.setMessage(message.toString());
         return instance;

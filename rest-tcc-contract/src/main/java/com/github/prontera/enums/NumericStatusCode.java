@@ -14,9 +14,9 @@ public interface NumericStatusCode {
      *
      * @return {@code true} if the given element representing successful.
      */
-    static boolean isSuccess(@Nonnull NumericStatusCode element) {
+    static boolean isSuccessful(@Nonnull NumericStatusCode element) {
         Objects.requireNonNull(element);
-        return isSuccess(element.code());
+        return isSuccessful(element.code());
     }
 
     /**
@@ -24,7 +24,7 @@ public interface NumericStatusCode {
      *
      * @return {@code true} if the given element representing successful.
      */
-    static boolean isSuccess(int code) {
+    static boolean isSuccessful(int code) {
         return code >= 20000 && code <= 30000;
     }
 

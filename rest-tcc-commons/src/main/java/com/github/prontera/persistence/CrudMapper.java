@@ -1,6 +1,6 @@
 package com.github.prontera.persistence;
 
-import com.github.prontera.MyBatisRepository;
+import com.github.prontera.annotation.MyBatisRepository;
 
 /**
  * @author Zhao Junjian

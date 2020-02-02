@@ -1,6 +1,6 @@
 package com.github.prontera.persistence;
 
-import com.github.prontera.MyBatisRepository;
+import com.github.prontera.annotation.MyBatisRepository;
 import com.github.prontera.domain.ProductTransaction;
 import com.github.prontera.product.enums.ReservingState;
 import org.apache.ibatis.annotations.Param;

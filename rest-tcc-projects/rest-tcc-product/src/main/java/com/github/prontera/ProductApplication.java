@@ -1,5 +1,6 @@
 package com.github.prontera;
 
+import com.github.prontera.annotation.MyBatisRepository;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

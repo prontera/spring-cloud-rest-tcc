@@ -2,15 +2,15 @@ package com.github.prontera.service;
 
 import com.github.prontera.Shifts;
 import com.github.prontera.account.enums.ReservingState;
+import com.github.prontera.account.enums.StatusCode;
 import com.github.prontera.account.model.request.BalanceReservingRequest;
 import com.github.prontera.account.model.request.ConfirmAccountTxnRequest;
-import com.github.prontera.account.model.request.SignUpRequest;
+import com.github.prontera.account.model.request.QueryAccountRequest;
 import com.github.prontera.account.model.response.BalanceReservingResponse;
 import com.github.prontera.account.model.response.ConfirmAccountTxnResponse;
-import com.github.prontera.account.model.response.SignUpResponse;
+import com.github.prontera.account.model.response.QueryAccountResponse;
 import com.github.prontera.domain.Account;
 import com.github.prontera.domain.AccountTransaction;
-import com.github.prontera.enums.StatusCode;
 import com.github.prontera.persistence.AccountMapper;
 import com.github.prontera.persistence.AccountTransactionMapper;
 import com.github.prontera.util.Responses;
@@ -28,7 +28,6 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author Zhao Junjian
@@ -58,22 +57,20 @@ public class AccountService {
     }
 
     /**
-     * 简单使用username注册, 用于开设新的测试账户
+     * 根据用户名查询ID
      */
-    public SignUpResponse signUp(@Nonnull SignUpRequest request) {
+    public QueryAccountResponse queryByUsername(@Nonnull QueryAccountRequest request) {
         Objects.requireNonNull(request);
-        // prevent from registering many times
         final String username = StringUtils.trimToEmpty(request.getName());
         final Optional<Account> nullableAccount = findByUsername(username);
-        if (nullableAccount.isPresent()) {
-            Shifts.fatal(StatusCode.USERNAME_REGISTERED);
+        if (!nullableAccount.isPresent()) {
+            Shifts.fatal(StatusCode.USER_NOT_EXISTS);
         }
-        final Account account = new Account();
-        account.setName(username);
-        account.setCreateAt(LocalDateTime.now());
-        account.setUpdateAt(LocalDateTime.now());
-        mapper.insertSelective(account);
-        return Responses.generate(SignUpResponse.class, StatusCode.OK);
+        final Account account = nullableAccount.get();
+        final QueryAccountResponse response = Responses.generate(QueryAccountResponse.class, StatusCode.OK);
+        response.setId(account.getId());
+        response.setName(account.getName());
+        return response;
     }
 
     /**
@@ -91,81 +88,88 @@ public class AccountService {
         if (!nullableAccount.isPresent()) {
             Shifts.fatal(StatusCode.USER_NOT_EXISTS);
         }
-        final AtomicReference<BalanceReservingResponse> container = new AtomicReference<>();
         // according to order id, retrieve and check if any transaction existed
         final Long orderId = request.getOrderId();
+        final BalanceReservingResponse response;
         final Optional<AccountTransaction> nullableAccountTransaction = Optional.ofNullable(transactionMapper.selectByOrderId(orderId));
         if (nullableAccountTransaction.isPresent()) {
             final AccountTransaction accountTransaction = nullableAccountTransaction.get();
-            final ReservingState reservingState = accountTransaction.getState();
-            if (reservingState == ReservingState.TRYING) {
-                final BalanceReservingResponse response;
-                final long expiredSeconds = Math.max(0, ChronoUnit.SECONDS.between(LocalDateTime.now(), accountTransaction.getExpireAt()));
-                if (expiredSeconds <= 0) {
-                    // auto cancellation
-                    cancellableFindTransaction(orderId);
-                    Shifts.fatal(StatusCode.TIMEOUT_AND_CANCELLED);
-                }
-                response = Responses.generate(BalanceReservingResponse.class, StatusCode.IDEMPOTENT_RESERVING);
-                response.setReservingSeconds(expiredSeconds);
-                container.set(response);
-            } else if (reservingState == ReservingState.INVALID) {
-                Shifts.fatal(StatusCode.UNKNOWN_RESERVING_STATE);
-            } else {
-                Shifts.fatal(StatusCode.NON_RESERVING_STATE);
-            }
+            response = recoverTransaction(orderId, accountTransaction);
         } else {
             final Account account = nullableAccount.get();
-            // did not throw any exception within TransactionTemplate
-            transactionTemplate.execute(status -> {
-                if (deductBalance(account.getId(), request.getAmount())) {
-                    final AccountTransaction accountTransaction = new AccountTransaction();
-                    accountTransaction.setOrderId(orderId);
-                    accountTransaction.setUserId(account.getId());
-                    accountTransaction.setAmount(request.getAmount());
-                    accountTransaction.setState(ReservingState.TRYING);
-                    accountTransaction.setCreateAt(LocalDateTime.now());
-                    accountTransaction.setUpdateAt(LocalDateTime.now());
-                    accountTransaction.setExpireAt(LocalDateTime.now().plusSeconds(request.getExpectedReservingSeconds()));
-                    transactionMapper.insertSelective(accountTransaction);
-                    final BalanceReservingResponse response = Responses.generate(BalanceReservingResponse.class, StatusCode.OK);
-                    final long expiredSeconds = Math.max(0, ChronoUnit.SECONDS.between(LocalDateTime.now(), accountTransaction.getExpireAt()));
-                    response.setReservingSeconds(expiredSeconds);
-                    container.set(response);
-                } else {
-                    container.set(Responses.generate(BalanceReservingResponse.class, StatusCode.INSUFFICIENT_BALANCE));
-                }
-                return null;
-            });
+            final Long accountId = account.getId();
+            final Integer amount = request.getAmount();
+            final Integer reservingSeconds = request.getExpectedReservingSeconds();
+            response = newTransaction(orderId, accountId, amount, reservingSeconds);
         }
-        return container.get();
+        return response;
+    }
+
+    private BalanceReservingResponse newTransaction(Long orderId, Long accountId, Integer deductAmount, Integer reservingSeconds) {
+        return transactionTemplate.execute(status -> {
+            // did not throw any exception within TransactionTemplate
+            final BalanceReservingResponse response;
+            if (mapper.deductBalance(accountId, (long) deductAmount) > 0) {
+                final AccountTransaction accountTransaction = new AccountTransaction();
+                accountTransaction.setOrderId(orderId);
+                accountTransaction.setUserId(accountId);
+                accountTransaction.setAmount(Long.valueOf(deductAmount));
+                accountTransaction.setState(ReservingState.TRYING);
+                accountTransaction.setCreateAt(LocalDateTime.now());
+                accountTransaction.setUpdateAt(LocalDateTime.now());
+                accountTransaction.setExpireAt(LocalDateTime.now().plusSeconds(reservingSeconds));
+                transactionMapper.insertSelective(accountTransaction);
+                response = Responses.generate(BalanceReservingResponse.class, StatusCode.OK);
+            } else {
+                response = Responses.generate(BalanceReservingResponse.class, StatusCode.INSUFFICIENT_BALANCE);
+            }
+            return response;
+        });
+    }
+
+    private BalanceReservingResponse recoverTransaction(Long orderId, AccountTransaction accountTransaction) {
+        final ReservingState reservingState = accountTransaction.getState();
+        final BalanceReservingResponse response;
+        if (reservingState == ReservingState.TRYING) {
+            final long expiredSeconds = Math.max(0, ChronoUnit.SECONDS.between(LocalDateTime.now(), accountTransaction.getExpireAt()));
+            if (expiredSeconds <= 0) {
+                // auto cancellation
+                cancellableFindTransaction(orderId);
+                Shifts.fatal(StatusCode.TIMEOUT_AND_CANCELLED);
+            }
+            response = Responses.generate(BalanceReservingResponse.class, StatusCode.IDEMPOTENT_RESERVING);
+        } else if (reservingState == ReservingState.INVALID) {
+            response = Responses.generate(BalanceReservingResponse.class, StatusCode.UNKNOWN_RESERVING_STATE);
+        } else {
+            response = Responses.generate(BalanceReservingResponse.class, StatusCode.RESERVING_FINAL_STATE);
+        }
+        return response;
     }
 
     /**
      * 根据orderId检索事务记录, 若发现过期, 则自动过期并回写数据源, 并响应响应新的实体
      */
     public Optional<AccountTransaction> cancellableFindTransaction(long orderId) {
-        final AccountTransaction transaction = transactionMapper.selectByOrderId(orderId);
-        final AtomicReference<AccountTransaction> container = new AtomicReference<>(transaction);
+        AccountTransaction transaction = transactionMapper.selectByOrderId(orderId);
         if (transaction != null) {
             final LocalDateTime now = LocalDateTime.now();
             if (transaction.getState() == ReservingState.TRYING && now.isAfter(transaction.getExpireAt())) {
-                final AccountTransaction newTxn = transactionTemplate.execute(status -> {
+                transactionTemplate.execute(status -> {
                     transaction.setState(ReservingState.CANCELLED);
                     transaction.setDoneAt(now);
                     if (transactionMapper.compareAndSetState(transaction.getId(), ReservingState.TRYING, ReservingState.CANCELLED) <= 0) {
                         // ATTENTION: u should force to retrieve from master node in production environment.
                         return transactionMapper.selectByOrderId(orderId);
                     }
-                    if (!increaseBalance(transaction.getUserId(), transaction.getAmount())) {
+                    Long id = transaction.getUserId();
+                    if (mapper.increaseBalance(id, transaction.getAmount()) <= 0) {
                         Shifts.fatal(StatusCode.ACCOUNT_ROLLBACK_FAILURE);
                     }
                     return transaction;
                 });
-                container.set(newTxn);
             }
         }
-        return Optional.ofNullable(container.get());
+        return Optional.ofNullable(transaction);
     }
 
     /**
@@ -195,9 +199,9 @@ public class AccountService {
                 return confirmTransaction(request, retryTimesNow + 1);
             }
         } else if (reservingState == ReservingState.CANCELLED) {
-            Shifts.fatal(StatusCode.TIMEOUT_AND_CANCELLED);
+            response = Responses.generate(ConfirmAccountTxnResponse.class, StatusCode.TIMEOUT_AND_CANCELLED);
         } else if (reservingState == ReservingState.INVALID) {
-            Shifts.fatal(StatusCode.UNKNOWN_RESERVING_STATE);
+            response = Responses.generate(ConfirmAccountTxnResponse.class, StatusCode.UNKNOWN_RESERVING_STATE);
         }
         return response;
     }
@@ -206,18 +210,6 @@ public class AccountService {
         Objects.requireNonNull(username);
         Preconditions.checkArgument(!username.isEmpty());
         return Optional.ofNullable(mapper.selectByName(username));
-    }
-
-    boolean deductBalance(@Nonnull Long id, @Nonnull Long amount) {
-        Objects.requireNonNull(id);
-        Objects.requireNonNull(amount);
-        return mapper.deductBalance(id, amount) > 0;
-    }
-
-    boolean increaseBalance(@Nonnull Long id, @Nonnull Long amount) {
-        Objects.requireNonNull(id);
-        Objects.requireNonNull(amount);
-        return mapper.increaseBalance(id, amount) > 0;
     }
 
 }

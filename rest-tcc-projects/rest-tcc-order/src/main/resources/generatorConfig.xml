@@ -34,8 +34,6 @@
         <table tableName="t_order" domainObjectName="Order" enableCountByExample="false"
                enableUpdateByExample="false" enableDeleteByExample="false" enableSelectByExample="false"
                selectByExampleQueryId="false">
-            <columnOverride column="ver" property="version" javaType="com.github.prontera.enums.OrchestrationVersion"
-                            typeHandler="com.github.prontera.persistence.handler.OrchestrationVersionHandler"/>
             <columnOverride column="state" jdbcType="TINYINT" javaType="com.github.prontera.enums.OrderState"
                             typeHandler="com.github.prontera.persistence.handler.OrderStateHandler"/>
             <columnOverride column="create_at" jdbcType="TIMESTAMP" javaType="java.time.LocalDateTime"/>

@@ -43,6 +43,41 @@ public enum StatusCode implements NumericStatusCode {
      */
     DUPLICATE_KEY(42001, "操作过快, 请稍后再试"),
 
+    /**
+     * 预留资源已取消
+     */
+    CANCEL(42002, "预留资源已取消"),
+
+    /**
+     * 资源确认存在冲突
+     */
+    CONFLICT(42003, "资源确认存在冲突"),
+
+    /**
+     * 用户不存在
+     */
+    USER_NOT_EXISTS(42004, "用户名不存在"),
+
+    /**
+     * 产品不存在
+     */
+    PRODUCT_NOT_EXISTS(42005, "产品不存在"),
+
+    /**
+     * 资源预留过期
+     */
+    RESOURCE_CANCELLED(42006, "资源预留过期"),
+
+    /**
+     * 资源已经处于final state, 无法预留
+     */
+    RESOURCE_CAN_NOT_BE_RESERVED(42007, "资源已经处于final state"),
+
+    /**
+     * 无该订单信息
+     */
+    ORDER_NOT_EXISTS(42007, "下游无相关订单信息"),
+
     // 50xxx 服务端异常
     /**
      * 用于处理未知的服务端错误
@@ -58,6 +93,16 @@ public enum StatusCode implements NumericStatusCode {
      * 一般常见于DB连接抖动
      */
     DB_LINK_FAILURE(50003, "DB链接失败, 请稍后再试"),
+
+    /**
+     * 未知的预留资源状态
+     */
+    UNKNOWN_RESERVING_STATE(50004, "未知的预留资源状态, 请联系开发人员"),
+
+    /**
+     * 未知的RPC响应错误
+     */
+    UNKNOWN_RPC_RESPONSE(50005, "下游rpc响应错误"),
 
     ;
 

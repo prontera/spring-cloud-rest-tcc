@@ -1,6 +1,6 @@
 package com.github.prontera.service;
 
-import com.github.prontera.model.IdenticalDomain;
+import com.github.prontera.domain.IdenticalDomain;
 import com.github.prontera.persistence.CrudMapper;
 import com.google.common.base.Preconditions;
 

@@ -10,7 +10,7 @@
     <packaging>jar</packaging>
 
     <name>rest-tcc-contract</name>
-    <description>tcc contract</description>
+    <description>client contract</description>
 
     <parent>
         <artifactId>spring-cloud-rest-tcc</artifactId>

@@ -8,16 +8,14 @@
         <result column="price" jdbcType="INTEGER" property="price"/>
         <result column="quantity" jdbcType="INTEGER" property="quantity"/>
         <result column="state" jdbcType="TINYINT" property="state" typeHandler="com.github.prontera.persistence.handler.OrderStateHandler"/>
-        <result column="ver" jdbcType="INTEGER" property="version" typeHandler="com.github.prontera.persistence.handler.OrchestrationVersionHandler"/>
-        <result column="virtual_partition" jdbcType="INTEGER" property="virtualPartition"/>
+        <result column="guid" jdbcType="BIGINT" property="guid"/>
         <result column="create_at" jdbcType="TIMESTAMP" property="createAt"/>
         <result column="update_at" jdbcType="TIMESTAMP" property="updateAt"/>
         <result column="expire_at" jdbcType="TIMESTAMP" property="expireAt"/>
         <result column="done_at" jdbcType="TIMESTAMP" property="doneAt"/>
     </resultMap>
     <sql id="Base_Column_List">
-        id, user_id, product_id, price, quantity, state, ver, virtual_partition, create_at,
-    update_at, expire_at, done_at
+        id, user_id, product_id, price, quantity, state, guid, create_at, update_at, expire_at, done_at
     </sql>
     <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
         select
@@ -30,20 +28,7 @@
         from t_order
         where id = #{id,jdbcType=BIGINT}
     </delete>
-    <insert id="insert" parameterType="com.github.prontera.domain.Order">
-        insert into t_order (id, user_id, product_id,
-                             price, quantity, state,
-                             ver,
-                             virtual_partition, create_at, update_at,
-                             expire_at, done_at)
-        values (#{id,jdbcType=BIGINT}, #{userId,jdbcType=BIGINT}, #{productId,jdbcType=BIGINT},
-                #{price,jdbcType=INTEGER}, #{quantity,jdbcType=INTEGER},
-                #{state,jdbcType=TINYINT,typeHandler=com.github.prontera.persistence.handler.OrderStateHandler},
-                #{version,jdbcType=INTEGER,typeHandler=com.github.prontera.persistence.handler.OrchestrationVersionHandler},
-                #{virtualPartition,jdbcType=INTEGER}, #{createAt,jdbcType=TIMESTAMP}, #{updateAt,jdbcType=TIMESTAMP},
-                #{expireAt,jdbcType=TIMESTAMP}, #{doneAt,jdbcType=TIMESTAMP})
-    </insert>
-    <insert id="insertSelective" parameterType="com.github.prontera.domain.Order">
+    <insert id="insertSelective" parameterType="com.github.prontera.domain.Order" useGeneratedKeys="true" keyProperty="id">
         insert into t_order
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="id != null">
@@ -64,11 +49,8 @@
             <if test="state != null">
                 state,
             </if>
-            <if test="version != null">
-                ver,
-            </if>
-            <if test="virtualPartition != null">
-                virtual_partition,
+            <if test="guid != null">
+                guid,
             </if>
             <if test="createAt != null">
                 create_at,
@@ -102,11 +84,8 @@
             <if test="state != null">
                 #{state,jdbcType=TINYINT,typeHandler=com.github.prontera.persistence.handler.OrderStateHandler},
             </if>
-            <if test="version != null">
-                #{version,jdbcType=INTEGER,typeHandler=com.github.prontera.persistence.handler.OrchestrationVersionHandler},
-            </if>
-            <if test="virtualPartition != null">
-                #{virtualPartition,jdbcType=INTEGER},
+            <if test="guid != null">
+                #{guid,jdbcType=BIGINT},
             </if>
             <if test="createAt != null">
                 #{createAt,jdbcType=TIMESTAMP},
@@ -140,11 +119,8 @@
             <if test="state != null">
                 state = #{state,jdbcType=TINYINT,typeHandler=com.github.prontera.persistence.handler.OrderStateHandler},
             </if>
-            <if test="version != null">
-                ver = #{version,jdbcType=INTEGER,typeHandler=com.github.prontera.persistence.handler.OrchestrationVersionHandler},
-            </if>
-            <if test="virtualPartition != null">
-                virtual_partition = #{virtualPartition,jdbcType=INTEGER},
+            <if test="guid != null">
+                guid = #{guid,jdbcType=BIGINT},
             </if>
             <if test="createAt != null">
                 create_at = #{createAt,jdbcType=TIMESTAMP},
@@ -161,19 +137,16 @@
         </set>
         where id = #{id,jdbcType=BIGINT}
     </update>
-    <update id="updateByPrimaryKey" parameterType="com.github.prontera.domain.Order">
+    <update id="compareAndSetState">
         update t_order
-        set user_id           = #{userId,jdbcType=BIGINT},
-            product_id        = #{productId,jdbcType=BIGINT},
-            price             = #{price,jdbcType=INTEGER},
-            quantity          = #{quantity,jdbcType=INTEGER},
-            state             = #{state,jdbcType=TINYINT,typeHandler=com.github.prontera.persistence.handler.OrderStateHandler},
-            ver               = #{version,jdbcType=INTEGER,typeHandler=com.github.prontera.persistence.handler.OrchestrationVersionHandler},
-            virtual_partition = #{virtualPartition,jdbcType=INTEGER},
-            create_at         = #{createAt,jdbcType=TIMESTAMP},
-            update_at         = #{updateAt,jdbcType=TIMESTAMP},
-            expire_at         = #{expireAt,jdbcType=TIMESTAMP},
-            done_at           = #{doneAt,jdbcType=TIMESTAMP}
-        where id = #{id,jdbcType=BIGINT}
+        set state = #{updating,jdbcType=TINYINT,typeHandler=com.github.prontera.persistence.handler.OrderStateHandler}
+        where id = #{id}
+          and state = #{expect,jdbcType=TINYINT,typeHandler=com.github.prontera.persistence.handler.OrderStateHandler}
     </update>
+    <select id="selectByGuid" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from t_order
+        where guid = #{guid}
+    </select>
 </mapper>

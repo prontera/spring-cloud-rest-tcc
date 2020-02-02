@@ -1,10 +1,10 @@
 package com.github.prontera.aspect;
 
 import com.github.prontera.enums.NumericStatusCode;
-import com.github.prontera.enums.StatusCode;
 import com.github.prontera.exception.InvalidModelException;
 import com.github.prontera.exception.ResolvableStatusException;
 import com.github.prontera.model.response.ResolvableResponse;
+import com.github.prontera.product.enums.StatusCode;
 import com.github.prontera.util.Responses;
 import com.google.common.base.Strings;
 import org.apache.logging.log4j.LogManager;

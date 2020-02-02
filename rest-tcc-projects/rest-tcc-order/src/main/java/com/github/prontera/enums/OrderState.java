@@ -78,6 +78,14 @@ public enum OrderState {
         return val;
     }
 
+    public boolean isIntermediateState() {
+        return this == PENDING;
+    }
+
+    public boolean isFinalState() {
+        return this == CONFIRMED || this == CANCELLED || this == CONFLICT;
+    }
+
     private static final class DefaultParser implements EnumFunction<Integer, OrderState> {
         private final boolean throwsIfInvalid;
 
