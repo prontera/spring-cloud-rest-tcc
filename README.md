@@ -1,324 +1,106 @@
 # spring-cloud-rest-tcc
 
-Spring Cloud为开发者提供了快速构建分布式系统中的一些常见工具，如分布式配置中心，服务发现与注册中心，智能路由，服务熔断及降级，消息总线，分布式追踪的解决方案等。
+## Preface
 
-本次实战以模拟下单流程为背景，结合Spring Cloud Netflix和分布式事务解决方案中Try Confirm Cancel模式与基于事件驱动的服务架构作为实战演示。
+随着业务的发展，不断对现有系统进行析构与拆分，所带来的其中一个关注点是分布式事务，是一个协作问题。针对分布式事务，Atomikos曾经写过一篇文章[TCC for transaction management across microservices](https://link.jianshu.com/?t=https://www.atomikos.com/Blog/TCCForTransactionManagementAcrossMicroservices)，介绍如何使用TCC作为的微服务分布式事务的解决方案，[这里](https://www.jianshu.com/p/d687b620f73d)有一篇简单的译文可作为入门资料。
 
-## 开发环境
+经简单的阅读后可以得知，Atomikos最初设计出一套RESTful TCC的交互API，且充分地使用了HTTP的语义特性，完整复用HTTP原生响应码，甚至自定义MIME类型，是一个完全面向HTTP的解决方案，而究其本质，TCC实际上是一种思想。
 
-- Docker 1.13.1
-- Docker Compose 1.11.1
-- Docker MySQL 5.7.17
-- Docker RabbitMQ 3.6.6
-- Java8 with JCE
-- Spring Cloud Camden.SR6
+本文使用Spring Cloud Netflix作为服务治理基础，侧重于以最精简的依赖向大家展示如何使用TCC解决分布式事务，并在叙述过程中引出对分布式系统子问题的思考。
 
-## 系统结构
+## Variants
 
-![](./assets/image/infrastructure2.png)
+在micro-service兴起的时候，它的交互方式早已不限于HTTP。面对性能要求，更多的是以RPC的实现方式落地，如gRPC、Dubbo和Thrift等通信框架。基于TCC的设计思想，应该以更为通用和温和的方式落地，我们将以不同的角度阐述这种TCC的"变体"。
 
-## Try Confirm Cancel 补偿模式
+在模型上，将原有的HTTP语义下沉到请求体当中，上下游各自定义status code，用于识别不同状态。
 
-本实例遵循的是Atomikos公司对微服务的分布式事务所提出的[RESTful TCC](https://www.atomikos.com/Blog/TransactionManagementAPIForRESTTCC)解决方案。
+在流程上，从Try-Confirm-Cancel演进为Try-Confirm-Diagnose，也就是TCC到TCD的一种变迁，将Try和Confirm抽象为API接口，而原生的Cancel不再与Try-Confirm平级，从API接口降级为辅助功能融合至Try和Confirm的方法当中，coordinator仅对下游做confirm操作，避免因拜占庭错误而轮转至conflict状态。即便是出现conflict状态，可以通过Diagnose接口作出诊断，追踪坏账以便人工介入。
 
-RESTful TCC模式分3个阶段执行
+出于对知识的敬重与措辞的严谨性，下文统一使用TCD指代该种TCC变体，不会混淆使用。
 
-![](./assets/image/tcc.png)
+## Role
 
-1. Trying阶段主要针对业务系统检测及作出预留资源请求，若预留资源成功，则返回确认资源的链接与过期时间。
-2. Confirm阶段主要是对业务系统的预留资源作出确认，要求TCC服务的提供方要对确认预留资源的接口实现幂等性，若Confirm成功则返回204，资源超时则证明已经被回收且返回404。
-3. Cancel阶段主要是在业务执行错误或者预留资源超时后执行的资源释放操作，Cancel接口是一个可选操作，因为要求TCC服务的提供方实现自动回收的功能，所以即便是不认为进行Cancel，系统也会自动回收资源。
+假设我们想买一台PS4，在付款后需要历经生单、扣减余额和商品库存这三个过程，分别对应服务Order、Account和Product，但每一个过程中都可能会因为网络故障、宕机、网络分区或者拜占庭问题而产生各式各样的问题。
 
-## Event Driven Architecture 基于事件驱动架构
+### Coordinator
 
-本实例中的order-ms与membership-ms之间的通信是基于事件驱动的。当订单被成功创建并且付款成功之后，该订单的部分信息将会发往membership-ms以进行积分的增加。
+#### TCC Coordinator
 
-从系统层面看，order-ms在EDA中是属于Publisher角色，自然而然地membership-ms就是Subscriber。
+Transaction Coordinator delivered as a service，Atomikos支持将TCC Coordinato服务化，成为一个可重用组件，负责处理各式各样异常情况，例如failure recover后事务的恢复。
 
-Publisher中的事件状态转换如下：
+首先，从交互方面看，对于RESTful TCC来说，这是一个可行的方案，因为RESTful天生具备容易访问的基因，而RPC的劣势在于序列化协议之间的屏障，无法做到如micrometer和service mesh理念中的vendor-neutral，所以在社区推广性上相对乏力。
 
-- NEW —> PENDING —> DONE
+另外，从实现成本方面看，试想服务TCC Coordinator在confirm同一事务内的若干资源时发生crash（partial confirm），想要达成failure recover，付出一定的存储成本是必要条件。并且为了成为可信任的组件，TCC Coordinator需要具备故障自动迁移的能力，那么在crash之后，需要将当前机器相关的confirmation-task迁移到其他机器，很明显，需要有heartbeat检测机制，而且当前属于有状态应用。
 
+再进一步，抛开迁移的手段，一旦TCC Coordinator的QPS过高，无法将就使用的时候，进行大批量的confirmation-task迁移会直接使得被迁机器迅速成为系统的性能短板。此时所暴露出的系统性问题，也应该意识到属于共识问题，需要选出leader作为协作者，根据机器在集群中的存活情况**均匀地**分配confirmation-task。
 
-- NEW —> PENDING —> FAILED / NO_ROUTE / NOT_FOUND / ERROR
+既需要集群存活情况，也需要heartbeat检测，刚好就跟注册中心service-discovery对上，是不是直接就可以拿来主义呢？答案也是否定，万一产生network-partition，AP类型的注册中心会产生意想不到的结果，正如eureka peer组网，出于对租约信息保护，两个网络分区之间获取到的注册信息未必一致。
 
-  ![](./assets/image/eda-pub.png)
+几经波折，终于选对了注册中心，或者直接使用RDBS自行实现，但面对应用重启发布时仍需注意反复对confirmation-task进行rebalance的问题，并且为了能实现均匀分配，对原本使用hostname对confirmation-task进行染色的方法进行改造，提炼出virtual node或partition的概念，改为使用partition对confirmation-task进行染色，这样也直接将应用从有状态优化至无状态。每当leader检测到follower crash的时候，就能检索出该机器所负责的partition，均匀地分发给其他机器，这就是rebalance操作。
 
-Subscriber中的事件状态转换如下：
+现在终于能成为一个比较称职的TCC Coordinator了，同时也造出一个mini Kafka，维护成本相当可观。
 
-- NEW —> DONE
+#### TCD Coordinator
 
-- NEW —> FAILED / NOT_FOUND / ERROR
+TCC Coordinator为了成为一个可复用的服务，一方面面临着序列化协议的天然屏障，另一方面还需面对巨大的维护成本，这两方面的因素除了有来自服务拆分所带来的复杂性，更多来自服务边界的划分。
 
-  ![](./assets/image/eda-sub.png)
+##### 区别
 
-部分功能介绍：
+1. 当自身作为发起方，并且需要让service内的其他机器均分任务的话，上述的分析可以成为解决方案之一，但实际上TCC Coordinator作为流量接收方，完全可以借力打力，通过与上游磋商重试策略，将可靠性保证的责任分摊到上游，并且通过RPC通信框架中天然的load-balance，使得每台机器都负载均衡。
 
-1. Publisher发送消息之前先将消息落地，目的是防止消息的错误发布（业务数据被回滚而消息却发布至Broker）。
-2. Publisher会周期性地扫描NEW状态的消息，并发布至Broker。
-3. 启用mandatory与publisher confirms机制，在消息被持久化至磁盘后将会收到basic.ack，此时可选择将消息转换为DONE或者是直接将其删除。
-4. Publisher将消息发布至Broker后会将其状态由NEW更新为PENDING，PENDING状态的事件将会由另一定时器扫描在当前时钟的3秒之前发布，但是却并未得到basic.ack的事件，并重新发布至Broker。意在消除在单实例的情况下因crash而导致消息状态丢失的边缘情况。
-5. Subscriber的消息幂等性。
+2. TCD Coordinator不再作为独立服务，而是整合到应用当中。其次，面对如此重要的事务，而TCC Coordinator作为黑盒形式提供的组件，心理上会产生一定的抗拒。
 
-### 基础组件
+##### 职责
 
-#### Zuul Gateway
+1. 组织并负责发起TCD事务
+2. 提供诊断conflict事务的Diagnose语义的门面API
+3. 提供发起TCD事务的接口，需实现幂等性
+4. 仅对下游发起Try与Confirm操作，避免既出现Confirm又出现Cancel操作的拜占庭问题
+5. 针对下游发起Try操作时，负责计算预留资源时间，并适当考虑下游因GC情况而所需要增加补偿时间
 
-Zuul在本实例中仅作为路由所使用，配置降低Ribbon的读取与连接超时上限。
+### Lazy Participant
 
-#### Eureka H.A.
+惰性参与者，Participant无需启用调度器自发地将过期的TRYING状态资源轮转至CANCELLED状态，而是将这个功能隐藏在Try和Confirm的接口当中，可以说TCD事务是由TCD Coordinator驱动，以减少事务参与者的开发成本，专注于正确的状态轮转即可。
 
-多个对等Eureka节点组成高可用集群，并将注册列表的自我保护的阈值适当降低。
+##### 职责
 
-#### Config Server
+1. 提供Try操作的预留资源API接口
+2. 提供Confirm操作的确认预留资源API接口，并在内部负责对过期资源的状态轮转
+3. 提供事务状态查询的API接口，并在内部负责对过期资源的状态轮转
+4. 对Try和Confirm两个接口，实现幂等性调用
 
-- 如果远程配置中有密文`{cipher}*`，那么该密文的解密将会延迟至客户端启动的时候. 因此客户端需要配置AES的对称密钥`encrypt.key`，并且客户端所使用的JRE需要安装[Java 8 JCE](http://www.oracle.com/technetwork/java/javase/downloads/jce8-download-2133166.html)，否则将会抛出`Illegal key size`相关的异常。
-  (本例中Docker Compose构建的容器已经安装了JCE，如果远程配置文件没有使用`{cipher}*`也不必进行JCE的安装)
+## C4 Model
 
+### System Context Diagram
 
-- 为了达到开箱即用，选用公开仓库Github或者GitOsc。
+![](https://s3.amazonaws.com/infoq.content.live.0/articles/C4-architecture-model/zh/resources/794-1530372964263.jpg)
 
-- 本项目中有两个自定义注解
-  `@com.github.prontera.Delay` 控制方法的延时返回时间；
+### Container Diagram
 
-  `@com.github.prontera.RandomlyThrowsException` 随机抛出异常，人为地制造异常。
+![](https://s3.amazonaws.com/infoq.content.live.0/articles/C4-architecture-model/zh/resources/655-1530372962909.jpg)
 
-  默认的远程配置如下
+### Component Diagram
 
-  ```yaml
-  solar:
-    delay:
-      time-in-millseconds: 0
-    exception:
-      enabled: false
-      factor: 7
-  ```
+![](https://s3.amazonaws.com/infoq.content.live.0/articles/C4-architecture-model/zh/resources/586-1530372962488.jpg)
 
-  这些自定义配置正是控制方法返回的时延，随机异常的因子等。
+## Final State Machine
 
-  我在服务`order`，`product`，`account`和`tcc`中的所有Controller上都添加了以上两个注解，当远程配置的更新时候，可以手工刷新`/refresh`或通过webhook等方法自动刷新本地配置. 以达到模拟微服务繁忙或熔断等情况。
+### Coordinator
 
-### 监控服务
 
-#### Spring Boot Admin
 
-此应用提供了管理Spring Boot服务的简单UI，下图是在容器中运行时的服务健康检测页
+### Participant
 
-![](./assets/image/spring-boot-admin.jpg)
 
-#### Hystrix Dashboard
 
-提供近实时依赖的统计和监控面板，以监测服务的超时，熔断，拒绝，降级等行为。
+## Rock and roll !
 
-![](./assets/image/turbine.jpg)
+### Prerequisites
 
-#### Zipkin Server
 
-Zipkin是一款开源的分布式实时数据追踪系统，其主要功能是聚集来自各个异构系统的实时监控数据，用来追踪微服务架构下的系统时延问题. 下图是对`order`服务的请求进行追踪的情况。
 
-![](./assets/image/zipkin.jpg)
+### Technology stack
 
-### 业务服务
 
-首次启动时通过Flyway自动初始化数据库。
 
-对spring cloud config server采用fail fast策略，一旦远程配置服务无法连接则无法启动业务服务。
-
-#### account
-
-用于获取用户信息，用户注册，修改用户余额，预留余额资源，确认预留余额，撤销预留余额。
-
-#### product
-
-用于获取产品信息，变更商品库存，预留库存资源，确认预留库存，撤销预留库存。
-
-#### tcc coordinator
-
-TCC资源协调器，其职责如下：
-
-- 对所有参与者发起Confirm请求。
-- 无论是协调器发生的错误还是调用参与者所产生的错误，协调器都必须有自动恢复重试功能，尤其是在确认的阶段，以防止网络抖动的情况。
-
-#### order
-
-**`order`服务是本项目的入口**，尽管所提供的功能很简单：
-
-- 下单. 即生成预订单，为了更好地测试TCC功能，在下单时就通过Feign向服务`account`与`product`发起预留资源请求，并且记录入库。
-- 确认订单. 确认订单时根据订单ID从库中获取订单，并获取预留资源确认的URI，交由服务`tcc`统一进行确认，如果发生冲突即记录入库，等待人工处理。
-
-![](./assets/image/zipkin-dep.jpg)
-
-#### membership
-
-用于订单付款成功后，对下单用户的积分进行增加操作。该服务与订单服务是基于消息驱动以进行通信，达到事务的最终一致性。
-
-### Swagger UI
-
-下图为`product`服务的Swagger接口文档，根据下文的服务字典可知，本接口文档可通过`http://localhost:8040/swagger-ui.html`进行访问.  `order`，`account`和`tcc`的文档访问方式亦是如出一撤。
-
-![](./assets/image/swagger-product.jpg)
-
-## 运行
-
-#### Docker Compose运行
-
-在项目根路径下执行脚本`build.sh`，该脚本会执行Maven的打包操作，并会迭代目录下的`*-compose.yml`进行容器构建。
-
-构建完成后需要按照指定的顺序启动，需要注意的一点是容器内服务的启动是需要备留预热时间，并非Docker容器启动后容器内的所有服务就能马上启动起来，要注意区分**容器的启动**和**容器内的服务的启动**，建议配合docker-compse logs来观察启动情况。而且容器之间的服务是有依赖的，如`account-ms`和`product-ms`此类业务服务的启动是会快速失败于`config-ms`的失联。所以建议按照以下顺序启动Docker容器，并且在一组Docker容器**服务完全启动**后，再启动下一组的Docker容器。
-
-1. 启动MySQL，RabbitMQ等基础组件
-
-   ```shell
-   docker-compose -f infrastructure-compose.yml up -d
-   ```
-
-2. 启动Eureka Server与Config Server
-
-   ```shell
-   docker-compose -f basic-ms-compose.yml up -d
-   ```
-
-3. 启动监控服务
-
-   ```shell
-   docker-compose -f monitor-ms-compose.yml up -d
-   ```
-
-4. 启动业务服务
-
-   ```shell
-   docker-compose -f business-ms-compose.yml up -d
-   ```
-
-#### IDE运行
-
-因为程序本身按照Docker启动，所以对于hostname需要在hosts文件中设置正确才能正常运行：
-
-```shell
-## solar
-127.0.0.1 eureka1
-127.0.0.1 eureka2
-127.0.0.1 rabbitmq
-127.0.0.1 zipkin_server
-127.0.0.1 solar_mysql
-127.0.0.1 gitlab
-```
-
-根据依赖关系，程序最好按照以下的顺序执行
-
-docker mysql > docker rabbitmq > eureka server > config server > zipkin server > 其他业务微服务（account-ms, product-ms, order-ms, tcc-coordinator-ms等）
-
-## 示例
-
-根据附表中的服务字典，我们通过Zuul或Swagge对`order`服务进行预订单生成操作。
-
-```http
-POST http://localhost:7291/order/api/v1/orders
-Content-Type: application/json;charset=UTF-8
-
-{
-  "product_id": 7,
-  "user_id": 1
-}
-```
-
-成功后我们将得到预订单的结果
-
-```json
-{
-  "data": {
-    "id": 15,
-    "create_time": "2017-03-28T18:18:02.206+08:00",
-    "update_time": "1970-01-01T00:00:00+08:00",
-    "delete_time": "1970-01-01T00:00:00+08:00",
-    "user_id": 1,
-    "product_id": 7,
-    "price": 14,
-    "status": "PROCESSING"
-  },
-  "code": 20000
-}
-```
-
-此时我们再确认订单
-
-(如果想测试预留资源的补偿情况，那么就等15s后过期再发请求，注意容器与宿主机的时间)
-
-```http
-POST http://localhost:7291/order/api/v1/orders/confirmation
-Content-Type: application/json;charset=UTF-8
-
-{
-  "order_id": 15
-}
-```
-
-如果成功确认则返回如下结果
-
-```json
-{
-  "data": {
-    "id": 15,
-    "create_time": "2017-03-28T18:18:02.206+08:00",
-    "update_time": "2017-03-28T18:21:32.78+08:00",
-    "delete_time": "1970-01-01T00:00:00+08:00",
-    "user_id": 1,
-    "product_id": 7,
-    "price": 14,
-    "status": "DONE"
-  },
-  "code": 20000
-}
-```
-
-至此就完成了一次TCC事务，当然你也可以测试超时和冲突的情况，这里就不再赘述。
-
-## 拓展
-
-### 使用Gitlab作为远程配置仓库
-
-本例中默认使用Github或GitOsc中的公开仓库，出于自定义的需要，我们可以在本地构建Git仓库，这里选用Gitlab为例。
-
-将以下配置添加至docker compose中的文件中并启动Docker Gitlab容器：
-
-```yaml
-gitlab:
-    image: daocloud.io/daocloud/gitlab:8.16.7-ce.0
-    ports:
-        - "10222:22"
-        - "80:80"
-        - "10443:443"
-    volumes:
-        - "./docker-gitlab/config/:/etc/gitlab/"
-        - "./docker-gitlab/logs/:/var/log/gitlab/"
-        - "./docker-gitlab/data/:/var/opt/gitlab/"
-    environment:
-        - TZ=Asia/Shanghai
-```
-
-将项目的`config-repo`添加至Gitlab中，并修改`config-ms`中git仓库的相关验证等参数即可。
-
-![](./assets/image/gitlab.jpg)
-
-## 服务字典
-
-鉴于Spring Boot Actuator的端点所带来的两面性，除了可以增加`spring-boot-starter-security`来获得强度较弱的HTTP Basic认证外，我们还可以修改`management.port`和`management.context-path`来提高攻击成本. 是的，我对每一个服务都修改了以上两个属性，并且兼容了Eureka Server，Hystrix Dashboard，Spring Boot Admin，使这些监控服务仍能正确工作. 因为对以上两个参数修改，我们的监控路径有所变化，如下表：
-
-|     module name      | docker compose service name | application name  | server port | management port |         management context path          | scalable |
-| :------------------: | :-------------------------: | :---------------: | :---------: | :-------------: | :--------------------------------------: | :------: |
-|      account-ms      |           account           |      account      |    10014    |      10248      | **/78d504ff-82e8-4a87-82e8-724d72d1171b** |          |
-|    api-gateway-ms    |           gateway           |      gateway      |    7291     |      10211      |  /fb83deee-dd46-472b-99a9-f0ebffe20d0e   |          |
-|      config-ms       |        config_server        |   config-server   |    10888    |      10481      |  /f7597180-e480-400e-81a0-847c22e2e0b8   |          |
-| eureka-registry-ms-1 |           eureka1           |     registry      |    8763     |      9274       |  /55395018-70b7-47c3-8fef-5bf24c9da9af   |    ×     |
-| eureka-registry-ms-2 |           eureka2           |     registry      |    8762     |      10177      |  /e5da837b-a575-4447-b037-100850226a11   |    ×     |
-| hystrix-dashboard-ms |      hystrix_dashboard      |      hystrix      |    8193     |      7104       |  /9511d89d-6488-4293-8df8-c4feb8681e83   |          |
-|    membership-ms     |         membership          |    membership     |    10673    |      10391      |  /a6da3b6f-4b59-11e7-9226-0242ac130004   |          |
-|       order-ms       |            order            |       order       |    8295     |      10848      | **/78d504ff-82e8-4a87-82e8-724d72d1171b** |          |
-|      product-ms      |           product           |      product      |    8040     |      10912      | **/78d504ff-82e8-4a87-82e8-724d72d1171b** |          |
-| spring-boot-admin-ms |      spring_boot_admin      | spring-boot-admin |    7020     |      9218       |  /e58a0ff5-9f60-4545-9aa2-2b91c8a6d53b   |          |
-|  tcc-coordinator-ms  |       tcc_coordinator       |        tcc        |    11020    |      12841      | **/78d504ff-82e8-4a87-82e8-724d72d1171b** |          |
-|      zipkin-ms       |        zipkin_server        |   zipkin-server   |    9411     |        -        |                    -                     |    ×     |
-
-## 结语
-
-感谢你的耐心阅读，如有对本项目中的Spring Cloud的使用或者对本人的编码风格有更好的想法或者建议，欢迎通过邮件与我取得联系，万分感谢。
+## Question
