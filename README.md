@@ -73,15 +73,15 @@ TCC Coordinator为了成为一个可复用的服务，一方面面临着序列�
 
 ### System Context Diagram
 
-![](https://s3.amazonaws.com/infoq.content.live.0/articles/C4-architecture-model/zh/resources/794-1530372964263.jpg)
+<img src="assets/image/context.png" width="780">
 
 ### Container Diagram
 
-![](https://s3.amazonaws.com/infoq.content.live.0/articles/C4-architecture-model/zh/resources/655-1530372962909.jpg)
+![](assets/image/container.png)
 
 ### Component Diagram
 
-![](https://s3.amazonaws.com/infoq.content.live.0/articles/C4-architecture-model/zh/resources/586-1530372962488.jpg)
+![](assets/image/component.png)
 
 ## Final State Machine
 
