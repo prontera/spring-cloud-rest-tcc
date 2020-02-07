@@ -139,7 +139,8 @@
     </update>
     <update id="compareAndSetState">
         update t_order
-        set state = #{updating,jdbcType=TINYINT,typeHandler=com.github.prontera.persistence.handler.OrderStateHandler}
+        set state   = #{updating,jdbcType=TINYINT,typeHandler=com.github.prontera.persistence.handler.OrderStateHandler},
+            done_at = now()
         where id = #{id}
           and state = #{expect,jdbcType=TINYINT,typeHandler=com.github.prontera.persistence.handler.OrderStateHandler}
     </update>
