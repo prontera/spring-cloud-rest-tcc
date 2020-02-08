@@ -1,6 +1,0 @@
-solar:
-  delay:
-    time-in-millseconds: 0
-  exception:
-    enabled: false
-    factor: 17

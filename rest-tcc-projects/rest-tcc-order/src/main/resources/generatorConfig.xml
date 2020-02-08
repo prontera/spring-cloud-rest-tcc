@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE generatorConfiguration PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+    "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd" >
+<generatorConfiguration>
+    <!-- 数据库驱动 -->
+    <context id="context">
+
+        <commentGenerator>
+            <property name="suppressDate" value="true"/>
+            <!-- 是否去除自动生成的注释 true：是 ： false:否 -->
+            <property name="suppressAllComments" value="true"/>
+            <!-- 使用数据表中本来的字段名 -->
+            <property name="useActualColumnNames" value="false"/>
+        </commentGenerator>
+
+        <jdbcConnection driverClass="com.mysql.cj.jdbc.Driver" connectionURL="jdbc:mysql://localhost:3306/order?useSSL=false"
+                        userId="chris" password="123123"/>
+
+        <javaModelGenerator targetPackage="com.github.prontera.domain"
+                            targetProject="${dao.target.dir}">
+            <property name="enableSubPackages" value="true"/>
+        </javaModelGenerator>
+
+        <sqlMapGenerator targetPackage="com.github.prontera.persistence"
+                         targetProject="${dao.target.dir}">
+            <property name="enableSubPackages" value="true"/>
+        </sqlMapGenerator>
+
+        <javaClientGenerator targetPackage="com.github.prontera.persistence"
+                             targetProject="${dao.target.dir}" type="XMLMAPPER">
+            <property name="enableSubPackages" value="true"/>
+        </javaClientGenerator>
+
+        <table tableName="t_order" domainObjectName="Order" enableCountByExample="false"
+               enableUpdateByExample="false" enableDeleteByExample="false" enableSelectByExample="false"
+               selectByExampleQueryId="false">
+            <columnOverride column="state" jdbcType="TINYINT" javaType="com.github.prontera.enums.OrderState"
+                            typeHandler="com.github.prontera.persistence.handler.OrderStateHandler"/>
+            <columnOverride column="create_at" jdbcType="TIMESTAMP" javaType="java.time.LocalDateTime"/>
+            <columnOverride column="update_at" jdbcType="TIMESTAMP" javaType="java.time.LocalDateTime"/>
+            <columnOverride column="expire_at" jdbcType="TIMESTAMP" javaType="java.time.LocalDateTime"/>
+            <columnOverride column="done_at" jdbcType="TIMESTAMP" javaType="java.time.LocalDateTime"/>
+        </table>
+
+    </context>
+</generatorConfiguration>

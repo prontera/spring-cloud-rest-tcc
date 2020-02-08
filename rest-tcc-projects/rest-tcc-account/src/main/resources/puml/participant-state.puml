@@ -1,0 +1,28 @@
+@startuml
+skinparam monochrome true
+scale 1
+title Account Transaction State Machine
+
+' State
+state "TRYING[√]" as TRYING
+TRYING: + action: initial "state" 0000
+TRYING: + action: reduce corresponding col `balance` in t_account
+TRYING: + action: recording final field "amount"
+TRYING: + action: recording final field "expired_at"
+'''
+state "CONFIRMED[√]" as CONFIRMED
+CONFIRMED: + action: update "state" to 0001
+CONFIRMED: + action: assign now() to "done_at"
+'''
+state "CANCELLED[√]" as CANCELLED
+CANCELLED: + action: update "state" to 0010
+CANCELLED: + action: rollback `amount` to the col "balance" in t_account
+CANCELLED: + action: assign now() to "done_at"
+' Transition
+[*] --> TRYING
+TRYING --> CONFIRMED: confirm \n [LocalDateTime.now() is before than expired_at]
+TRYING --> CANCELLED: cancel \n [LocalDateTime.now() is after than expired_at]
+CONFIRMED --> [*]
+CANCELLED --> [*]
+@enduml
+

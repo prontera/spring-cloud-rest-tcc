@@ -1,0 +1,18 @@
+version: '3.1'
+
+services:
+  solar_mysql:
+    image: mysql:8.0.19
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    volumes:
+      - "../mysql/share/:/share/"
+      - "../mysql/db/:/docker-entrypoint-initdb.d/:ro"
+      - "../mysql/master/lib/:/var/lib/mysql/"
+      - "../mysql/master/log/:/var/log/mysql/"
+      - "../mysql/master/conf.d/:/etc/mysql/mysql.conf.d/"
+    environment:
+      TZ: Asia/Shanghai
+      MYSQL_ROOT_PASSWORD: Paint1%Journey%direct
+    ports:
+      - "3306:3306"

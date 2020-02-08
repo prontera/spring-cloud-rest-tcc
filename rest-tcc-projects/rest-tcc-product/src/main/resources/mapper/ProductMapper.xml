@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.github.prontera.persistence.ProductMapper">
+    <resultMap id="BaseResultMap" type="com.github.prontera.domain.Product">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
+        <result column="inventory" jdbcType="BIGINT" property="inventory"/>
+        <result column="create_at" jdbcType="TIMESTAMP" property="createAt"/>
+        <result column="update_at" jdbcType="TIMESTAMP" property="updateAt"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, name, inventory, create_at, update_at
+    </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from t_product
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+        delete
+        from t_product
+        where id = #{id,jdbcType=BIGINT}
+    </delete>
+    <insert id="insert" parameterType="com.github.prontera.domain.Product">
+        insert into t_product (id, name, inventory,
+                               create_at, update_at)
+        values (#{id,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR}, #{inventory,jdbcType=BIGINT},
+                #{createAt,jdbcType=TIMESTAMP}, #{updateAt,jdbcType=TIMESTAMP})
+    </insert>
+    <insert id="insertSelective" parameterType="com.github.prontera.domain.Product">
+        insert into t_product
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="name != null">
+                name,
+            </if>
+            <if test="inventory != null">
+                inventory,
+            </if>
+            <if test="createAt != null">
+                create_at,
+            </if>
+            <if test="updateAt != null">
+                update_at,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="name != null">
+                #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="inventory != null">
+                #{inventory,jdbcType=BIGINT},
+            </if>
+            <if test="createAt != null">
+                #{createAt,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateAt != null">
+                #{updateAt,jdbcType=TIMESTAMP},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.github.prontera.domain.Product">
+        update t_product
+        <set>
+            <if test="name != null">
+                name = #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="inventory != null">
+                inventory = #{inventory,jdbcType=BIGINT},
+            </if>
+            <if test="createAt != null">
+                create_at = #{createAt,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateAt != null">
+                update_at = #{updateAt,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.github.prontera.domain.Product">
+        update t_product
+        set name      = #{name,jdbcType=VARCHAR},
+            inventory = #{inventory,jdbcType=BIGINT},
+            create_at = #{createAt,jdbcType=TIMESTAMP},
+            update_at = #{updateAt,jdbcType=TIMESTAMP}
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <select id="selectByName" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from t_product
+        where `name` = #{name}
+    </select>
+    <update id="deductInventory">
+        update t_product
+        set inventory = inventory - #{amount}
+        where id = #{id}
+          and inventory - #{amount} >= 0
+    </update>
+    <update id="increaseInventory">
+        update t_product
+        set inventory = inventory + #{amount}
+        where id = #{id}
+    </update>
+</mapper>

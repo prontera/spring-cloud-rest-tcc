@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.github.prontera.persistence.OrderMapper">
+    <resultMap id="BaseResultMap" type="com.github.prontera.domain.Order">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="user_id" jdbcType="BIGINT" property="userId"/>
+        <result column="product_id" jdbcType="BIGINT" property="productId"/>
+        <result column="price" jdbcType="INTEGER" property="price"/>
+        <result column="quantity" jdbcType="INTEGER" property="quantity"/>
+        <result column="state" jdbcType="TINYINT" property="state" typeHandler="com.github.prontera.persistence.handler.OrderStateHandler"/>
+        <result column="guid" jdbcType="BIGINT" property="guid"/>
+        <result column="create_at" jdbcType="TIMESTAMP" property="createAt"/>
+        <result column="update_at" jdbcType="TIMESTAMP" property="updateAt"/>
+        <result column="expire_at" jdbcType="TIMESTAMP" property="expireAt"/>
+        <result column="done_at" jdbcType="TIMESTAMP" property="doneAt"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, user_id, product_id, price, quantity, state, guid, create_at, update_at, expire_at, done_at
+    </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from t_order
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+        delete
+        from t_order
+        where id = #{id,jdbcType=BIGINT}
+    </delete>
+    <insert id="insertSelective" parameterType="com.github.prontera.domain.Order" useGeneratedKeys="true" keyProperty="id">
+        insert into t_order
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="userId != null">
+                user_id,
+            </if>
+            <if test="productId != null">
+                product_id,
+            </if>
+            <if test="price != null">
+                price,
+            </if>
+            <if test="quantity != null">
+                quantity,
+            </if>
+            <if test="state != null">
+                state,
+            </if>
+            <if test="guid != null">
+                guid,
+            </if>
+            <if test="createAt != null">
+                create_at,
+            </if>
+            <if test="updateAt != null">
+                update_at,
+            </if>
+            <if test="expireAt != null">
+                expire_at,
+            </if>
+            <if test="doneAt != null">
+                done_at,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="userId != null">
+                #{userId,jdbcType=BIGINT},
+            </if>
+            <if test="productId != null">
+                #{productId,jdbcType=BIGINT},
+            </if>
+            <if test="price != null">
+                #{price,jdbcType=INTEGER},
+            </if>
+            <if test="quantity != null">
+                #{quantity,jdbcType=INTEGER},
+            </if>
+            <if test="state != null">
+                #{state,jdbcType=TINYINT,typeHandler=com.github.prontera.persistence.handler.OrderStateHandler},
+            </if>
+            <if test="guid != null">
+                #{guid,jdbcType=BIGINT},
+            </if>
+            <if test="createAt != null">
+                #{createAt,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateAt != null">
+                #{updateAt,jdbcType=TIMESTAMP},
+            </if>
+            <if test="expireAt != null">
+                #{expireAt,jdbcType=TIMESTAMP},
+            </if>
+            <if test="doneAt != null">
+                #{doneAt,jdbcType=TIMESTAMP},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.github.prontera.domain.Order">
+        update t_order
+        <set>
+            <if test="userId != null">
+                user_id = #{userId,jdbcType=BIGINT},
+            </if>
+            <if test="productId != null">
+                product_id = #{productId,jdbcType=BIGINT},
+            </if>
+            <if test="price != null">
+                price = #{price,jdbcType=INTEGER},
+            </if>
+            <if test="quantity != null">
+                quantity = #{quantity,jdbcType=INTEGER},
+            </if>
+            <if test="state != null">
+                state = #{state,jdbcType=TINYINT,typeHandler=com.github.prontera.persistence.handler.OrderStateHandler},
+            </if>
+            <if test="guid != null">
+                guid = #{guid,jdbcType=BIGINT},
+            </if>
+            <if test="createAt != null">
+                create_at = #{createAt,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateAt != null">
+                update_at = #{updateAt,jdbcType=TIMESTAMP},
+            </if>
+            <if test="expireAt != null">
+                expire_at = #{expireAt,jdbcType=TIMESTAMP},
+            </if>
+            <if test="doneAt != null">
+                done_at = #{doneAt,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="compareAndSetState">
+        update t_order
+        set state   = #{updating,jdbcType=TINYINT,typeHandler=com.github.prontera.persistence.handler.OrderStateHandler},
+            done_at = now()
+        where id = #{id}
+          and state = #{expect,jdbcType=TINYINT,typeHandler=com.github.prontera.persistence.handler.OrderStateHandler}
+    </update>
+    <select id="selectByGuid" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from t_order
+        where guid = #{guid}
+    </select>
+</mapper>

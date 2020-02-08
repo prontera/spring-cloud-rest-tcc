@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <groupId>com.github.prontera</groupId>
+        <artifactId>rest-tcc-projects</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>rest-tcc-account-client</artifactId>
+
+    <properties>
+        <rest-tcc-contract.version>0.0.1-SNAPSHOT</rest-tcc-contract.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.github.prontera</groupId>
+            <artifactId>rest-tcc-contract</artifactId>
+            <version>${rest-tcc-contract.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+        </dependency>
+    </dependencies>
+
+</project>

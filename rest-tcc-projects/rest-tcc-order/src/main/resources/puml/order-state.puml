@@ -1,0 +1,30 @@
+@startuml
+skinparam monochrome true
+scale 1
+title Order State Machine
+
+' State
+state "PENDING[√]" as PENDING
+PENDING: + action: initial "state" 0000
+'''
+state "CONFIRM[√]" as CONFIRM
+CONFIRM: + action: update "state" to 0001
+CONFIRM: + action: assign now() to "done_at"
+'''
+state "CANCEL[√]" as CANCEL
+CANCEL: + action: update "state" to 0010
+CANCEL: + action: assign now() to "done_at"
+'''
+state "CONFLICT[√]" as CONFLICT
+CONFLICT: + action: update "state" to 0011
+CONFLICT: + action: assign now() to "done_at"
+' Transition
+[*] --> PENDING
+PENDING --> CONFIRM: confirm \n [all participants confirmed]
+PENDING --> CANCEL: cancel \n [LocalDateTime.now() is after than expire_at]
+PENDING --> CONFLICT: partial_confirm \n [confirmed a part of it]
+CONFIRM --> [*]
+CANCEL --> [*]
+CONFLICT --> [*]
+@enduml
+
