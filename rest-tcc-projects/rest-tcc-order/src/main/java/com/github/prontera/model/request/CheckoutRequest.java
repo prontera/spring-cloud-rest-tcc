@@ -26,7 +26,7 @@ import javax.validation.constraints.NotNull;
 @JsonIgnoreProperties(value = {"hibernateLazyInitializer", "handler", "fieldHandler"}, ignoreUnknown = true)
 public class CheckoutRequest {
 
-    @ApiModelProperty(value = "guid", required = true, example = "1")
+    @ApiModelProperty(value = "GUID, 幂等操作标志", required = true, example = "1")
     private @NotNull Long guid;
 
     @ApiModelProperty(value = "产品名", required = true, example = "ps4")

@@ -127,6 +127,3 @@ VALUES ('ps4', now(), now());
 
 INSERT INTO `t_product` (`name`, `create_at`, `update_at`)
 VALUES ('fc', now(), now());
-
-INSERT INTO `t_product` (`name`, `create_at`, `update_at`)
-VALUES ('ps2', now(), now());

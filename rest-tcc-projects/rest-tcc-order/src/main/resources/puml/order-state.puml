@@ -6,28 +6,23 @@ title Order State Machine
 ' State
 state "PENDING[√]" as PENDING
 PENDING: + action: initial "state" 0000
-PENDING: + action: recording final field "version"
-PENDING: + action: recording final field "virtual_machine"
 '''
 state "CONFIRM[√]" as CONFIRM
 CONFIRM: + action: update "state" to 0001
-CONFIRM: + action: set "done_at" as now
-CONFIRM: + action: set "virtual_machine" to empty string
+CONFIRM: + action: assign now() to "done_at"
 '''
 state "CANCEL[√]" as CANCEL
 CANCEL: + action: update "state" to 0010
-CANCEL: + action: set "done_at" as now
-CANCEL: + action: set "virtual_machine" to empty string
+CANCEL: + action: assign now() to "done_at"
 '''
 state "CONFLICT[√]" as CONFLICT
 CONFLICT: + action: update "state" to 0011
-CONFLICT: + action: set "done_at" as now
-CONFLICT: + action: set "virtual_machine" to empty string
+CONFLICT: + action: assign now() to "done_at"
 ' Transition
 [*] --> PENDING
 PENDING --> CONFIRM: confirm \n [all participants confirmed]
-PENDING --> CANCEL: cancel \n [all participants cancelled OR not confirm at all]
-PENDING --> CONFLICT: partial_confirm \n [confirmed a part of it but not all of them]
+PENDING --> CANCEL: cancel \n [LocalDateTime.now() is after than expire_at]
+PENDING --> CONFLICT: partial_confirm \n [confirmed a part of it]
 CONFIRM --> [*]
 CANCEL --> [*]
 CONFLICT --> [*]

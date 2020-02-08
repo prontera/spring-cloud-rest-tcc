@@ -1,85 +1,66 @@
-# spring-cloud-rest-tcc
-
 ## Preface
 
-随着业务的发展，不断对现有系统进行析构与拆分，所带来的其中一个关注点是分布式事务，是一个协作问题。针对分布式事务，Atomikos曾经写过一篇文章[TCC for transaction management across microservices](https://link.jianshu.com/?t=https://www.atomikos.com/Blog/TCCForTransactionManagementAcrossMicroservices)，介绍如何使用TCC作为的微服务分布式事务的解决方案，[这里](https://www.jianshu.com/p/d687b620f73d)有一篇简单的译文可作为入门资料。
+随业务发展、组织架构变动，加上对现有系统进行析构拆分，所带来的一个显著问题是进程间一致性需求增加，是一个协作问题。Atomikos曾[撰文](https://www.atomikos.com/Blog/TCCForTransactionManagementAcrossMicroservices)介绍如何使用TCC作为microservice的分布式事务解决方案，[这里](https://www.jianshu.com/p/d687b620f73d)有一篇简单的译文可作为入门资料。
 
-经简单的阅读后可以得知，Atomikos最初设计出一套RESTful TCC的交互API，且充分地使用了HTTP的语义特性，完整复用HTTP原生响应码，甚至自定义MIME类型，是一个完全面向HTTP的解决方案，而究其本质，TCC实际上是一种思想。
+经文章叙述，Atomikos的设计完全基于HTTP，作为RESTful TCC的交互API，充分地复用了HTTP的语义特性，是一个与应用层协议紧耦合的解决方案。而究其本质，TCC是作为2PC的补充，更是一种**设计思想**。
 
-本文使用Spring Cloud Netflix作为服务治理基础，侧重于以最精简的依赖向大家展示如何使用TCC解决分布式事务，并在叙述过程中引出对分布式系统子问题的思考。
+本文使用Spring Cloud Netflix作为服务治理基础，通篇穿插C4 Model图例，侧重于以最精炼的方式向大家展示如何使用TCC的思想解决分布式事务。
 
 ## Variants
 
-在micro-service兴起的时候，它的交互方式早已不限于HTTP。面对性能要求，更多的是以RPC的实现方式落地，如gRPC、Dubbo和Thrift等通信框架。基于TCC的设计思想，应该以更为通用和温和的方式落地，我们将以不同的角度阐述这种TCC的"变体"。
+在microservice兴起的时候，面对性能要求，加上对集团内部已有的中间件生态考量，更多是以RPC的实现方式落地，如gRPC、Dubbo和Thrift等框架。基于TCC的设计思想，应该以更为温和通用的方式落地，而不应受限于应用层的协议约束，我们将以不同的角度阐述这种TCC的"变体"。
 
 在模型上，将原有的HTTP语义下沉到请求体当中，上下游各自定义status code，用于识别不同状态。
 
-在流程上，从Try-Confirm-Cancel演进为Try-Confirm-Diagnose，也就是TCC到TCD的一种变迁，将Try和Confirm抽象为API接口，而原生的Cancel不再与Try-Confirm平级，从API接口降级为辅助功能融合至Try和Confirm的方法当中，coordinator仅对下游做confirm操作，避免因拜占庭错误而轮转至conflict状态。即便是出现conflict状态，可以通过Diagnose接口作出诊断，追踪坏账以便人工介入。
+在流程上，从Try-Confirm-Cancel演进为Try-Confirm-Diagnose，Try和Confirm保持抽象为API接口。而且在原则上不建议持有长周期的大事务，而小事务可确保预留资源快速回滚，所以Cancel不再视与Try-Confirm平级，建议从API接口的形式转而成为功能特性融合至Try和Confirm方法当中，并且在非必要的场景下不建议提供Cancel接口，避免增加因拜占庭问题进而轮转至conflict状态的几率。
 
-出于对知识的敬重与措辞的严谨性，下文统一使用TCD指代该种TCC变体，不会混淆使用。
+即便是无可避免地出现conflict状态，可以通过Diagnose接口作出诊断，追踪坏账以便人工介入处理。
 
-## Role
+出于对知识的敬重与措辞的严谨性，下文统一使用TCD指代上述理念的TCC变体。
 
-假设我们想买一台PS4，在付款后需要历经生单、扣减余额和商品库存这三个过程，分别对应服务Order、Account和Product，但每一个过程中都可能会因为网络故障、宕机、网络分区或者拜占庭问题而产生各式各样的问题。
+## Scenario
+
+假设有以下场景，我们想购入一台PS4，在付款后需要历经生单、扣减余额和商品库存这三个过程，分别对应服务Order、Account和Product，但每一个过程中都可能会因为网络故障、宕机、网络分区或拜占庭问题，从而暴露出各式各样的困难。
+
+###### System Context Diagram
+
+![](assets/image/context.png)
 
 ### Coordinator
 
-#### TCC Coordinator
+Atomikos在文章[\<\<TCC for transaction management across microservices\>\>](https://www.atomikos.com/Blog/TCCForTransactionManagementAcrossMicroservices)中提出将TCC Coordinato服务化，Transaction Coordinator delivered as a service，成为一个可重用组件，负责各式各样的异常处理。
 
-Transaction Coordinator delivered as a service，Atomikos支持将TCC Coordinato服务化，成为一个可重用组件，负责处理各式各样异常情况，例如failure recover后事务的恢复。
+但系统的复杂度往往是随着系统内的服务数增加呈正向关系，而且数据包每多跳转一个节点就会有更多的时间耗费在网络I/O。
 
-首先，从交互方面看，对于RESTful TCC来说，这是一个可行的方案，因为RESTful天生具备容易访问的基因，而RPC的劣势在于序列化协议之间的屏障，无法做到如micrometer和service mesh理念中的vendor-neutral，所以在社区推广性上相对乏力。
+在实现形式上，TCC Coordinator基于RESTful所设计的API天生具备易访问的特性，可以较为方便地对单一事务内的打包资源发起协同操作，而RPC的劣势在于序列化协议之间的天然屏障，无法做到如micrometer和service mesh理念中的*vendor-neutral*，所以TCD Coordinator示例中更倾向于将其概念依附于业务系统中，以白盒的方式管理事务。
 
-另外，从实现成本方面看，试想服务TCC Coordinator在confirm同一事务内的若干资源时发生crash（partial confirm），想要达成failure recover，付出一定的存储成本是必要条件。并且为了成为可信任的组件，TCC Coordinator需要具备故障自动迁移的能力，那么在crash之后，需要将当前机器相关的confirmation-task迁移到其他机器，很明显，需要有heartbeat检测机制，而且当前属于有状态应用。
+纵观整个链路，Customer向Order发起结算请求，Order往往需要通过请求中GUID提供幂等性支持，避免网络故障与应用宕机时，因上游重试从而导致多次生单和重复预留资源的情况，同时重试策略也直接解决了failure recover后的事务恢复问题。
 
-再进一步，抛开迁移的手段，一旦TCC Coordinator的QPS过高，无法将就使用的时候，进行大批量的confirmation-task迁移会直接使得被迁机器迅速成为系统的性能短板。此时所暴露出的系统性问题，也应该意识到属于共识问题，需要选出leader作为协作者，根据机器在集群中的存活情况**均匀地**分配confirmation-task。
-
-既需要集群存活情况，也需要heartbeat检测，刚好就跟注册中心service-discovery对上，是不是直接就可以拿来主义呢？答案也是否定，万一产生network-partition，AP类型的注册中心会产生意想不到的结果，正如eureka peer组网，出于对租约信息保护，两个网络分区之间获取到的注册信息未必一致。
-
-几经波折，终于选对了注册中心，或者直接使用RDBS自行实现，但面对应用重启发布时仍需注意反复对confirmation-task进行rebalance的问题，并且为了能实现均匀分配，对原本使用hostname对confirmation-task进行染色的方法进行改造，提炼出virtual node或partition的概念，改为使用partition对confirmation-task进行染色，这样也直接将应用从有状态优化至无状态。每当leader检测到follower crash的时候，就能检索出该机器所负责的partition，均匀地分发给其他机器，这就是rebalance操作。
-
-现在终于能成为一个比较称职的TCC Coordinator了，同时也造出一个mini Kafka，维护成本相当可观。
-
-#### TCD Coordinator
-
-TCC Coordinator为了成为一个可复用的服务，一方面面临着序列化协议的天然屏障，另一方面还需面对巨大的维护成本，这两方面的因素除了有来自服务拆分所带来的复杂性，更多来自服务边界的划分。
-
-##### 区别
-
-1. 当自身作为发起方，并且需要让service内的其他机器均分任务的话，上述的分析可以成为解决方案之一，但实际上TCC Coordinator作为流量接收方，完全可以借力打力，通过与上游磋商重试策略，将可靠性保证的责任分摊到上游，并且通过RPC通信框架中天然的load-balance，使得每台机器都负载均衡。
-
-2. TCD Coordinator不再作为独立服务，而是整合到应用当中。其次，面对如此重要的事务，而TCC Coordinator作为黑盒形式提供的组件，心理上会产生一定的抗拒。
-
-##### 职责
+#### Responsibility
 
 1. 组织并负责发起TCD事务
 2. 提供诊断conflict事务的Diagnose语义的门面API
-3. 提供发起TCD事务的接口，需实现幂等性
 4. 仅对下游发起Try与Confirm操作，避免既出现Confirm又出现Cancel操作的拜占庭问题
 5. 针对下游发起Try操作时，负责计算预留资源时间，并适当考虑下游因GC情况而所需要增加补偿时间
 
-### Lazy Participant
-
-惰性参与者，Participant无需启用调度器自发地将过期的TRYING状态资源轮转至CANCELLED状态，而是将这个功能隐藏在Try和Confirm的接口当中，可以说TCD事务是由TCD Coordinator驱动，以减少事务参与者的开发成本，专注于正确的状态轮转即可。
-
-##### 职责
-
-1. 提供Try操作的预留资源API接口
-2. 提供Confirm操作的确认预留资源API接口，并在内部负责对过期资源的状态轮转
-3. 提供事务状态查询的API接口，并在内部负责对过期资源的状态轮转
-4. 对Try和Confirm两个接口，实现幂等性调用
-
-## C4 Model
-
-### System Context Diagram
-
-<img src="assets/image/context.png" width="780">
-
-### Container Diagram
+###### Container Diagram
 
 ![](assets/image/container.png)
 
-### Component Diagram
+### Lazy Participant
+
+Participant无需启用调度器自发地将过期的TRYING状态资源轮转至CANCELLED状态，而是将这个功能隐藏在Confirm和Query Transaction接口当中，由TCD Coordinator负责驱动，以减少事务参与者的开发成本，专注于正确的状态轮转和业务逻辑即可。
+
+在本示例当中，Account与Product承当Lazy Participant角色，分别负责余额扣减与库存扣减。
+
+#### Responsibility
+
+1. 提供Try操作的预留资源API接口
+2. 提供Confirm操作的确认预留资源API接口，并在内部负责对过期资源的状态轮转
+3. 提供事务状态查询的API接口，并在内部负责对过期资源的状态轮转，并作为上游Diagnose的入口
+4. 对Try和Confirm两个接口，实现幂等性调用
+
+###### Component Diagram
 
 ![](assets/image/component.png)
 
@@ -87,20 +68,156 @@ TCC Coordinator为了成为一个可复用的服务，一方面面临着序列�
 
 ### Coordinator
 
-
+![](assets/image/order_fsm.png)
 
 ### Participant
 
+![](assets/image/account_fsm.png)
 
+[^participant_fsm]: Account与Product的状态机类似，故不赘述
 
-## Rock and roll !
-
-### Prerequisites
-
-
+## Getting Started
 
 ### Technology stack
 
+- Java 8
+- Spring Boot 2.x
+- Spring Cloud Netflix - Hoxton
+- MySQL 8.0
 
+### Prerequisites
 
-## Question
+在开始部署之前，先要确保MySQL有按照预期进行工作，我们有两种方法初始化DDL，根据情况选择其中一种即可。
+
+#### Docker
+
+在目录`assets/docker`中存放着所有与Docker相关的内容，我们可以直接找到compose文件夹，通过以下命令启动MySQL镜像。聪明的Docker会根据配置，自动将位于`mysql/db/init_mysql_user.sql`内的DDL进行初始化。
+
+```shell
+docker-compose -f database.yml up
+```
+
+#### Manual
+
+我们亦可根据实际情况，将DDL直接导入至已有的数据源中，相关SQL位于`assets/docker/mysql/db`目录下的`init_mysql_user.sql`文件中，但需注意如果当前执行用户缺失GRANT权限，会导致执行失败，按需删减对应SQL即可。
+
+如果一切顺利，我们会有3个账户和3个商品，分别是
+
+| Account   | Product |
+| --------- | ------- |
+| chris     | **gba** |
+| **scott** | ps4     |
+| ryan      | fc      |
+
+### Demonstration
+
+将工程导入IDE后，在目录rest-tcc-projects中按下表顺序依次启动，表中同时也列出了项目的相关URL信息
+
+| Name                       | URL                                   |
+| -------------------------- | ------------------------------------- |
+| rest-tcc-service-discovery | http://localhost:8255/                |
+| rest-tcc-account           | http://localhost:8285/swagger-ui.html |
+| rest-tcc-product           | http://localhost:8265/swagger-ui.html |
+| rest-tcc-order             | http://localhost:8295/swagger-ui.html |
+
+我们在整个流程中扮演Customer角色，通过Order服务提供的Swagger面板作为操作入口
+
+![](assets/image/order_swagger.png)
+
+#### checkout
+
+在一般情况下，我们发起下单请求，Order服务会根据请求中GUID作幂等性处理，假设检测到GUID已经存在，则会恢复该事务并继续处理后续流程。并通过与上游磋商重试策略，以解决由于network failure或crash，上游服务可能出于可靠性的保证而重试请求，导致反复生单的可能。
+
+```json
+// request body
+{
+  "guid": 1,
+  "price": 47,
+  "productName": "ps4",
+  "quantity": 1,
+  "username": "chris"
+}
+
+// response body
+{
+  "successful": true,
+  "code": 20000,
+  "message": "请求成功"
+}
+```
+
+Order服务基于TCD Coordinator的理念所设计，在Try阶段需根据Participant响应时间设计资源预留时长，并还需考虑Participant因GC或网络I/O所带来的耗时，适当加上补偿时间。为了避免服务间的Clock时钟不一致问题，报文中一律使用相对时间。
+
+```java
+reserving_secs_in_participant = reserving_secs_in_coordinator + compensation_secs
+```
+
+但墨菲定律提醒我们partial confirm的情况总是会不经意地产生，在本示例中亦人为地模拟了这一情况。假设我们选择使用账户scott去下单，总会使得confirm阶段操作发生超时而无法正确扣减账户余额；而对于产品，我们选择购买gba的时候，也总是会在confirm阶段因超时而无法扣减产品库存。
+
+```json
+/// request body
+{
+  "guid": 2,     // 谨记需要使用不同的guid，否则会根据幂等性操作返回其他订单的状态
+  "price": 47,
+  "productName": "ps4",
+  "quantity": 1,
+  "username": "scott"
+}
+
+// response body
+{
+  "successful": false,
+  "code": 42003,
+  "message": "资源确认存在冲突"
+}
+```
+
+我们可以到MySQL account库中t_account表确认scott账号没任何余额扣减，但在product库中的t_product表，却发现ps4库存被错误扣减（不要忘了上面chris也买了一台ps4）。此时该订单处于conflict终态，针对坏账diagnose接口可以在有限时间内，在下游Participant未清理事务流水的前提下定位问题。
+
+#### diagnose
+
+guid 1，chris成功买了一台ps4，除了确认Participant内部的具体扣减情况，我们通过diagnose进行二次确认
+
+```json
+// request body
+{
+  "guid": 1
+}
+
+// response body
+{
+  "successful": true,
+  "code": 20000,
+  "message": "请求成功",
+  "stateMap": {
+    "account": "CONFIRMED",
+    "product": "CONFIRMED"
+  }
+}
+```
+
+guid 2，根据我们的设计，可怜的scott会因为超时买不到任何产品
+
+```json
+// request body
+{
+  "guid": 2
+}
+
+// response body
+{
+  "successful": true,
+  "code": 20000,
+  "message": "请求成功",
+  "stateMap": {
+    "account": "CANCELLED",  // 资源预留被取消，所以未能成功扣减账户余额
+    "product": "CONFIRMED"
+  }
+}
+```
+
+至于其他组合情况，就留待大家继续探寻。
+
+## End
+
+如果对本人编码风格或设计思路等有更好的想法或建议，欢迎通过GitHub Issue留言，感谢各位耐心阅读！
