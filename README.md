@@ -1,26 +1,26 @@
 ## Preface
 
-随业务发展、组织架构变动，加上对现有系统进行析构拆分，所带来的一个显著问题是进程间一致性需求增加，是一个协作问题。Atomikos曾[撰文](https://www.atomikos.com/Blog/TCCForTransactionManagementAcrossMicroservices)介绍如何使用TCC作为microservice的分布式事务解决方案，[这里](https://www.jianshu.com/p/d687b620f73d)有一篇简单的译文可作为入门资料。
+随业务发展、组织架构变动，加上对现有系统进行析构拆分，所带来的一个显著问题是进程间一致性需求增加，是一个协作问题。Atomikos曾[撰文](https://www.atomikos.com/Blog/TCCForTransactionManagementAcrossMicroservices)介绍使用TCC作为microservice的分布式事务解决方案，[这里](https://www.jianshu.com/p/d687b620f73d)有一篇简单的译文可作为入门资料。
 
-经文章叙述，Atomikos的设计完全基于HTTP，作为RESTful TCC的交互API，充分地复用了HTTP的语义特性，是一个与应用层协议紧耦合的解决方案。而究其本质，TCC是作为2PC的补充，更是一种**设计思想**。
+经文章叙述，Atomikos所设计的TCC交互完全构建在HTTP协议之上，并充分地复用了HTTP语义特性，是一个与应用层协议紧耦合的解决方案。而究其本质，TCC是作为2PC的补充，更是一种设计思想。
 
-本文使用Spring Cloud Netflix作为服务治理基础，通篇穿插C4 Model图例，侧重于以最简练的方式向大家展示如何使用TCC的思想解决分布式事务。
+本文使用Spring Cloud Netflix作为服务治理基础，通篇穿插C4 Model，侧重以最简练的方式，向大家展示如何使用TCC解决分布式事务。
 
 ## Variants
 
-在microservice兴起的时候，面对性能要求和集团内部已有的中间件生态考量，更多是以RPC的实现方式落地，如gRPC、Dubbo和Thrift等框架。基于TCC的设计思想，应该以更为温和通用的方式落地，而不应受限于应用层协议约束，我们将以不同的角度阐述这种TCC的"变体"。
+在microservice兴起的时候，由于对集团内部已有的中间件生态考量与性能的实质需求，更多是以RPC协议进行构建，如gRPC、Dubbo和Thrift等框架。面对TCC设计思想，同样应该以更温和的方式落地，而不应受限于应用层协议，我们将以不同的角度阐述这种TCC的"变体"。
 
 在模型上，将原有的HTTP语义下沉到请求体当中，上下游各自定义status code，用于识别不同状态。
 
-在流程上，从Try-Confirm-Cancel演进为Try-Confirm-Diagnose，Try和Confirm保持抽象为API接口。而且在原则上不建议持有长周期的大事务，而小事务可确保预留资源快速回滚，所以不再视Cancel与Try-Confirm平级，建议从API接口转为功能特性融合至Try和Confirm方法当中，并且在非必要场景下不建议提供Cancel接口，避免因拜占庭问题而错误地增加轮转至conflict状态的几率。
+在流程上，从Try-Confirm-Cancel演进为Try-Confirm-Diagnose，Try和Confirm保持抽象为API接口。而且在原则上不建议持有长周期的大事务，而小事务可确保预留资源快速回滚，所以不再视Cancel与Try-Confirm平级，建议从API接口转为功能特性融合至Try和Confirm方法当中，并且在非必要场景下不建议提供Cancel接口，避免因拜占庭问题增加轮转至conflict状态的几率。
 
-即便是无可避免地出现conflict状态，可以通过Diagnose接口作出诊断，追踪坏账以便人工介入处理。
+即便是无可避免地出现conflict状态，也可以通过Diagnose接口作出诊断，追踪坏账以便人工介入处理。
 
 出于对知识的敬重与措辞的严谨性，下文统一使用TCD指代上述理念的TCC变体。
 
 ## Scenario
 
-假设有以下场景，我们想购入一台PS4，在付款后需要历经生单、扣减余额和商品库存这三个过程，分别对应服务Order、Account和Product，但每一个过程中都可能会因为网络故障、宕机、网络分区或拜占庭问题，从而暴露出各种各样的矛盾。
+假设有以下场景，我们想购入一台PS4，在付款后需要历经生单、扣减余额和扣减库存这三个过程，分别对应服务Order、Account和Product，但每一个过程中都可能会因为网络故障、宕机、网络分区或拜占庭问题，从而暴露出各种矛盾。
 
 ###### System Context Diagram
 
@@ -39,9 +39,9 @@ Atomikos在文章[\<\<TCC for transaction management across microservices\>\>](h
 #### Responsibility
 
 1. 组织并负责发起TCD事务
-2. 提供诊断conflict事务的Diagnose语义的门面API
-4. 仅对下游发起Try与Confirm操作，避免既出现Confirm又出现Cancel操作的拜占庭问题
-5. 针对下游发起Try操作时，负责计算预留资源时间，并适当考虑下游因GC情况而所需要增加补偿时间
+2. 提供诊断conflict事务的Diagnose门面接口
+4. 仅对下游发起Try与Confirm操作，避免出现既Confirm又Cancel的拜占庭问题
+5. 针对下游发起Try操作时，负责计算预留资源时间，并适当考虑下游因GC情况而所需增加的补偿时间
 
 ###### Container Diagram
 
@@ -51,14 +51,14 @@ Atomikos在文章[\<\<TCC for transaction management across microservices\>\>](h
 
 Lazy Participant无需启用调度器自发地将过期的TRYING状态资源轮转至CANCELLED状态，而是将这个功能隐藏在Confirm和Query Transaction接口当中，由TCD Coordinator负责驱动，以减少事务参与者的开发成本，专注于正确的状态轮转和业务逻辑即可。
 
-在本示例当中，Account与Product承当Lazy Participant角色，分别负责余额扣减与库存扣减。
+在本示例当中，Account与Product充当Lazy Participant角色，分别负责余额扣减与库存扣减。
 
 #### Responsibility
 
 1. 提供Try操作的预留资源API接口
 2. 提供Confirm操作的确认预留资源API接口，并在内部负责对过期资源的状态轮转
-3. 提供事务状态查询的API接口，并在内部负责对过期资源的状态轮转，并作为上游Diagnose的入口
-4. 对Try和Confirm两个接口，实现幂等性调用
+3. 提供事务状态查询的API接口，并在内部负责对过期资源的状态轮转，并为上游Diagnose操作提供支持
+4. 对Try和Confirm两个接口实现幂等性调用
 
 ###### Component Diagram
 
@@ -74,7 +74,7 @@ Lazy Participant无需启用调度器自发地将过期的TRYING状态资源轮�
 
 ![](assets/image/account_fsm.png)
 
-*\* Account Transaction与Product Transaction的状态机类似，故不赘述*
+*\* Account Transaction与Product Transaction状态机类似，故不赘述*
 
 ## Getting Started
 
